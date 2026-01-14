@@ -7,7 +7,7 @@ const axios = require("axios");
 const cors = require("cors");
 app.use(
   cors({
-    origin:"https://flyrunhub.onrender.com",
+    origin:"https://flyrunhub-1.onrender.com",
     credentials:true,
   })
 );
@@ -210,7 +210,7 @@ app.get("/auth/strava", (req, res) => {
     "https://www.strava.com/oauth/authorize" +
     `?client_id=${process.env.STRAVA_CLIENT_ID}` +
     "&response_type=code" +
-    "&redirect_uri=http://localhost:5000/callback" +
+    "&redirect_uri=https://flyrunhub-1.onrender.com" +
     "&scope=read,profile:read_all,activity:read_all" +
     "&approval_prompt=force";
 
@@ -265,7 +265,7 @@ await Athlete.findOneAndUpdate(
 
 
 // redirect back to React app
-    res.redirect("https://flyrunhub-frontend.onrender.com");
+    res.redirect("https://flyrunhub-1.onrender.com");
 
 
   } catch (error) {
