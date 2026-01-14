@@ -94,7 +94,7 @@ function App() {
       setLoading(true);
       const res = await fetch(
         "https://flyrunhub.onrender.com/community/leaderboard/weekly",{
-    credentials:"include",
+      credentials:"include",
   })
       const data = await res.json();
       setCommunityData(Array.isArray(data) ? data : []);
