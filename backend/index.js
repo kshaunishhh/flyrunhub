@@ -156,10 +156,10 @@ app.use(
       mongoUrl: process.env.MONGO_URI,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
       secure: true,
       sameSite: "none",
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
@@ -210,7 +210,7 @@ app.get("/auth/strava", (req, res) => {
     "https://www.strava.com/oauth/authorize" +
     `?client_id=${process.env.STRAVA_CLIENT_ID}` +
     "&response_type=code" +
-    "&redirect_uri=https://flyrunhub-1.onrender.com" +
+    "&redirect_uri=https://flyrunhub.onrender.com/callback" +
     "&scope=read,profile:read_all,activity:read_all" +
     "&approval_prompt=force";
 
