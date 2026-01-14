@@ -7,7 +7,7 @@ const axios = require("axios");
 const cors = require("cors");
 app.use(
   cors({
-    origin:"http://localhost:3000",
+    origin:"https://flyrunhub.onrender.com",
     credentials:true,
   })
 );
@@ -143,8 +143,12 @@ mongoose
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
+
+app.set("trust proxy",1);
+
 app.use(
   session({
+    name: "flyrunhub.sid",
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -152,7 +156,10 @@ app.use(
       mongoUrl: process.env.MONGO_URI,
     }),
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
     },
   })
 );
@@ -258,7 +265,7 @@ await Athlete.findOneAndUpdate(
 
 
 // redirect back to React app
-    res.redirect("http://flyrunhub-frontend.onrender.com");
+    res.redirect("https://flyrunhub-frontend.onrender.com");
 
 
   } catch (error) {
