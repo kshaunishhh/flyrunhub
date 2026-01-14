@@ -258,7 +258,7 @@ await Athlete.findOneAndUpdate(
 
 
 // redirect back to React app
-    res.redirect("http://localhost:3000");
+    res.redirect("http://flyrunhub-frontend.onrender.com");
 
 
   } catch (error) {
