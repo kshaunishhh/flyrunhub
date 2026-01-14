@@ -1,3 +1,61 @@
+require("dotenv").config();
+const mongoose = require("mongoose");
+const Athlete=require("./models/Athlete");
+const express = require("express");
+const app = express();
+const axios = require("axios");
+const cors = require("cors");
+app.use(
+  cors({
+    origin:"http://localhost:3000",
+    credentials:true,
+  })
+);
+
+
+
+
+async function refreshStravaToken(athlete) {
+  const response = await axios.post(
+    "https://www.strava.com/oauth/token",
+    {
+      client_id: process.env.STRAVA_CLIENT_ID,
+      client_secret: process.env.STRAVA_CLIENT_SECRET,
+      grant_type: "refresh_token",
+      refresh_token: athlete.refreshToken,
+    }
+  );
+
+  const {
+    access_token,
+    refresh_token,
+    expires_at,
+  } = response.data;
+
+  athlete.accessToken = access_token;
+  athlete.refreshToken = refresh_token;
+  athlete.tokenExpiresAt = expires_at;
+
+  await athlete.save();
+
+  return access_token;
+}
+
+
+function getCurrentWeekRange() {
+  const now = new Date();
+  const day = now.getDay(); // 0 (Sun) - 6 (Sat)
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+
+  const weekStart = new Date(now.setDate(diff));
+  weekStart.setHours(0, 0, 0, 0);
+
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 7);
+
+  return { weekStart, weekEnd };
+}
+
 function getWeekKey(dateString) {
   const date = new Date(dateString);
   const day = date.getDay(); // 0 = Sunday, 1 = Monday
@@ -74,24 +132,76 @@ function formatRun(run) {
 
 
 
-let ACCESS_TOKEN = null;
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch(err => console.error("Mongo error", err));
 
-const express = require("express");
-const axios = require("axios");
-const cors = require("cors");
-require("dotenv").config();
+const session = require("express-session");
+const MongoStore = require("connect-mongo");
 
-const app = express();
-app.use(cors());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+    }),
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+    },
+  })
+);
+
+const requireAuth = async (req, res, next) => {
+  if (!req.session.isAuthenticated) {
+    return res.status(401).json({ error: "Not authenticated with Strava" });
+  }
+
+  const athlete = await Athlete.findOne({
+    athleteId: req.session.athleteId,
+  });
+
+  if (!athlete) {
+    return res.status(401).json({ error: "Athlete not found" });
+  }
+
+  if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+    await refreshStravaToken(athlete);
+  }
+
+  req.accessToken = athlete.accessToken;
+  next();
+};
+
+
+app.get("/auth/status", async (req, res) => {
+  if (!req.session.isAuthenticated) {
+    return res.json({ authenticated: false });
+  }
+
+  const athlete = await Athlete.findOne({
+    athleteId: req.session.athleteId,
+  });
+
+  res.json({
+    authenticated: true,
+    athlete,
+  });
+});
+
+
+
 
 // Step 1: Redirect user to Strava login
 app.get("/auth/strava", (req, res) => {
   const stravaAuthUrl =
     "https://www.strava.com/oauth/authorize" +
-    `?client_id=${process.env.CLIENT_ID}` +
+    `?client_id=${process.env.STRAVA_CLIENT_ID}` +
     "&response_type=code" +
     "&redirect_uri=http://localhost:5000/callback" +
-    "&scope=read,profile:read_all,activity:read_all";
+    "&scope=read,profile:read_all,activity:read_all" +
     "&approval_prompt=force";
 
 
@@ -106,44 +216,68 @@ app.get("/callback", async (req, res) => {
     const tokenResponse = await axios.post(
       "https://www.strava.com/oauth/token",
       {
-        client_id: process.env.CLIENT_ID,
-        client_secret: process.env.CLIENT_SECRET,
+        client_id: process.env.STRAVA_CLIENT_ID,
+        client_secret: process.env.STRAVA_CLIENT_SECRET,
         code: code,
         grant_type: "authorization_code",
       }
     );
 
-    ACCESS_TOKEN = tokenResponse.data.access_token;
+
+
+    
+  const {
+  access_token,
+  refresh_token,
+  expires_at,
+  athlete
+} = tokenResponse.data;
+
+
+await Athlete.findOneAndUpdate(
+  { athleteId: athlete.id },
+  {
+    athleteId: athlete.id,
+    username: athlete.username,
+    firstname: athlete.firstname,
+    lastname: athlete.lastname,
+    accessToken: access_token,
+    refreshToken: refresh_token,
+    tokenExpiresAt: expires_at,
+  },
+  { upsert: true, new: true }
+);
+
+
+    req.session.athleteId = athlete.id;
+    req.session.isAuthenticated = true;
+
+
 
 // redirect back to React app
     res.redirect("http://localhost:3000");
 
 
   } catch (error) {
-    res.status(500).json({ error: "Strava auth failed" });
+    console.error("Strava OAuth Error:", error);
+    res.status(500).json({ 
+    error: "Strava auth failed",
+    details: error.message,
+    });
   }
 });
 
 
-app.listen(5000, () => {
-  console.log("FlyRunHub backend running on http://localhost:5000");
-});
 
 
 
-
-
-app.get("/activities", async (req, res) => {
-  if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
-
+app.get("/activities", requireAuth,async (req, res) => {
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          Authorization: `Bearer ${req.accessToken}`,
         },
         params: {
           per_page: 50,
@@ -169,6 +303,7 @@ app.get("/activities", async (req, res) => {
       }
     
       // time formatting
+      const raceDate = run.start_date_local.split("T")[0];
       const totalSeconds = run.moving_time;
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -214,19 +349,18 @@ app.get("/activities", async (req, res) => {
 
 
 
-app.get("/leaderboard/weekly", async (req, res) => {
+app.get("/leaderboard/weekly",requireAuth, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
-    if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
+
+
 
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
         headers: {
-          Authorization: `Bearer ${ACCESS_TOKEN}`,
+          Authorization: `Bearer ${req.accessToken}`,
         },
         params: {
           per_page: 50,
@@ -272,18 +406,16 @@ app.get("/leaderboard/weekly", async (req, res) => {
 
 
 
-app.get("/leaderboard/5k", async (req, res) => {
+app.get("/leaderboard/5k",requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
-  if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
+
 
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+        headers: { Authorization: `Bearer ${req.accessToken}` },
         params: { per_page: 100 },
       }
     );
@@ -314,18 +446,16 @@ app.get("/leaderboard/5k", async (req, res) => {
   }
 });
 
-app.get("/leaderboard/10k", async (req, res) => {
+app.get("/leaderboard/10k",requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
-  if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
+
 
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+        headers: { Authorization: `Bearer ${req.accessToken}` },
         params: { per_page: 100 },
       }
     );
@@ -360,18 +490,17 @@ app.get("/leaderboard/10k", async (req, res) => {
 
 
 
-app.get("/leaderboard/hm", async (req, res) => {
+app.get("/leaderboard/hm",requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
-  if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
+
+
 
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+        headers: { Authorization: `Bearer ${req.accessToken}` },
         params: { per_page: 100 },
       }
     );
@@ -400,18 +529,16 @@ app.get("/leaderboard/hm", async (req, res) => {
 
 
 
-app.get("/leaderboard/fm", async (req, res) => {
+app.get("/leaderboard/fm",requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
-  if (!ACCESS_TOKEN) {
-    return res.status(401).json({ error: "Not authenticated with Strava" });
-  }
+
 
   try {
     const response = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
-        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+        headers: { Authorization: `Bearer ${req.accessToken}` },
         params: { per_page: 100 },
       }
     );
@@ -436,4 +563,70 @@ app.get("/leaderboard/fm", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: "Failed to generate FM leaderboard" });
   }
+});
+
+app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
+  try {
+    const athletes = await Athlete.find({});
+    const { weekStart, weekEnd } = getCurrentWeekRange();
+
+    let leaderboard = [];
+
+    for (const athlete of athletes) {
+      let accessToken = athlete.accessToken;
+
+      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+      accessToken = await refreshStravaToken(athlete);
+      }
+
+      const response = await axios.get(
+        "https://www.strava.com/api/v3/athlete/activities",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            after: Math.floor(weekStart.getTime() / 1000),
+            before: Math.floor(weekEnd.getTime() / 1000),
+            per_page: 200,
+          },
+        }
+      );
+
+      const runs = response.data.filter(a => a.type === "Run");
+
+      const totalKm = runs.reduce(
+        (sum, run) => sum + run.distance / 1000,
+        0
+      );
+
+      leaderboard.push({
+        athleteId: athlete.athleteId,
+        name: `${athlete.firstname} ${athlete.lastname}`,
+        total_km: Number(totalKm.toFixed(2)),
+        runs: runs.length,
+      });
+    }
+
+    // sort descending by km
+    leaderboard.sort((a, b) => b.total_km - a.total_km);
+
+    // assign rank
+    leaderboard = leaderboard.map((a, i) => ({
+      rank: i + 1,
+      ...a,
+    }));
+
+    res.json(leaderboard);
+  } catch (err) {
+    console.error("Community leaderboard error:", err.message);
+    res.status(500).json({ error: "Failed to build community leaderboard" });
+  }
+});
+
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`FlyRunHub backend running on port ${PORT}`);
 });

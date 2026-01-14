@@ -1,22 +1,47 @@
-import React, { useState,useEffect } from 'react';
-import './App.css';
-
+import React, { useState, useEffect } from "react";
+import "./App.css";
+const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
 
 function App() {
+  const [view, setView] = useState("home"); // home | personal | community
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [weeklyLeaderboard, setWeeklyLeaderboard] = useState([]);
-  const [view, setView] = useState('home');
   const [data, setData] = useState([]);
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
+  const [communityData, setCommunityData] = useState([]);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [athlete, setAthlete] = useState(null);
+  const [currentType,setCurrentType] = useState(null);
 
-  const loadLeaderboard = (type) => {
-    setPage(1);    
+
+  useEffect(() => {
+  fetch("http://localhost:5000/auth/status",{
+    credentials:"include",
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        setAthlete(data.athlete);
+        setView("home"); // auto redirect
+      }else{
+        setIsAuthenticated(false);
+      }
+    })
+    .finally(() => setAuthChecked(true));
+}, []);
+
+
+  // Load default leaderboard
+
+  const loadLeaderboard = (type,pageParam=1) => {
+    setCurrentType(type);
     let url = "";
     let heading = "";
-  
+
     switch (type) {
       case "weekly":
         url = "http://localhost:5000/leaderboard/weekly";
@@ -41,226 +66,253 @@ function App() {
       default:
         return;
     }
-  
-    setLoading(true);
-    fetch(`${url}?page=${page}`)
-    .then(res => res.json())
-    .then(res => {
-      setData(res.results);
-      setTotalPages(res.totalPages);
-      setTitle(heading);
-      setView("leaderboard");
-    })
-    .finally(() => setLoading(false));
-      
-  };
-  useEffect(() => {
-    if (view === "leaderboard" && title) {
-      // Re-fetch current leaderboard when page changes
-      loadLeaderboard(
-        title.includes("Weekly") ? "weekly" :
-        title.includes("5K") ? "5k" :
-        title.includes("10K") ? "10k" :
-        title.includes("Half") ? "hm" :
-        title.includes("Full") ? "fm" : ""
-      );
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page]);
 
-  useEffect(() => {
-    if (view === "weekly") {
-      fetch("http://localhost:5000/leaderboard/weekly")
-        .then((res) => res.json())
-        .then((data) => setWeeklyLeaderboard(data))
-        .catch((err) => console.error(err));
-    }
-  }, [view]);  
-  const handleStart = () => {
-    setView('leaderboard');
+    setLoading(true);
+    fetch(`${url}?page=${pageParam}`,{
+    credentials:"include",
+  })
+      .then((res) => res.json())
+      .then((res) => {
+
+  const rows =
+    Array.isArray(res?.results)
+      ? res.results
+      : Array.isArray(res)
+      ? res
+      : [];
+
+  setData(rows);
+  setTotalPages(res?.totalPages || 1);
+  setTitle(heading);
+})
+
+      .finally(() => setLoading(false));
   };
-  
+
+  const fetchCommunityLeaderboard = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(
+        "http://localhost:5000/community/leaderboard/weekly",{
+    credentials:"include",
+  })
+      const data = await res.json();
+      setCommunityData(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (!authChecked) {
+  return <p style={{ textAlign: "center" }}>Checking authentication…</p>;
+}
+
+
+
   return (
     <div className="App">
       {view === "home" && (
         <div className="home">
           <h1>FlyRunHub Leaderboard</h1>
-  
-          <a href="http://localhost:5000/auth/strava">
-            <button className="start-button">Connect with Strava</button>
-          </a>
-          <div style={{ marginTop: "30px" }}>
-            <button className="tab" onClick={() => loadLeaderboard("weekly")}>
-              Weekly
+
+          <div className="view-toggle">
+            <button onClick={() => {
+              if (!isAuthenticated){
+                alert("Please connect with Strava first");
+                return;
+              }
+              setView("personal");
+              setPage(1);
+              loadLeaderboard("weekly",1);
+            }}
+            >
+              My Dashboard
             </button>
-            <button className="tab" onClick={() => loadLeaderboard("5k")}>
-              5K
-            </button>
-            <button className="tab" onClick={() => loadLeaderboard("10k")}>
-              10K
-            </button>
-            <button className="tab" onClick={() => loadLeaderboard("hm")}>
-              HM
-            </button>
-            <button className="tab" onClick={() => loadLeaderboard("fm")}>
-              FM
+            <button
+              onClick={() => {
+                if (!isAuthenticated){
+                  alert("Please connect with Strava first");
+                  return;
+                }
+                setView("community");
+                fetchCommunityLeaderboard();
+              }}
+            >
+              Community
             </button>
           </div>
 
-          {loading && <p>Loading…</p>}
+          {!isAuthenticated ? (
+  <a href="http://localhost:5000/auth/strava">
+    <button className="start-button">Connect with Strava</button>
+  </a>
+) : (
+  <button className="start-button" disabled>
+    ✅ Connected {athlete?.firstname ? `as ${athlete.firstname}` : ""}
+  </button>
+)}
 
-
-          <button
-              className="tab"
-              disabled={page <= 1}
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </button>
-
-            <span style={{ margin: "0 10px" }}>
-              Page {page} of {totalPages}
-            </span>
-
-            <button
-              className="tab"
-              disabled={page >= totalPages}
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-          </button>
-
-          {view === "leaderboard" && (
-  <div className="leaderboard">
-    <h1>{title}</h1>
-
-    <table className="leaderboard-table">
-                      <thead>
-                      <tr>
-                      <th>Rank</th>
-                      <th>Name</th>
-                      <th>Date</th>          {/* 👈 THIS LINE */}
-                      <th>Distance (km)</th>
-                      <th>Time</th>
-                      <th>Pace</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                  {data.map((row, index) => (
-                    <tr key={index}>
-                      <td>{row.rank || index + 1}</td>
-                      <td>{row.name}</td>
-                      <td>{row.date}</td>        {/* 👈 DATE SHOWN HERE */}
-                      <td>{row.distance_km || "-"}</td>
-                      <td>{row.time || "-"}</td>
-                      <td>{row.pace || "-"}</td>
-                    </tr>
-                  ))}
-                  </tbody>
-                  </table>
-
-                <button
-                  className="tab"
-                  style={{ marginTop: "20px" }}
-                  onClick={() => setView("home")}
-                              >
-                 Back
-                </button>
-              </div>
-            )}
-
-  
-          <button
-            className="start-button"
-            style={{ marginLeft: "15px" }}
-            onClick={() => setView("weekly")}
-          >
-            View Weekly Leaderboard
-          </button>
         </div>
       )}
-  
-      {view === "leaderboard" && (
-      <div className="leaderboard">
-        <h1>{title}</h1>
 
-        {!Array.isArray(data) ? (
-          <p style={{ color: "red" }}>
-            Error loading data. Please connect with Strava first.
-          </p>
-        ) : data.length === 0 ? (
-          <p>No data available</p>
-        ) : (
+      {view === "personal" && (
+        <div className="leaderboard">
+          <h1>{title}</h1>
+
+        <div>
+          <button
+            onClick={() => {
+              setPage(1);
+              loadLeaderboard("weekly", 1);
+            }}
+          >
+            Weekly
+          </button>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              loadLeaderboard("5k", 1);
+            }}
+          >
+            5K
+          </button>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              loadLeaderboard("10k", 1);
+            }}
+          >
+            10K
+          </button>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              loadLeaderboard("hm", 1);
+            }}
+          >
+            HM
+          </button>
+
+          <button
+            onClick={() => {
+              setPage(1);
+              loadLeaderboard("fm", 1);
+            }}
+          >
+            FM
+          </button>
+        </div>
+
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            <table className="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Name / Week</th>
+                  <th>Date</th>
+                  <th>Distance (km)</th>
+                  <th>Time</th>
+                  <th>Pace</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                {safeArray(data).map((row, idx) => (
+                  <tr key={idx}>
+                    <td>{(page-1)*10 + idx + 1}</td>
+                    <td>{row.name || row.week_start}</td>
+                    <td>{row.date || "-"}</td>
+                    <td>{row.distance_km || row.total_km}</td>
+                    <td>{row.time || "-"}</td>
+                    <td>{row.pace || "-"}</td>
+                  </tr>
+                ))}
+                {safeArray(communityData).length === 0 && !loading && (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center" }}>
+                      No data available
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+
+          <div>
+            <button 
+             disabled={page === 1} 
+             onClick={() => {
+              const newPage = page-1;
+              setPage(newPage);
+              loadLeaderboard(currentType,newPage);
+             }}>
+              Previous
+            </button>
+            <span> Page {page} of {totalPages} </span>
+            <button
+              disabled={page === totalPages}
+              onClick={() => {
+                const newPage=page+1;
+                setPage(newPage);
+                loadLeaderboard(currentType,newPage);
+              }}
+            >
+              Next
+            </button>
+          </div>
+
+          <button onClick={() => setView("home")}>Back</button>
+        </div>
+      )}
+
+      {view === "community" && (
+        <div className="leaderboard">
+          <h1>Community Weekly Leaderboard</h1>
+          {loading && (
+      <p style={{ textAlign: "center", fontWeight: "bold" }}>
+        Loading leaderboard...
+      </p>
+    )}
+
           <table className="leaderboard-table">
             <thead>
               <tr>
                 <th>Rank</th>
-                <th>Name / Week</th>
-                <th>Date</th>          
-                <th>Distance (km)</th>
-                <th>Time</th>
-                <th>Pace</th>
+                <th>Athlete</th>
+                <th>Weekly KM</th>
+                <th>Runs</th>
               </tr>
             </thead>
             <tbody>
-              {title === "Weekly Leaderboard"
-                ? data.map((row, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{row.week_start}</td>
-                      <td>-</td>               
-                      <td>{row.total_km}</td>
-                      <td>-</td>
-                      <td>-</td>
-                    </tr>
-                  ))
-                : data.map((row, index) => (
-                    <tr key={index}>
-                      <td>{row.rank ?? index + 1}</td>
-                      <td>{row.name}</td>
-                      <td>{row.date}</td>
-                      <td>{row.distance_km}</td>
-                      <td>{row.time}</td>
-                      <td>{row.pace}</td>
-                    </tr>
-                  ))}
+              {safeArray(communityData).map((row, idx) => (
+                <tr key={idx}>
+                  <td>{row.rank}</td>
+                  <td>{row.name}</td>
+                  <td>{row.total_km}</td>
+                  <td>{row.runs}</td>
+                </tr>
+              ))}
+              {safeArray(data).length === 0 && !loading && (
+                  <tr>
+                    <td colSpan="6" style={{ textAlign: "center" }}>
+                      No data available
+                    </td>
+                  </tr>
+                )}
             </tbody>
           </table>
-        )}
 
-        <button
-          className="tab"
-          style={{ marginTop: "20px" }}
-          onClick={() => setView("home")}
-        >
-          Back
-        </button>
-      </div>
-    )}
-        <div style={{ marginTop: "15px" }}>
-      <button
-        className="tab"
-        disabled={page === 1}
-        onClick={() => setPage(page - 1)}
-      >
-        Previous
-      </button>
-
-      <span style={{ margin: "0 10px" }}>
-        Page {page} of {totalPages}
-      </span>
-
-      <button
-        className="tab"
-        disabled={page === totalPages}
-        onClick={() => setPage(page + 1)}
-      >
-        Next
-      </button>
+          <button onClick={() => setView("home")}>Back</button>
+        </div>
+      )}
     </div>
-
-    </div>
-  );  
+  );
 }
 
 export default App;
