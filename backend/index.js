@@ -133,7 +133,10 @@ function formatRun(run) {
 
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI,{
+    tls:true,
+    tlsAllowInvalidCertificates:true,
+  })
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error", err));
 
