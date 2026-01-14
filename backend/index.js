@@ -263,9 +263,9 @@ await Athlete.findOneAndUpdate(
     req.session.isAuthenticated = true;
 
 
-
-// redirect back to React app
-    res.redirect("https://flyrunhub-1.onrender.com");
+    req.session.save(()=>{
+      res.redirect("https://flyrunhub-1.onrender.com");
+    });
 
 
   } catch (error) {
