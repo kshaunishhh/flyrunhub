@@ -18,7 +18,7 @@ function App() {
 
 
   useEffect(() => {
-  fetch("http://localhost:5000/auth/status",{
+  fetch("https://flyrunhub.onrender.com/auth/status",{
     credentials:"include",
   })
     .then(res => res.json())
@@ -44,23 +44,23 @@ function App() {
 
     switch (type) {
       case "weekly":
-        url = "http://localhost:5000/leaderboard/weekly";
+        url = "https://flyrunhub.onrender.com/leaderboard/weekly";
         heading = "Weekly Leaderboard";
         break;
       case "5k":
-        url = "http://localhost:5000/leaderboard/5k";
+        url = "https://flyrunhub.onrender.com/leaderboard/5k";
         heading = "5K Leaderboard";
         break;
       case "10k":
-        url = "http://localhost:5000/leaderboard/10k";
+        url = "https://flyrunhub.onrender.com/leaderboard/10k";
         heading = "10K Leaderboard";
         break;
       case "hm":
-        url = "http://localhost:5000/leaderboard/hm";
+        url = "https://flyrunhub.onrender.com/leaderboard/hm";
         heading = "Half Marathon Leaderboard";
         break;
       case "fm":
-        url = "http://localhost:5000/leaderboard/fm";
+        url = "https://flyrunhub.onrender.com/leaderboard/fm";
         heading = "Full Marathon Leaderboard";
         break;
       default:
@@ -93,7 +93,7 @@ function App() {
     try {
       setLoading(true);
       const res = await fetch(
-        "http://localhost:5000/community/leaderboard/weekly",{
+        "https://flyrunhub.onrender.com/community/leaderboard/weekly",{
     credentials:"include",
   })
       const data = await res.json();
@@ -144,7 +144,7 @@ function App() {
           </div>
 
           {!isAuthenticated ? (
-  <a href="http://localhost:5000/auth/strava">
+  <a href="https://flyrunhub.onrender.com/auth/strava">
     <button className="start-button">Connect with Strava</button>
   </a>
 ) : (
