@@ -9,6 +9,7 @@ app.use(
   cors({
     origin:"https://flyrunhub-1.onrender.com",
     credentials:true,
+    methods:["GET","POST"],
   })
 );
 
