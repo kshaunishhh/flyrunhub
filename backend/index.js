@@ -156,7 +156,6 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
-    proxy:true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
     }),
@@ -164,7 +163,6 @@ app.use(
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      domain:".onrender.com",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
@@ -232,7 +230,7 @@ app.get("/callback", async (req, res) => {
 
   if (error) {
     console.error("Strava auth error:", error);
-    return res.redirect("https://flyrunhub-1.onrender.com");
+    return res.redirect("https://flyrunhub.onrender.com");
   }
 
   if (!code) {
@@ -288,7 +286,7 @@ app.get("/callback", async (req, res) => {
         }
 
         // ✅ FRONTEND REDIRECT (CORRECT)
-        res.redirect("https://flyrunhub-1.onrender.com");
+        res.redirect("https://flyrunhub.onrender.com");
       });
     });
 
