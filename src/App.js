@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import axios from "axios";
+
+axios.defaults.withCredentials = true;
+
 const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
 
@@ -94,8 +98,8 @@ function App() {
       setLoading(true);
       const res = await fetch(
         "https://flyrunhub.onrender.com/community/leaderboard/weekly",{
-      credentials:"include",
-  })
+        credentials:"include",
+      })
       const data = await res.json();
       setCommunityData(Array.isArray(data) ? data : []);
     } catch (err) {
