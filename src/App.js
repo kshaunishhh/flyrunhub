@@ -3,6 +3,7 @@ import "./App.css";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "https://flyrunhub.onrender.com";
 
 const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
@@ -21,21 +22,23 @@ function App() {
   const [currentType,setCurrentType] = useState(null);
 
 
-  useEffect(() => {
-  fetch("https://flyrunhub.onrender.com/auth/status",{
-    credentials:"include",
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.authenticated) {
+useEffect(() => {
+  axios
+    .get("/auth/status") // baseURL already set
+    .then(res => {
+      if (res.data.authenticated) {
         setIsAuthenticated(true);
-        setAthlete(data.athlete);
-        setView("home"); // auto redirect
-      }else{
+        setAthlete(res.data.athlete);
+      } else {
         setIsAuthenticated(false);
       }
     })
-    .finally(() => setAuthChecked(true));
+    .catch(() => {
+      setIsAuthenticated(false);
+    })
+    .finally(() => {
+      setAuthChecked(true);
+    });
 }, []);
 
 
@@ -48,23 +51,23 @@ function App() {
 
     switch (type) {
       case "weekly":
-        url = "https://flyrunhub.onrender.com/leaderboard/weekly";
+        url = "/leaderboard/weekly";
         heading = "Weekly Leaderboard";
         break;
       case "5k":
-        url = "https://flyrunhub.onrender.com/leaderboard/5k";
+        url = "/leaderboard/5k";
         heading = "5K Leaderboard";
         break;
       case "10k":
-        url = "https://flyrunhub.onrender.com/leaderboard/10k";
+        url = "/leaderboard/10k";
         heading = "10K Leaderboard";
         break;
       case "hm":
-        url = "https://flyrunhub.onrender.com/leaderboard/hm";
+        url = "/leaderboard/hm";
         heading = "Half Marathon Leaderboard";
         break;
       case "fm":
-        url = "https://flyrunhub.onrender.com/leaderboard/fm";
+        url = "/leaderboard/fm";
         heading = "Full Marathon Leaderboard";
         break;
       default:
@@ -72,42 +75,40 @@ function App() {
     }
 
     setLoading(true);
-    fetch(`${url}?page=${pageParam}`,{
-    credentials:"include",
+    axios
+  .get(`${url}?page=${pageParam}`)
+  .then(res => {
+    const rows =
+      Array.isArray(res.data?.results)
+        ? res.data.results
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+
+    setData(rows);
+    setTotalPages(res.data?.totalPages || 1);
+    setTitle(heading);
   })
-      .then((res) => res.json())
-      .then((res) => {
+  .catch(err =>{
+    console.error("Leaderboard error:",err);
+  })
 
-  const rows =
-    Array.isArray(res?.results)
-      ? res.results
-      : Array.isArray(res)
-      ? res
-      : [];
-
-  setData(rows);
-  setTotalPages(res?.totalPages || 1);
-  setTitle(heading);
-})
-
-      .finally(() => setLoading(false));
+    .finally(() => setLoading(false));
   };
 
   const fetchCommunityLeaderboard = async () => {
     try {
       setLoading(true);
-      const res = await fetch(
-        "https://flyrunhub.onrender.com/community/leaderboard/weekly",{
-        credentials:"include",
-      })
-      const data = await res.json();
-      setCommunityData(Array.isArray(data) ? data : []);
+      const res = await axios.get("/community/leaderboard/weekly");
+      setCommunityData(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      console.error(err);
+      console.error("Community leaderboard error:", err);
+      setCommunityData([]);
     } finally {
       setLoading(false);
     }
   };
+
   if (!authChecked) {
   return <p style={{ textAlign: "center" }}>Checking authentication…</p>;
 }
@@ -237,7 +238,7 @@ function App() {
                     <td>{row.pace || "-"}</td>
                   </tr>
                 ))}
-                {safeArray(communityData).length === 0 && !loading && (
+                {safeArray(data).length === 0 && !loading && (
                   <tr>
                     <td colSpan="6" style={{ textAlign: "center" }}>
                       No data available
@@ -302,7 +303,7 @@ function App() {
                   <td>{row.runs}</td>
                 </tr>
               ))}
-              {safeArray(data).length === 0 && !loading && (
+              {safeArray(communityData).length === 0 && !loading && (
                   <tr>
                     <td colSpan="6" style={{ textAlign: "center" }}>
                       No data available

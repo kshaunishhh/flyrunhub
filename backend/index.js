@@ -153,6 +153,7 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    proxy:true,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
     }),
@@ -188,6 +189,8 @@ const requireAuth = async (req, res, next) => {
 
 
 app.get("/auth/status", async (req, res) => {
+  console.log("SESSION",req.session);
+
   if (!req.session.isAuthenticated) {
     return res.json({ authenticated: false });
   }
