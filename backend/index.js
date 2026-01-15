@@ -228,24 +228,18 @@ app.get("/auth/strava", (req, res) => {
 
 // Step 2: Strava redirects back here with code
 app.get("/callback", async (req, res) => {
-  console.log("👉 CALLBACK HIT");
-  console.log("Query params:", req.query);
-
   const { code, error } = req.query;
 
   if (error) {
-    console.error("Strava returned error:", error);
-    return res.status(400).send("Strava authorization error");
+    console.error("Strava auth error:", error);
+    return res.redirect("https://flyrunhub-1.onrender.com");
   }
 
   if (!code) {
-    console.error("No code received from Strava");
-    return res.status(400).send("No auth code received");
+    return res.status(400).send("No authorization code");
   }
 
   try {
-    console.log("Exchanging code for token...");
-
     const tokenResponse = await axios.post(
       "https://www.strava.com/oauth/token",
       {
@@ -256,21 +250,53 @@ app.get("/callback", async (req, res) => {
       }
     );
 
-    console.log("Token response received");
+    const {
+      access_token,
+      refresh_token,
+      expires_at,
+      athlete,
+    } = tokenResponse.data;
 
-    return res.json({
-      success: true,
-      tokenResponse: tokenResponse.data,
+    await Athlete.findOneAndUpdate(
+      { athleteId: athlete.id },
+      {
+        athleteId: athlete.id,
+        username: athlete.username,
+        firstname: athlete.firstname,
+        lastname: athlete.lastname,
+        accessToken: access_token,
+        refreshToken: refresh_token,
+        tokenExpiresAt: expires_at,
+      },
+      { upsert: true, new: true }
+    );
+
+    // ✅ SINGLE regenerate (ONLY ONCE)
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error("Session regenerate failed:", err);
+        return res.status(500).send("Session error");
+      }
+
+      req.session.athleteId = athlete.id;
+      req.session.isAuthenticated = true;
+
+      req.session.save((err) => {
+        if (err) {
+          console.error("Session save failed:", err);
+          return res.status(500).send("Session save error");
+        }
+
+        // ✅ FRONTEND REDIRECT (CORRECT)
+        res.redirect("https://flyrunhub-1.onrender.com");
+      });
     });
 
   } catch (err) {
-    console.error("TOKEN EXCHANGE FAILED ❌");
-    console.error(err.response?.data || err.message);
-    return res.status(500).send("Token exchange failed");
+    console.error("OAuth callback failed:", err.response?.data || err.message);
+    res.status(500).send("Authentication failed");
   }
 });
-
-
 
 
 
