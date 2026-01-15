@@ -3,7 +3,6 @@ import "./App.css";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "https://flyrunhub.onrender.com";
 
 const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
@@ -149,7 +148,7 @@ useEffect(() => {
           </div>
 
           {!isAuthenticated ? (
-  <a href="https://flyrunhub.onrender.com/auth/strava">
+  <a href="/auth/strava">
     <button className="start-button">Connect with Strava</button>
   </a>
 ) : (

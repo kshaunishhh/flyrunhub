@@ -4,18 +4,8 @@ const Athlete=require("./models/Athlete");
 const express = require("express");
 const app = express();
 const axios = require("axios");
-const cors = require("cors");
 
 app.set("trust proxy",1);
-
-
-app.use(
-  cors({
-    origin:"https://flyrunhub-1.onrender.com",
-    credentials:true,
-    methods:["GET","POST"],
-  })
-);
 
 
 
@@ -145,11 +135,16 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error", err));
 
+
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+
+
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 
-
+//middleware
 app.use(
   session({
     name: "flyrunhub.sid",
@@ -162,11 +157,14 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
+
+const path = require("path");
+
 
 const requireAuth = async (req, res, next) => {
   if (!req.session.isAuthenticated) {
@@ -230,7 +228,7 @@ app.get("/callback", async (req, res) => {
 
   if (error) {
     console.error("Strava auth error:", error);
-    return res.redirect("https://flyrunhub.onrender.com");
+    return res.redirect("/");
   }
 
   if (!code) {
@@ -286,7 +284,7 @@ app.get("/callback", async (req, res) => {
         }
 
         // ✅ FRONTEND REDIRECT (CORRECT)
-        res.redirect("https://flyrunhub.onrender.com");
+        res.redirect("/");
       });
     });
 
@@ -651,7 +649,13 @@ app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
   }
 });
 
+// Serve React build
+app.use(express.static(path.join(__dirname, "build")));
 
+// React fallback (VERY IMPORTANT)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
