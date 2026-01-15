@@ -5,6 +5,10 @@ const express = require("express");
 const app = express();
 const axios = require("axios");
 const cors = require("cors");
+
+app.set("trust proxy",1);
+
+
 app.use(
   cors({
     origin:"https://flyrunhub-1.onrender.com",
@@ -145,7 +149,6 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 
 
-app.set("trust proxy",1);
 
 app.use(
   session({
@@ -269,6 +272,12 @@ await Athlete.findOneAndUpdate(
 
 
     req.session.save(()=>{
+      if(err){
+        console.error("Session save error:",err);
+        return res.status(500).send("Session error");
+      }
+
+
       res.redirect("https://flyrunhub-1.onrender.com");
     });
 
