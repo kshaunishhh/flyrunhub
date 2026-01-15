@@ -228,66 +228,45 @@ app.get("/auth/strava", (req, res) => {
 
 // Step 2: Strava redirects back here with code
 app.get("/callback", async (req, res) => {
-  const code = req.query.code;
+  console.log("👉 CALLBACK HIT");
+  console.log("Query params:", req.query);
+
+  const { code, error } = req.query;
+
+  if (error) {
+    console.error("Strava returned error:", error);
+    return res.status(400).send("Strava authorization error");
+  }
+
+  if (!code) {
+    console.error("No code received from Strava");
+    return res.status(400).send("No auth code received");
+  }
 
   try {
+    console.log("Exchanging code for token...");
+
     const tokenResponse = await axios.post(
       "https://www.strava.com/oauth/token",
       {
         client_id: process.env.STRAVA_CLIENT_ID,
         client_secret: process.env.STRAVA_CLIENT_SECRET,
-        code: code,
+        code,
         grant_type: "authorization_code",
       }
     );
 
+    console.log("Token response received");
 
-
-    
-  const {
-  access_token,
-  refresh_token,
-  expires_at,
-  athlete
-} = tokenResponse.data;
-
-
-await Athlete.findOneAndUpdate(
-  { athleteId: athlete.id },
-  {
-    athleteId: athlete.id,
-    username: athlete.username,
-    firstname: athlete.firstname,
-    lastname: athlete.lastname,
-    accessToken: access_token,
-    refreshToken: refresh_token,
-    tokenExpiresAt: expires_at,
-  },
-  { upsert: true, new: true }
-);
-
-
-    req.session.athleteId = athlete.id;
-    req.session.isAuthenticated = true;
-
-
-    req.session.save(()=>{
-      if(err){
-        console.error("Session save error:",err);
-        return res.status(500).send("Session error");
-      }
-
-
-      res.redirect("https://flyrunhub-1.onrender.com");
+    return res.json({
+      success: true,
+      tokenResponse: tokenResponse.data,
     });
 
-
-  } catch (error) {
-    console.error("Strava OAuth Error:", error);
-    res.status(500).json({ 
-    error: "Strava auth failed",
-    details: error.message,
-    });
+  } catch (err) {
+    console.error("TOKEN EXCHANGE FAILED ❌");
+    console.error(err.response?.data || err.message);
+    return res.status(500).send("Token exchange failed");
   }
 });
 
