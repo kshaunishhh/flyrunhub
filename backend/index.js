@@ -443,7 +443,7 @@ runsOnly.forEach((run) => {
 });
 
     // Convert to leaderboard array
-    const leaderboard = Object.keys(weeklyTotals)
+    const leaderboard = Object.values(weeklyTotals)
       .sort((a, b) => new Date(b.weekKey) - new Date(a.weekKey))
       .map((w) => ({
         week: w.label,
