@@ -686,9 +686,11 @@ app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
-// React fallback (VERY IMPORTANT)
-app.get("/.*/", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "build", "index.html"));
+// React fallback — ONLY VALID ONE
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "..", "build", "index.html")
+  );
 });
 
 const PORT = process.env.PORT || 5000;
