@@ -118,3 +118,53 @@ body {
   font-weight: 800;
   color: #fc4c02;
 }
+
+/*footer*/
+.app-footer {
+  margin-top: 40px;
+  padding: 20px 10px;
+  background: #0f0f0f;
+  border-top: 1px solid #222;
+  color: #ccc;
+  text-align: center;
+}
+
+.footer-content {
+  max-width: 900px;
+  margin: auto;
+}
+
+.footer-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff3b3b;
+  margin-bottom: 8px;
+}
+
+.footer-text {
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #ff8c00;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
+}
+
+.footer-version {
+  font-size: 12px;
+  color: #777;
+}

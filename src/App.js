@@ -117,48 +117,88 @@ useEffect(() => {
   return (
     <div className="App">
       {view === "home" && (
-        <div className="home">
-          <h1>FlyRunHub Leaderboard</h1>
+  <>
+    <div className="home">
+      <h1>FlyRunHub Leaderboard</h1>
 
-          <div className="view-toggle">
-            <button onClick={() => {
-              if (!isAuthenticated){
-                alert("Please connect with Strava first");
-                return;
-              }
-              setView("personal");
-              setPage(1);
-              loadLeaderboard("weekly",1);
-            }}
-            >
-              My Dashboard
-            </button>
-            <button
-              onClick={() => {
-                if (!isAuthenticated){
-                  alert("Please connect with Strava first");
-                  return;
-                }
-                setView("community");
-                fetchCommunityLeaderboard();
-              }}
-            >
-              Community
-            </button>
-          </div>
+      <div className="view-toggle">
+        <button
+          onClick={() => {
+            if (!isAuthenticated) {
+              alert("Please connect with Strava first");
+              return;
+            }
+            setView("personal");
+            setPage(1);
+            loadLeaderboard("weekly", 1);
+          }}
+        >
+          My Dashboard
+        </button>
 
-          {!isAuthenticated ? (
-  <a href="/auth/strava">
-    <button className="start-button">Connect with Strava</button>
-  </a>
-) : (
-  <button className="start-button" disabled>
-    ✅ Connected {athlete?.firstname ? `as ${athlete.firstname}` : ""}
-  </button>
+        <button
+          onClick={() => {
+            if (!isAuthenticated) {
+              alert("Please connect with Strava first");
+              return;
+            }
+            setView("community");
+            fetchCommunityLeaderboard();
+          }}
+        >
+          Community
+        </button>
+      </div>
+
+      {!isAuthenticated ? (
+        <a href="/auth/strava">
+          <button className="start-button">Connect with Strava</button>
+        </a>
+      ) : (
+        <button className="start-button" disabled>
+          ✅ Connected {athlete?.firstname ? `as ${athlete.firstname}` : ""}
+        </button>
+      )}
+    </div>
+
+    {/* ✅ FOOTER ONLY ON HOME */}
+    <footer className="app-footer">
+      <div className="footer-content">
+        <p className="footer-title">🚀 FlyRunHub • v1.0-beta</p>
+
+        <p className="footer-text">
+          FlyRunHub is currently in <strong>beta</strong>.  
+          Found a bug or have an idea? I’d really appreciate your feedback.
+        </p>
+
+        <div className="footer-links">
+          <a href="mailto:kshaunishgupta1@gmail.com">📧 Email</a>
+
+          <a
+            href="https://github.com/kshaunishhh/flyrunhub"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🐙 GitHub
+          </a>
+
+          <a
+            href="https://wa.me/919717538449"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            💬 WhatsApp
+          </a>
+        </div>
+
+        <p className="footer-version">
+          Built with Strava API • Feedback welcome
+        </p>
+      </div>
+    </footer>
+  </>
 )}
 
-        </div>
-      )}
 
       {view === "personal" && (
         <div className="leaderboard">
