@@ -620,6 +620,8 @@ app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
 
       const runs = response.data.filter(a => a.type === "Run");
 
+      if (runs.length === 0) continue;
+
       const totalKm = runs.reduce(
         (sum, run) => sum + run.distance / 1000,
         0
