@@ -216,26 +216,52 @@ useEffect(() => {
           ) : (
             <table className="leaderboard-table">
               <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Week</th>
-                  <th>Distance (kms)</th>
-                  <th>Time</th>
-                </tr>
+                  <tr>
+                    <th>Rank</th>
+
+                    {currentType === "weekly" ? (
+                      <>
+                        <th>Week</th>
+                        <th>Total Distance (km)</th>
+                        <th>Total Time</th>
+                      </>
+                    ) : (
+                      <>
+                        <th>Date</th>
+                        <th>Distance (km)</th>
+                        <th>Time</th>
+                        <th>Pace</th>
+                      </>
+                    )}
+                  </tr>
               </thead>
+
               <tbody>
 
                 {safeArray(data).map((row, idx) => (
                   <tr key={idx}>
-                    <td>{(page-1)*10 + idx + 1}</td>
-                    <td>{row.week}</td>
-                    <td>{row.distance_km || row.total_km}</td>
-                    <td>{row.total_time}</td>
+                    <td>{(page - 1) * 10 + idx + 1}</td>
+
+                    {currentType === "weekly" ? (
+                      <>
+                        <td>{row.week || "-"}</td>
+                        <td>{row.total_km || "-"}</td>
+                        <td>{row.total_time || "-"}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td>{row.date || "-"}</td>
+                        <td>{row.distance_km || "-"}</td>
+                        <td>{row.time || "-"}</td>
+                        <td>{row.pace || "-"}</td>
+                      </>
+                    )}
                   </tr>
+
                 ))}
                 {safeArray(data).length === 0 && !loading && (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center" }}>
+                    <td colSpan="4" style={{ textAlign: "center" }}>
                       No data available
                     </td>
                   </tr>
@@ -300,7 +326,7 @@ useEffect(() => {
               ))}
               {safeArray(communityData).length === 0 && !loading && (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: "center" }}>
+                    <td colSpan="4" style={{ textAlign: "center" }}>
                       No data available
                     </td>
                   </tr>
