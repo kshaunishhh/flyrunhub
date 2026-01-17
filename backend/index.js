@@ -98,7 +98,7 @@ function getWeekLabel(dateString) {
   const day = date.getDate();
   const weekOfMonth = Math.ceil(day / 7);
 
-  return `${year}/${month}/week-${weekOfMonth}`;
+  return `${year}/${month}/${weekOfMonth}`;
 }
 
 function formatSecondsToHHMMSS(totalSeconds) {

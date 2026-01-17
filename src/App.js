@@ -221,7 +221,7 @@ useEffect(() => {
 
                     {currentType === "weekly" ? (
                       <>
-                        <th>Week</th>
+                        <th>Year/month/Week</th>
                         <th>Total Distance (km)</th>
                         <th>Total Time</th>
                       </>
