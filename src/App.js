@@ -181,6 +181,15 @@ useEffect(() => {
 </div>
 
 </div>
+<div className="app-wrapper">
+  <div className="content">
+    {/* hero + cards */}
+  </div>
+
+  <footer className="footer">
+    ...
+  </footer>
+</div>
 
 
     {/* ✅ FOOTER ONLY ON HOME */}
