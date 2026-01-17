@@ -19,6 +19,8 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [athlete, setAthlete] = useState(null);
   const [currentType,setCurrentType] = useState(null);
+  const [showToast, setShowToast] = useState(false);
+
 
 
 useEffect(() => {
@@ -28,6 +30,8 @@ useEffect(() => {
       if (res.data.authenticated) {
         setIsAuthenticated(true);
         setAthlete(res.data.athlete);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3500);
       } else {
         setIsAuthenticated(false);
       }
@@ -116,83 +120,125 @@ useEffect(() => {
 
   return (
     <div className="App">
+      {showToast && athlete && (
+  <div className="toast">
+    ✅ Connected as <strong>{athlete.firstname}</strong>
+  </div>
+)}
+
       {view === "home" && (
+
   <>
-    <div className="home">
-      <h1>FlyRunHub Leaderboard</h1>
+  <div className="hero">
+  <h1 className="hero-title">FlyRunHub</h1>
 
-      <div className="view-toggle">
-        <button
-          onClick={() => {
-            if (!isAuthenticated) {
-              alert("Please connect with Strava first");
-              return;
-            }
-            setView("personal");
-            setPage(1);
-            loadLeaderboard("weekly", 1);
-          }}
-        >
-          My Dashboard
-        </button>
+  <p className="hero-tagline">
+    Track <span>•</span> Compete <span>•</span> Improve
+  </p>
 
-        <button
-          onClick={() => {
-            if (!isAuthenticated) {
-              alert("Please connect with Strava first");
-              return;
-            }
-            setView("community");
-            fetchCommunityLeaderboard();
-          }}
-        >
-          Community
-        </button>
-      </div>
+  <p className="hero-subtitle">
+    Weekly &amp; Race-based leaderboards powered by Strava
+  </p>
+</div>
 
-      {!isAuthenticated ? (
-        <a href="/auth/strava">
-          <button className="start-button">Connect with Strava</button>
-        </a>
-      ) : (
-        <button className="start-button" disabled>
-          ✅ Connected {athlete?.firstname ? `as ${athlete.firstname}` : ""}
-        </button>
-      )}
-    </div>
+    <div className="home-actions">
+ <div className="card-container">
+
+  <button
+    className="card-btn"
+    onClick={() => {
+      if (!isAuthenticated){
+        alert("Please connect with Strava first");
+        return;
+      }
+      setView("personal");
+      setPage(1);
+      loadLeaderboard("weekly", 1);
+    }}
+  >
+    <span className="card-title">🏃Personal Dashboard</span>
+    <span className="card-sub">
+      
+    </span>
+  </button>
+
+  <button
+    className="card-btn"
+    onClick={() => {
+      if (!isAuthenticated){
+        alert("Please connect with Strava first");
+        return;
+      }
+      setView("community");
+      fetchCommunityLeaderboard();
+    }}
+  >
+    <span className="card-title"> Community Leaderboards</span>
+    <span className="card-sub">
+    </span>
+  </button>
+
+</div>
+
+</div>
+
 
     {/* ✅ FOOTER ONLY ON HOME */}
     <footer className="app-footer">
       <div className="footer-content">
-        <p className="footer-title">🚀 FlyRunHub • v1.0-beta</p>
+        <p className="footer-title"> FlyRunHub • v1.0 (Beta)
+</p>
 
         <p className="footer-text">
-          FlyRunHub is currently in <strong>beta</strong>.  
-          Found a bug or have an idea? I’d really appreciate your feedback.
+          FlyRunHub is currently in <strong>beta phase</strong>.  
+          if you find any bug please contact.
         </p>
 
         <div className="footer-links">
-          <a href="mailto:kshaunishgupta1@gmail.com">📧 Email</a>
+  {/* Email */}
+  <a href="mailto:kshaunishgupta1@gmail.com" aria-label="Email">
+    <img
+      src="/gmail.png"
+      alt="Email"
+      className="footer-icon"
+    />
+  </a>
 
-          <a
-            href="https://github.com/kshaunishhh/flyrunhub"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            🐙 GitHub
-          </a>
+  {/* GitHub */}
+  <a
+    href="https://github.com/kshaunishhh/flyrunhub"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="GitHub"
+  >
+    <img
+      src="/Github.png"
+      alt="GitHub"
+      className="footer-icon"
+    />
+  </a>
 
-          <a
-            href="https://wa.me/919717538449"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            💬 WhatsApp
-          </a>
-        </div>
+  {/* WhatsApp */}
+  <a
+    href="https://wa.me/919717538449"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="WhatsApp"
+  >
+    <img
+      src="/whatsapp.png"
+      alt="WhatsApp"
+      className="footer-icon"
+    />
+  </a>
+</div>
+    <p className="footer-author">
+      Developed by <strong>Kshaunish Gupta</strong>
+    </p>
+
 
         <p className="footer-version">
-          Built with Strava API • Feedback welcome
+          Built with Strava API
         </p>
       </div>
     </footer>
