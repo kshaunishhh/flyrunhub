@@ -37,6 +37,34 @@ async function refreshStravaToken(athlete) {
   return access_token;
 }
 
+//Helper functions
+async function fetchAllRuns(accessToken, maxPages = 10) {
+  let allRuns = [];
+  let page = 1;
+
+  while (page <= maxPages) {
+    const res = await axios.get(
+      "https://www.strava.com/api/v3/athlete/activities",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        params: {
+          per_page: 100,
+          page,
+        },
+      }
+    );
+
+    if (!res.data || res.data.length === 0) break;
+
+    allRuns.push(...res.data);
+    page++;
+  }
+
+  // only runs
+  return allRuns.filter(activity => activity.type === "Run");
+}
 
 function getCurrentWeekRange() {
   const now = new Date();
@@ -421,6 +449,7 @@ app.get("/leaderboard/weekly",requireAuth, async (req, res) => {
     const runsOnly = response.data.filter(
       (activity) => activity.type === "Run"
     );
+    
 
     // Group by week
    const weeklyTotals = {};
@@ -478,7 +507,7 @@ app.get("/leaderboard/5k",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = response.data.filter(a => a.type === "Run");
+    const runsOnly = await fetchAllRuns(req.accessToken, 10);
     const formatted = runsOnly.map(formatRun);
 
     // keep only 5K by tolerance
@@ -518,7 +547,7 @@ app.get("/leaderboard/10k",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = response.data.filter(a => a.type === "Run");
+    const runsOnly = await fetchAllRuns(req.accessToken, 10);
     const formatted = runsOnly.map(formatRun);
 
     // keep only 10K by tolerance
@@ -563,7 +592,7 @@ app.get("/leaderboard/hm",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = response.data.filter(a => a.type === "Run");
+    const runsOnly = await fetchAllRuns(req.accessToken, 10);
     const formatted = runsOnly.map(formatRun);
 
     const halfMarathons = formatted
@@ -601,7 +630,7 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = response.data.filter(a => a.type === "Run");
+    const runsOnly = await fetchAllRuns(req.accessToken, 10);
     const formatted = runsOnly.map(formatRun);
 
     const fullMarathons = formatted
