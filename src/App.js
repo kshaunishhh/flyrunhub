@@ -218,11 +218,9 @@ useEffect(() => {
               <thead>
                 <tr>
                   <th>Rank</th>
-                  <th>Name / Week</th>
-                  <th>Date</th>
-                  <th>Distance (km)</th>
+                  <th>Week</th>
+                  <th>Distance (kms)</th>
                   <th>Time</th>
-                  <th>Pace</th>
                 </tr>
               </thead>
               <tbody>
@@ -230,11 +228,9 @@ useEffect(() => {
                 {safeArray(data).map((row, idx) => (
                   <tr key={idx}>
                     <td>{(page-1)*10 + idx + 1}</td>
-                    <td>{row.name || row.week_start}</td>
-                    <td>{row.date || "-"}</td>
+                    <td>{row.week}</td>
                     <td>{row.distance_km || row.total_km}</td>
-                    <td>{row.time || "-"}</td>
-                    <td>{row.pace || "-"}</td>
+                    <td>{row.total_time}</td>
                   </tr>
                 ))}
                 {safeArray(data).length === 0 && !loading && (
