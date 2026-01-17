@@ -434,6 +434,7 @@ runsOnly.forEach((run) => {
       totalKm: 0,
       totalTime: 0,
       label: getWeekLabel(run.start_date_local),
+      weekKey,
     };
   }
 
@@ -443,12 +444,13 @@ runsOnly.forEach((run) => {
 
     // Convert to leaderboard array
     const leaderboard = Object.keys(weeklyTotals)
-      .map((week) => ({
-        week: weeklyTotals[week].label,
-        total_km: weeklyTotals[week].totalKm.toFixed(2),
-        total_time: formatSecondsToHHMMSS(weeklyTotals[week].totalTime),
+      .sort((a, b) => new Date(b.weekKey) - new Date(a.weekKey))
+      .map((w) => ({
+        week: w.label,
+        total_km: w.totalKm.toFixed(2),
+        total_time: formatSecondsToHHMMSS(w.totalTime),
       }))
-      .sort((a, b) => new Date(b.week) - new Date(a.week));
+
 
     res.json(paginate(leaderboard, page, limit));
     } catch (error) {
