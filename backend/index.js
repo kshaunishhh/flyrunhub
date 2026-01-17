@@ -60,6 +60,29 @@ function getWeekKey(dateString) {
   return monday.toISOString().split("T")[0]; // YYYY-MM-DD
 }
 
+function getWeekLabel(dateString) {
+  const date = new Date(dateString);
+
+  const year = date.getFullYear();
+  const month = date.toLocaleString("en-US", { month: "short" });
+
+  const day = date.getDate();
+  const weekOfMonth = Math.ceil(day / 7);
+
+  return `${year}/${month}/week-${weekOfMonth}`;
+}
+
+function formatSecondsToHHMMSS(totalSeconds) {
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+
 function paginate(array, page = 1, limit = 10) {
   const start = (page - 1) * limit;
   const end = start + limit;
@@ -399,26 +422,33 @@ app.get("/leaderboard/weekly",requireAuth, async (req, res) => {
     );
 
     // Group by week
-    const weeklyTotals = {};
+   const weeklyTotals = {};
 
-    runsOnly.forEach((run) => {
-      const weekKey = getWeekKey(run.start_date_local);
-      const distanceKm = run.distance / 1000;
+runsOnly.forEach((run) => {
+  const weekKey = getWeekKey(run.start_date_local); // still used internally
+  const distanceKm = run.distance / 1000;
+  const timeSeconds = run.moving_time;
 
-      if (!weeklyTotals[weekKey]) {
-        weeklyTotals[weekKey] = 0;
-      }
+  if (!weeklyTotals[weekKey]) {
+    weeklyTotals[weekKey] = {
+      totalKm: 0,
+      totalTime: 0,
+      label: getWeekLabel(run.start_date_local),
+    };
+  }
 
-      weeklyTotals[weekKey] += distanceKm;
-    });
+  weeklyTotals[weekKey].totalKm += distanceKm;
+  weeklyTotals[weekKey].totalTime += timeSeconds;
+});
 
     // Convert to leaderboard array
     const leaderboard = Object.keys(weeklyTotals)
       .map((week) => ({
-        week_start: week,
-        total_km: weeklyTotals[week].toFixed(2),
+        week: weeklyTotals[week].label,
+        total_km: weeklyTotals[week].totalKm.toFixed(2),
+        total_time: formatSecondsToHHMMSS(weeklyTotals[week].totalTime),
       }))
-      .sort((a, b) => new Date(b.week_start) - new Date(a.week_start));
+      .sort((a, b) => new Date(b.week) - new Date(a.week));
 
     res.json(paginate(leaderboard, page, limit));
     } catch (error) {
