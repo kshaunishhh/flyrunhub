@@ -687,12 +687,13 @@ app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
-// React fallback — ONLY VALID ONE
-app.get("*", (req, res) => {
+// ✅ SAFE SPA fallback (Express v5 compatible)
+app.use((req, res) => {
   res.sendFile(
     path.join(__dirname, "..", "build", "index.html")
   );
 });
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
