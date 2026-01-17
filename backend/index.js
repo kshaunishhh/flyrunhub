@@ -1,4 +1,5 @@
-require("dotenv").config();
+require("dotenv").config({ path: __dirname + "/.env" });
+
 const mongoose = require("mongoose");
 const Athlete=require("./models/Athlete");
 const express = require("express");
