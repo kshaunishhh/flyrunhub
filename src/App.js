@@ -259,56 +259,32 @@ useEffect(() => {
         <div className="leaderboard">
           <h1>{title}</h1>
 
-        <div>
-          <button
-            onClick={() => {
-              setPage(1);
-              loadLeaderboard("weekly", 1);
-            }}
-          >
-            Weekly
-          </button>
+        <div className="tabs">
+  {[
+    { key: "weekly", label: "Weekly" },
+    { key: "5k", label: "5K" },
+    { key: "10k", label: "10K" },
+    { key: "hm", label: "HM" },
+    { key: "fm", label: "FM" }
+  ].map(tab => (
+    <button
+      key={tab.key}
+      className={`tab ${currentType === tab.key ? "active" : ""}`}
+      onClick={() => {
+        setPage(1);
+        loadLeaderboard(tab.key, 1);
+      }}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
 
-          <button
-            onClick={() => {
-              setPage(1);
-              loadLeaderboard("5k", 1);
-            }}
-          >
-            5K
-          </button>
-
-          <button
-            onClick={() => {
-              setPage(1);
-              loadLeaderboard("10k", 1);
-            }}
-          >
-            10K
-          </button>
-
-          <button
-            onClick={() => {
-              setPage(1);
-              loadLeaderboard("hm", 1);
-            }}
-          >
-            HM
-          </button>
-
-          <button
-            onClick={() => {
-              setPage(1);
-              loadLeaderboard("fm", 1);
-            }}
-          >
-            FM
-          </button>
-        </div>
 
           {loading ? (
             <p>Loading...</p>
           ) : (
+            <div className="table-wrapper">
             <table className="leaderboard-table">
               <thead>
                   <tr>
@@ -363,32 +339,41 @@ useEffect(() => {
                 )}
               </tbody>
             </table>
+            </div>
           )}
 
-          <div>
-            <button 
-             disabled={page === 1} 
-             onClick={() => {
-              const newPage = page-1;
-              setPage(newPage);
-              loadLeaderboard(currentType,newPage);
-             }}>
-              Previous
-            </button>
-            <span> Page {page} of {totalPages} </span>
-            <button
-              disabled={page === totalPages}
-              onClick={() => {
-                const newPage=page+1;
-                setPage(newPage);
-                loadLeaderboard(currentType,newPage);
-              }}
-            >
-              Next
-            </button>
-          </div>
+         <div className="leaderboard-actions">
+  <div className="pagination">
+    <button
+      disabled={page === 1}
+      onClick={() => {
+        const newPage = page - 1;
+        setPage(newPage);
+        loadLeaderboard(currentType, newPage);
+      }}
+    >
+      Previous
+    </button>
 
-          <button onClick={() => setView("home")}>Back</button>
+    <span>Page {page} of {totalPages}</span>
+
+    <button
+      disabled={page === totalPages}
+      onClick={() => {
+        const newPage = page + 1;
+        setPage(newPage);
+        loadLeaderboard(currentType, newPage);
+      }}
+    >
+      Next
+    </button>
+  </div>
+
+  <button className="back-btn" onClick={() => setView("home")}>
+    ← Back
+  </button>
+</div>
+
         </div>
       )}
 
@@ -400,7 +385,7 @@ useEffect(() => {
         Loading leaderboard...
       </p>
     )}
-
+        <div className="table-wrapper">
           <table className="leaderboard-table">
             <thead>
               <tr>
@@ -428,7 +413,7 @@ useEffect(() => {
                 )}
             </tbody>
           </table>
-
+        </div>
           <button onClick={() => setView("home")}>Back</button>
         </div>
       )}
