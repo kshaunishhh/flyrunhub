@@ -354,3 +354,79 @@ body {
 .back-btn {
   font-weight: 600;
 }
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* ⬅️ SPACE BETWEEN ROWS */
+  font-size: 15px;
+}
+
+.leaderboard-table thead th {
+  background: var(--bg-elevated);
+  color: #ffffff;
+  padding: 14px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.leaderboard-table tbody tr {
+  background: #11111a;
+  border-radius: 12px;
+}
+
+.leaderboard-table tbody td {
+  padding: 14px 12px;
+  text-align: center;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+/* Rank */
+.leaderboard-table td:first-child {
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent-main);
+}
+
+/* Distance & Time (primary metrics) */
+.leaderboard-table td:nth-child(3),
+.leaderboard-table td:nth-child(4) {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Date & Pace (secondary info) */
+.leaderboard-table td:nth-child(2),
+.leaderboard-table td:last-child {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.leaderboard-table tbody tr:hover {
+  background: rgba(230, 0, 122, 0.08);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+
+.leaderboard-actions {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+@media (max-width: 480px) {
+  .leaderboard-table {
+    font-size: 14px;
+  }
+
+  .leaderboard-table td {
+    padding: 12px 8px;
+  }
+}
