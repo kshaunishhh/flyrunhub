@@ -537,9 +537,3 @@ body {
   }
 }
 
-@media(min-width:480px){
-  .hero-title{
-    font-size: 50px;
-    letter-spacing: 0.5px;
-  }
-}
