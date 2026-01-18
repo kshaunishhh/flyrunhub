@@ -25,13 +25,12 @@ function App() {
 
 useEffect(() => {
   axios
-    .get("/auth/status") // baseURL already set
+    .get("/auth/status")
     .then(res => {
       if (res.data.authenticated) {
         setIsAuthenticated(true);
         setAthlete(res.data.athlete);
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 3500);
+        setShowToast(true);   // just trigger toast
       } else {
         setIsAuthenticated(false);
       }
@@ -43,6 +42,18 @@ useEffect(() => {
       setAuthChecked(true);
     });
 }, []);
+
+useEffect(() => {
+  if (showToast) {
+    const hide = setTimeout(() => {
+      setShowToast(false);
+    }, 3500);
+
+    return () => clearTimeout(hide);
+  }
+}, [showToast]);
+
+
 
 
   // Load default leaderboard
@@ -122,13 +133,15 @@ useEffect(() => {
     <div className="App">
       {showToast && athlete && (
   <div className="toast">
-    ✅ Connected as <strong>{athlete.firstname}</strong>
+    Connected as {athlete.firstname}
   </div>
 )}
+
 
       {view === "home" && (
 
   <>
+  <div className="home">
   <div className="hero">
   <h1 className="hero-title">FlyRunHub</h1>
 
@@ -185,7 +198,7 @@ useEffect(() => {
   <div className="content">
     {/* hero + cards */}
   </div>
-
+</div>
   <footer className="footer">
     ...
   </footer>

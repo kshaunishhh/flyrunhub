@@ -445,3 +445,85 @@ body {
     justify-content: flex-start;
   }
 }
+
+/* =========================
+   CONNECTED AS STATUS 
+========================= */
+.toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: linear-gradient(
+    135deg,
+    #15151d,
+    #1c1c26
+  );
+  color: #fff;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(61, 220, 132, 0.35);
+
+  font-size: 14px;
+  font-weight: 600;
+
+  box-shadow:
+    0 0 0 1px rgba(61, 220, 132, 0.15),
+    0 10px 25px rgba(0, 0, 0, 0.6);
+
+  z-index: 9999;
+  animation: toastIn 0.35s ease-out;
+}
+
+/* green dot */
+.toast::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px rgba(61, 220, 132, 0.9);
+}
+
+/* fade out */
+.toast.fade-out {
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   HOME LAYOUT FIX
+========================= */
+.home {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.home-content {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  /* IMPORTANT */
+  min-height: calc(100vh - 120px);
+}
