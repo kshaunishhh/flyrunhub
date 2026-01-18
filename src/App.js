@@ -186,7 +186,7 @@ useEffect(() => {
       fetchCommunityLeaderboard();
     }}
   >
-    <span className="card-title"> Community Leaderboards</span>
+    <span className="card-title">🏆Community Leaderboard</span>
     <span className="card-sub">
     </span>
   </button>
