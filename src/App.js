@@ -323,6 +323,7 @@ useEffect(() => {
                       </>
                     ) : (
                       <>
+                        <th>Rank</th>
                         <th>Date</th>
                         <th>Distance (km)</th>
                         <th>Time</th>
@@ -336,6 +337,7 @@ useEffect(() => {
 
                 {safeArray(data).map((row, idx) => (
                   <tr key={idx}>
+                    <td>{(page - 1) * 10 + idx + 1}</td>
 
                     {currentType === "weekly" ? (
                       <>
