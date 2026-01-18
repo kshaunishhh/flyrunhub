@@ -259,7 +259,16 @@ body {
 
 @media (max-width: 480px) {
   .app-footer {
+    margin-top: 32px;
     padding: 10px 10px;
+  }
+
+  .hero{
+    margin-bottom: 20px;
+  }
+
+  .card-container{
+    margin-bottom: 28px;
   }
 
   .footer-text {
@@ -428,5 +437,11 @@ body {
 
   .leaderboard-table td {
     padding: 12px 8px;
+  }
+}
+
+@media(max-width: 480px) {
+  .App{
+    justify-content: flex-start;
   }
 }
