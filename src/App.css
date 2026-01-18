@@ -537,3 +537,41 @@ body {
   }
 }
 
+/* =========================
+   CONNECT WITH STRAVA BUTTON
+========================= */
+.connect-btn {
+  background: linear-gradient(
+    135deg,
+    var(--accent-main),
+    var(--accent-hover)
+  );
+  
+  color: #fff;
+  border: none;
+  padding: 14px 62px;
+  font-size: 18px;
+  font-weight: 800;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(230, 0, 122, 0.45);
+  transition: all 0.25s ease;
+  align-items: center;
+
+}
+
+.connect-btn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 16px 40px rgba(230, 0, 122, 0.6);
+}
+
+/* mobile tweak */
+@media (max-width: 480px) {
+  .connect-btn {
+    width: 100%;
+    max-width: 360px;
+    font-size: 17px;
+    padding: 18px 32px;
+    border-radius: 999px;
+  }
+}

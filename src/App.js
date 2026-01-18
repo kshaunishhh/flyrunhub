@@ -153,8 +153,21 @@ useEffect(() => {
     Weekly &amp; Race-based leaderboards powered by Strava
   </p>
 </div>
+      {/* 🔗 CONNECT WITH STRAVA */}
+{!isAuthenticated && (
+  <div style={{ margin: "28px 0" }}>
+    <button
+      className="connect-btn"
+      onClick={() => {
+        window.location.href = "/auth/strava";
+      }}
+    >
+      🔗 Connect with Strava
+    </button>
+  </div>
+)}
+  <div className="home-actions">
 
-    <div className="home-actions">
  <div className="card-container">
 
   <button
