@@ -110,6 +110,31 @@ useEffect(() => {
     .finally(() => setLoading(false));
   };
 
+  const navigate = (nextView) => {
+  window.history.pushState({ view: nextView }, "");
+  setView(nextView);
+};
+useEffect(() => {
+  const handlePopState = (event) => {
+    if (event.state?.view) {
+      setView(event.state.view);
+    } else {
+      setView("home");
+    }
+  };
+
+  window.addEventListener("popstate", handlePopState);
+
+  return () => {
+    window.removeEventListener("popstate", handlePopState);
+  };
+}, []);
+useEffect(() => {
+  window.history.replaceState({ view: "home" }, "");
+}, []);
+
+
+
   const fetchCommunityLeaderboard = async () => {
     try {
       setLoading(true);
@@ -195,7 +220,7 @@ useEffect(() => {
         alert("Please connect with Strava first");
         return;
       }
-      setView("community");
+      navigate("community");
       fetchCommunityLeaderboard();
     }}
   >
@@ -440,7 +465,7 @@ useEffect(() => {
             </tbody>
           </table>
         </div>
-          <button onClick={() => setView("home")}>Back</button>
+          <button onClick={() => navigate("home")}>Back</button>
         </div>
       )}
     </div>
