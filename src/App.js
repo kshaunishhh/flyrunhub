@@ -337,7 +337,6 @@ useEffect(() => {
 
                 {safeArray(data).map((row, idx) => (
                   <tr key={idx}>
-                    <td>{(page - 1) * 10 + idx + 1}</td>
 
                     {currentType === "weekly" ? (
                       <>
@@ -347,6 +346,7 @@ useEffect(() => {
                       </>
                     ) : (
                       <>
+                        <td>{(page - 1) * 10 + idx + 1}</td>
                         <td>{row.date || "-"}</td>
                         <td>{row.distance_km || "-"}</td>
                         <td>{row.time || "-"}</td>
