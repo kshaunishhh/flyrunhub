@@ -110,29 +110,32 @@ useEffect(() => {
     .finally(() => setLoading(false));
   };
 
-  const navigate = (nextView) => {
-  window.history.pushState({ view: nextView }, "");
+const navigate = (nextView) => {
+  if (window.location.hash !== `#${nextView}`) {
+    window.history.pushState({ view: nextView }, "", `#${nextView}`);
+  }
   setView(nextView);
 };
+
 useEffect(() => {
-  const handlePopState = (event) => {
-    if (event.state?.view) {
-      setView(event.state.view);
+  const onBack = () => {
+    const hash = window.location.hash.replace("#", "");
+    if (hash === "personal" || hash === "community") {
+      setView(hash);
     } else {
       setView("home");
     }
   };
 
-  window.addEventListener("popstate", handlePopState);
-
-  return () => {
-    window.removeEventListener("popstate", handlePopState);
-  };
+  window.addEventListener("popstate", onBack);
+  return () => window.removeEventListener("popstate", onBack);
 }, []);
+
+
+
 useEffect(() => {
-  window.history.replaceState({ view: "home" }, "");
+  window.history.replaceState({ view: "home" }, "", "#home");
 }, []);
-
 
 
   const fetchCommunityLeaderboard = async () => {
@@ -202,7 +205,7 @@ useEffect(() => {
         alert("Please connect with Strava first");
         return;
       }
-      setView("personal");
+      navigate("personal");
       setPage(1);
       loadLeaderboard("weekly", 1);
     }}
@@ -420,7 +423,7 @@ useEffect(() => {
     </button>
   </div>
 
-  <button className="back-btn" onClick={() => setView("home")}>
+  <button className="back-btn" onClick={() => navigate("home")}>
     ← Back
   </button>
 </div>
