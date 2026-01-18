@@ -302,7 +302,7 @@ body {
 .tab {
   background: transparent;
   border: none;
-  color: var(--text-muted);
+  color: #fff;
   padding: 8px 16px;
   font-size: 14px;
   font-weight: 700;
@@ -413,7 +413,7 @@ body {
 /* Date & Pace (secondary info) */
 .leaderboard-table td:nth-child(2),
 .leaderboard-table td:last-child {
-  color: var(--text-muted);
+  color: #ffffff;
   font-size: 14px;
 }
 

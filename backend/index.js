@@ -66,6 +66,42 @@ async function fetchAllRuns(accessToken, maxPages = 10) {
   return allRuns.filter(activity => activity.type === "Run");
 }
 
+
+function formatWeekRange(date) {
+  const start = new Date(date);
+  const day = start.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  start.setDate(start.getDate() + diff);
+
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
+
+  const year = start.getFullYear();
+  const month = start.toLocaleString("en-US", { month: "short" });
+
+  return `${year}/${month} (${start.getDate()}-${end.getDate()})`;
+}
+
+function generateWeeks(count = 12) {
+  const weeks = [];
+  const now = new Date();
+
+  for (let i = 0; i < count; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i * 7);
+
+    weeks.push({
+      label: formatWeekRange(d),
+      total_km: 0,
+      total_time_sec: 0,
+      startDate: new Date(d)
+    });
+  }
+
+  return weeks;
+}
+
+
 function getCurrentWeekRange() {
   const now = new Date();
   const day = now.getDay(); // 0 (Sun) - 6 (Sat)
@@ -100,6 +136,7 @@ function getWeekLabel(dateString) {
 
   return `${year}/${month}/${weekOfMonth}`;
 }
+
 
 function formatSecondsToHHMMSS(totalSeconds) {
   const hours = Math.floor(totalSeconds / 3600);
@@ -426,65 +463,51 @@ app.get("/activities", requireAuth,async (req, res) => {
 
 
 
-app.get("/leaderboard/weekly",requireAuth, async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-
-
+app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: {
-          Authorization: `Bearer ${req.accessToken}`,
-        },
-        params: {
-          per_page: 50,
-        },
-      }
-    );
+    // 1️⃣ Fetch ALL runs (important for old data)
+    const runsOnly = await fetchAllRuns(req.accessToken, 10);
 
-    // Only RUNS
-    const runsOnly = response.data.filter(
-      (activity) => activity.type === "Run"
-    );
-    
+    // 2️⃣ Generate weeks (even empty ones)
+    const weeks = generateWeeks(12);
 
-    // Group by week
-   const weeklyTotals = {};
+    // 3️⃣ Add runs into weeks
+    runsOnly.forEach(run => {
+      const runDate = new Date(run.start_date_local);
 
-runsOnly.forEach((run) => {
-  const weekKey = getWeekKey(run.start_date_local); // still used internally
-  const distanceKm = run.distance / 1000;
-  const timeSeconds = run.moving_time;
+      weeks.forEach(week => {
+        const start = new Date(week.startDate);
+        const day = start.getDay();
+        const diff = day === 0 ? -6 : 1 - day;
+        start.setDate(start.getDate() + diff);
 
-  if (!weeklyTotals[weekKey]) {
-    weeklyTotals[weekKey] = {
-      totalKm: 0,
-      totalTime: 0,
-      label: getWeekLabel(run.start_date_local),
-      weekKey,
-    };
-  }
+        const end = new Date(start);
+        end.setDate(start.getDate() + 6);
 
-  weeklyTotals[weekKey].totalKm += distanceKm;
-  weeklyTotals[weekKey].totalTime += timeSeconds;
-});
+        if (runDate >= start && runDate <= end) {
+          week.total_km += run.distance / 1000;
+          week.total_time_sec += run.moving_time;
+        }
+      });
+    });
 
-    // Convert to leaderboard array
-    const leaderboard = Object.values(weeklyTotals)
-      .sort((a, b) => new Date(b.weekKey) - new Date(a.weekKey))
-      .map((w) => ({
-        week: w.label,
-        total_km: w.totalKm.toFixed(2),
-        total_time: formatSecondsToHHMMSS(w.totalTime),
-      }))
+    // 4️⃣ Format output (NO rank, 0 stays 0)
+    const weeklyData = weeks.map(w => ({
+      week: w.label,
+      total_km: w.total_km === 0 ? "0" : w.total_km.toFixed(2),
+      total_time:
+        w.total_time_sec === 0
+          ? "0"
+          : formatSecondsToHHMMSS(w.total_time_sec)
+    }));
 
-
-    res.json(paginate(leaderboard, page, limit));
-    } catch (error) {
-    console.error(error.response?.data || error.message);
+    // 5️⃣ Paginate
+    res.json(paginate(weeklyData, page, limit));
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to generate weekly leaderboard" });
   }
 });
