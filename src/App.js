@@ -314,7 +314,6 @@ useEffect(() => {
             <table className="leaderboard-table">
               <thead>
                   <tr>
-                    <th>Rank</th>
 
                     {currentType === "weekly" ? (
                       <>
@@ -337,7 +336,6 @@ useEffect(() => {
 
                 {safeArray(data).map((row, idx) => (
                   <tr key={idx}>
-                    <td>{(page - 1) * 10 + idx + 1}</td>
 
                     {currentType === "weekly" ? (
                       <>

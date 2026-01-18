@@ -472,7 +472,7 @@ app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
     const runsOnly = await fetchAllRuns(req.accessToken, 10);
 
     // 2️⃣ Generate weeks (even empty ones)
-    const weeks = generateWeeks(12);
+    const weeks = generateWeeks(30);
 
     // 3️⃣ Add runs into weeks
     runsOnly.forEach(run => {
