@@ -90,16 +90,23 @@ function generateWeeks(count = 12) {
     const d = new Date(now);
     d.setDate(d.getDate() - i * 7);
 
+    const weekStart = new Date(d);
+    const day = weekStart.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    weekStart.setDate(weekStart.getDate() + diff);
+    weekStart.setHours(0, 0, 0, 0);
+
     weeks.push({
       label: formatWeekRange(d),
       total_km: 0,
       total_time_sec: 0,
-      startDate: new Date(d)
+      startDate: weekStart
     });
   }
 
   return weeks;
 }
+
 
 
 function getCurrentWeekRange() {
@@ -480,17 +487,15 @@ app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
 
       weeks.forEach(week => {
         const start = new Date(week.startDate);
-        const day = start.getDay();
-        const diff = day === 0 ? -6 : 1 - day;
-        start.setDate(start.getDate() + diff);
-
         const end = new Date(start);
         end.setDate(start.getDate() + 6);
+        end.setHours(23, 59, 59, 999);
 
         if (runDate >= start && runDate <= end) {
           week.total_km += run.distance / 1000;
           week.total_time_sec += run.moving_time;
         }
+
       });
     });
 
