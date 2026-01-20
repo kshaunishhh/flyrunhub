@@ -9,6 +9,14 @@ const axios = require("axios");
 app.set("trust proxy",1);
 
 
+if (process.env.NODE_ENV === "production") {
+  setInterval(() => {
+    axios
+      .get("https://flyrunhub.onrender.com/health")
+      .then(() => console.log("Pinged self"))
+      .catch(() => {});
+  }, 1000 * 60 * 5); // every 5 minutes
+}
 
 
 async function refreshStravaToken(athlete) {
@@ -468,6 +476,13 @@ app.get("/activities", requireAuth,async (req, res) => {
 });
 
 
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+  });
+});
 
 
 app.get("/leaderboard/weekly", requireAuth, async (req, res) => {

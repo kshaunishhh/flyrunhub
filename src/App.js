@@ -254,7 +254,7 @@ useEffect(() => {
 
         <p className="footer-text">
           FlyRunHub is currently in <strong>beta phase</strong>.  
-          if you find any bug please contact.
+          Please feel free to give feedback.
         </p>
 
         <div className="footer-links">
