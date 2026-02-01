@@ -695,7 +695,7 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
   }
 });
 
-app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
+app.get("/community/leaderboard/weekly",async (req, res) => {
   try {
     const athletes = await Athlete.find({});
     const { weekStart, weekEnd } = getCurrentWeekRange();
@@ -703,42 +703,49 @@ app.get("/community/leaderboard/weekly", requireAuth,async (req, res) => {
     let leaderboard = [];
 
     for (const athlete of athletes) {
-      let accessToken = athlete.accessToken;
+  try {
+    let accessToken = athlete.accessToken;
 
-      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+    if (athlete.tokenExpiresAt * 1000 < Date.now()) {
       accessToken = await refreshStravaToken(athlete);
-      }
-
-      const response = await axios.get(
-        "https://www.strava.com/api/v3/athlete/activities",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: {
-            after: Math.floor(weekStart.getTime() / 1000),
-            before: Math.floor(weekEnd.getTime() / 1000),
-            per_page: 200,
-          },
-        }
-      );
-
-      const runs = response.data.filter(a => a.type === "Run");
-
-      if (runs.length === 0) continue;
-
-      const totalKm = runs.reduce(
-        (sum, run) => sum + run.distance / 1000,
-        0
-      );
-
-      leaderboard.push({
-        athleteId: athlete.athleteId,
-        name: `${athlete.firstname} ${athlete.lastname}`,
-        total_km: Number(totalKm.toFixed(2)),
-        runs: runs.length,
-      });
     }
+
+    const response = await axios.get(
+      "https://www.strava.com/api/v3/athlete/activities",
+      {
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: {
+          after: Math.floor(weekStart.getTime() / 1000),
+          before: Math.floor(weekEnd.getTime() / 1000),
+          per_page: 200,
+        },
+      }
+    );
+
+    const runs = response.data.filter(a => a.type === "Run");
+    if (runs.length === 0) continue;
+
+    const totalKm = runs.reduce(
+      (sum, run) => sum + run.distance / 1000,
+      0
+    );
+
+    leaderboard.push({
+      athleteId: athlete.athleteId,
+      name: `${athlete.firstname} ${athlete.lastname}`,
+      total_km: Number(totalKm.toFixed(2)),
+      runs: runs.length,
+    });
+
+  } catch (err) {
+    console.warn(
+      `Skipping athlete ${athlete.athleteId}:`,
+      err.response?.data || err.message
+    );
+    continue; // 🚀 THIS IS KEY
+  }
+}
+
 
     // sort descending by km
     leaderboard.sort((a, b) => b.total_km - a.total_km);
