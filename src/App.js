@@ -21,6 +21,12 @@ function App() {
   const [currentType,setCurrentType] = useState(null);
   const [showToast, setShowToast] = useState(false);
 
+const getMedal = (rank) => {
+  if (rank === 1) return "🥇";
+  if (rank === 2) return "🥈";
+  if (rank === 3) return "🥉";
+  return rank;
+};
 
 
 useEffect(() => {
@@ -374,7 +380,7 @@ useEffect(() => {
                       </>
                     ) : (
                       <>
-                        <td>{(page - 1) * 10 + idx + 1}</td>
+                        <td>{getMedal((page - 1) * 10 + idx + 1)}</td>
                         <td>{row.date || "-"}</td>
                         <td>{row.distance_km || "-"}</td>
                         <td>{row.time || "-"}</td>
@@ -452,7 +458,7 @@ useEffect(() => {
             <tbody>
               {safeArray(communityData).map((row, idx) => (
                 <tr key={idx}>
-                  <td>{row.rank}</td>
+                  <td>{getMedal(row.rank)}</td>
                   <td>{row.name}</td>
                   <td>{row.total_km}</td>
                   <td>{row.runs}</td>
