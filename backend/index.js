@@ -6,6 +6,10 @@ const express = require("express");
 const app = express();
 const axios = require("axios");
 
+const db = require("./firestore");
+
+const cron = require("node-cron");
+
 app.set("trust proxy",1);
 
 
@@ -46,6 +50,84 @@ async function refreshStravaToken(athlete) {
 }
 
 //Helper functions
+
+
+
+async function buildWeeklyCommunityLeaderboard() {
+  console.log("⏳ Building weekly community leaderboard...");
+
+  const athletes = await Athlete.find({});
+  const { weekStart, weekEnd } = getCurrentWeekRange();
+
+  let leaderboard = [];
+
+  for (const athlete of athletes) {
+    try {
+      let accessToken = athlete.accessToken;
+
+      // refresh token if expired
+      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+        accessToken = await refreshStravaToken(athlete);
+      }
+
+      const response = await axios.get(
+        "https://www.strava.com/api/v3/athlete/activities",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          params: {
+            after: Math.floor(weekStart.getTime() / 1000),
+            before: Math.floor(weekEnd.getTime() / 1000),
+            per_page: 200,
+          },
+        }
+      );
+
+      const runs = response.data.filter(a => a.type === "Run");
+      if (runs.length === 0) continue;
+
+      const totalKm = runs.reduce(
+        (sum, run) => sum + run.distance / 1000,
+        0
+      );
+
+      leaderboard.push({
+        athleteId: athlete.athleteId,
+        name: `${athlete.firstname} ${athlete.lastname}`,
+        total_km: Number(totalKm.toFixed(2)),
+        runs: runs.length,
+      });
+
+    } catch (err) {
+      console.warn(
+        `Skipping athlete ${athlete.athleteId}`,
+        err.response?.data || err.message
+      );
+      continue;
+    }
+  }
+
+  // sort & rank
+  leaderboard.sort((a, b) => b.total_km - a.total_km);
+  leaderboard = leaderboard.map((a, i) => ({
+    rank: i + 1,
+    ...a,
+  }));
+
+  // week key (Monday date)
+  const weekKey = weekStart.toISOString().split("T")[0];
+
+  // 🔥 SAVE TO FIRESTORE
+  await db
+    .collection("leaderboards_weekly")
+    .doc(weekKey)
+    .set({
+      generatedAt: new Date(),
+      data: leaderboard,
+    });
+
+  console.log("✅ Weekly leaderboard saved to Firestore");
+}
+
 async function fetchAllRuns(accessToken, maxPages = 10) {
   let allRuns = [];
   let page = 1;
@@ -239,6 +321,17 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error", err));
 
+// 🔁 WEEKLY COMMUNITY LEADERBOARD CRON
+cron.schedule("0 * * * *", async () => {
+  try {
+    console.log("⏰ Cron started: building community leaderboard");
+    await buildWeeklyCommunityLeaderboard();
+  } catch (err) {
+    console.error("❌ Cron failed:", err.message);
+  }
+});
+buildWeeklyCommunityLeaderboard().catch(console.error);
+
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -370,6 +463,22 @@ app.get("/callback", async (req, res) => {
       },
       { upsert: true, new: true }
     );
+
+
+    // 🔥 SAVE PUBLIC ATHLETE DATA TO FIRESTORE (SAFE)
+await db
+  .collection("athletes_public")
+  .doc(String(athlete.id)) // athleteId = documentId
+  .set(
+    {
+      firstname: athlete.firstname,
+      lastname: athlete.lastname,
+      username: athlete.username || null,
+      joinedAt: new Date(),
+    },
+    { merge: true }
+  );
+
 
     // ✅ SINGLE regenerate (ONLY ONCE)
     req.session.regenerate((err) => {
@@ -695,73 +804,27 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
   }
 });
 
-app.get("/community/leaderboard/weekly",async (req, res) => {
+app.get("/community/leaderboard/weekly", async (req, res) => {
   try {
-    const athletes = await Athlete.find({});
-    const { weekStart, weekEnd } = getCurrentWeekRange();
+    const { weekStart } = getCurrentWeekRange();
+    const weekKey = weekStart.toISOString().split("T")[0];
 
-    let leaderboard = [];
+    const snap = await db
+      .collection("leaderboards_weekly")
+      .doc(weekKey)
+      .get();
 
-    for (const athlete of athletes) {
-  try {
-    let accessToken = athlete.accessToken;
-
-    if (athlete.tokenExpiresAt * 1000 < Date.now()) {
-      accessToken = await refreshStravaToken(athlete);
+    if (!snap.exists) {
+      return res.json([]);
     }
 
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${accessToken}` },
-        params: {
-          after: Math.floor(weekStart.getTime() / 1000),
-          before: Math.floor(weekEnd.getTime() / 1000),
-          per_page: 200,
-        },
-      }
-    );
-
-    const runs = response.data.filter(a => a.type === "Run");
-    if (runs.length === 0) continue;
-
-    const totalKm = runs.reduce(
-      (sum, run) => sum + run.distance / 1000,
-      0
-    );
-
-    leaderboard.push({
-      athleteId: athlete.athleteId,
-      name: `${athlete.firstname} ${athlete.lastname}`,
-      total_km: Number(totalKm.toFixed(2)),
-      runs: runs.length,
-    });
-
+    res.json(snap.data().data);
   } catch (err) {
-    console.warn(
-      `Skipping athlete ${athlete.athleteId}:`,
-      err.response?.data || err.message
-    );
-    continue; // 🚀 THIS IS KEY
-  }
-}
-
-
-    // sort descending by km
-    leaderboard.sort((a, b) => b.total_km - a.total_km);
-
-    // assign rank
-    leaderboard = leaderboard.map((a, i) => ({
-      rank: i + 1,
-      ...a,
-    }));
-
-    res.json(leaderboard);
-  } catch (err) {
-    console.error("Community leaderboard error:", err.message);
-    res.status(500).json({ error: "Failed to build community leaderboard" });
+    console.error("Community leaderboard read error:", err.message);
+    res.status(500).json({ error: "Failed to load leaderboard" });
   }
 });
+
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
