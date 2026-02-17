@@ -386,9 +386,10 @@ const requireAuth = async (req, res, next) => {
 
 
 app.get("/auth/status", async (req, res) => {
-  console.log("SESSION",req.session);
+  console.log("SESSION", req.session);
 
-  if (!req.session.isAuthenticated) {
+  // ❌ No session → not authenticated
+  if (!req.session.isAuthenticated || !req.session.athleteId) {
     return res.json({ authenticated: false });
   }
 
@@ -396,12 +397,28 @@ app.get("/auth/status", async (req, res) => {
     athleteId: req.session.athleteId,
   });
 
+  // ❌ Athlete deleted from DB → destroy session
+  if (!athlete) {
+    console.log("Athlete not found. Destroying session.");
+
+    req.session.destroy(() => {
+      res.clearCookie("flyrunhub.sid");
+      return res.json({ authenticated: false });
+    });
+
+    return;
+  }
+
+  // ✅ Valid session + valid athlete
   res.json({
     authenticated: true,
-    athlete,
+    athlete: {
+      firstname: athlete.firstname,
+      lastname: athlete.lastname,
+      athleteId: athlete.athleteId,
+    },
   });
 });
-
 
 
 
