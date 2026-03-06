@@ -50,7 +50,71 @@ async function refreshStravaToken(athlete) {
 
 //Helper functions
 
+async function updateSingleAthlete(athleteId) {
 
+  if (!cachedLeaderboard) return;
+
+  const athlete = await Athlete.findOne({ athleteId });
+  if (!athlete) return;
+
+  const { weekStart, weekEnd } = getCurrentWeekRange();
+
+  let accessToken = athlete.accessToken;
+
+  if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+    accessToken = await refreshStravaToken(athlete);
+  }
+
+  const response = await axios.get(
+    "https://www.strava.com/api/v3/athlete/activities",
+    {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      params: {
+        after: Math.floor(weekStart.getTime() / 1000),
+        before: Math.floor(weekEnd.getTime() / 1000),
+        per_page: 200,
+      },
+    }
+  );
+
+  const runs = response.data.filter(a => a.type === "Run");
+
+  const totalKm = runs.reduce(
+    (sum, run) => sum + run.distance / 1000,
+    0
+  );
+
+  const updatedEntry = {
+    athleteId,
+    name: `${athlete.firstname} ${athlete.lastname}`,
+    total_km: Number(totalKm.toFixed(2)),
+    runs: runs.length,
+  };
+
+  if (!cachedLeaderboard) {
+    cachedLeaderboard = [];
+  }
+
+  // Remove old entry
+  cachedLeaderboard = cachedLeaderboard.filter(
+    a => a.athleteId !== athleteId
+  );
+
+  // Add updated entry
+  if (totalKm > 0) {
+    cachedLeaderboard.push(updatedEntry);
+  }
+
+  // Re-sort
+  cachedLeaderboard.sort((a, b) => b.total_km - a.total_km);
+
+  // Re-rank
+  cachedLeaderboard = cachedLeaderboard.map((a, i) => ({
+    rank: i + 1,
+    ...a
+  }));
+
+}
 
 async function buildWeeklyCommunityLeaderboard() {
 
@@ -801,22 +865,26 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 });
 
 app.get("/community/leaderboard/weekly", async (req, res) => {
-
   try {
-
     const now = Date.now();
 
-    // If generated in last 60 seconds, return cached
+    // If cache exists and within 60 sec, return it
     if (cachedLeaderboard && (now - lastGenerated < 60000)) {
       return res.json(cachedLeaderboard);
     }
 
-    const leaderboard = await buildWeeklyCommunityLeaderboard();
+    // First time build
+    if (!cachedLeaderboard) {
+      cachedLeaderboard = await buildWeeklyCommunityLeaderboard();
+    }
+    // Otherwise update only current athlete
+    else if (req.session?.athleteId) {
+      await updateSingleAthlete(req.session.athleteId);
+    }
 
-    cachedLeaderboard = leaderboard;
     lastGenerated = now;
 
-    res.json(leaderboard);
+    return res.json(cachedLeaderboard);
 
   } catch (err) {
     console.error("Community leaderboard error:", err.message);

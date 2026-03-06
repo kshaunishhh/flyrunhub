@@ -20,6 +20,7 @@ function App() {
   const [athlete, setAthlete] = useState(null);
   const [currentType,setCurrentType] = useState(null);
   const [showToast, setShowToast] = useState(false);
+  const [prevCommunity, setPrevCommunity] = useState([]);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -143,19 +144,46 @@ useEffect(() => {
   window.history.replaceState({ view: "home" }, "", "#home");
 }, []);
 
+useEffect(() => {
+  if (view !== "community") return;
 
-  const fetchCommunityLeaderboard = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/community/leaderboard/weekly");
-      setCommunityData(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Community leaderboard error:", err);
-      setCommunityData([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  fetchCommunityLeaderboard();
+
+  const interval = setInterval(() => {
+    fetchCommunityLeaderboard();
+  }, 20000); // every 20 seconds
+
+  return () => clearInterval(interval);
+
+}, [view]);
+
+
+const fetchCommunityLeaderboard = async () => {
+  try {
+    setLoading(true);
+    const res = await axios.get("/community/leaderboard/weekly");
+
+    const newData = Array.isArray(res.data) ? res.data : [];
+
+    const animated = newData.map(player => {
+      const old = prevCommunity.find(p => p.athleteId === player.athleteId);
+
+      if (old && old.rank > player.rank) {
+        return { ...player, climbed: true };
+      }
+
+      return player;
+    });
+
+    setPrevCommunity(prev => newData);
+    setCommunityData(animated);
+
+  } catch (err) {
+    setCommunityData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (!authChecked) {
   return <p style={{ textAlign: "center" }}>Checking authentication…</p>;
@@ -457,7 +485,10 @@ useEffect(() => {
             </thead>
             <tbody>
               {safeArray(communityData).map((row, idx) => (
-                <tr key={idx}>
+                <tr
+                  key={row.athleteId}
+                  className={`leaderboard-row ${row.climbed ? "rank-up" : ""}`}
+                >
                   <td>{getMedal(row.rank)}</td>
                   <td>{row.name}</td>
                   <td>{row.total_km}</td>
