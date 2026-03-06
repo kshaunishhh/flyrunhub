@@ -198,22 +198,26 @@ function generateWeeks(count = 12) {
 }
 
 function getCurrentWeekRange() {
-  const now = new Date();
+  const nowUTC = new Date();
 
-  // Convert current time to IST
-  const istNow = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-  );
+  // IST = UTC + 5h 30m
+  const IST_OFFSET = 5.5 * 60 * 60 * 1000;
 
-  const day = istNow.getDay(); // 0 = Sunday
+  const nowIST = new Date(nowUTC.getTime() + IST_OFFSET);
+
+  const day = nowIST.getUTCDay(); // use UTC methods
   const diff = day === 0 ? -6 : 1 - day;
 
-  const weekStart = new Date(istNow);
-  weekStart.setDate(istNow.getDate() + diff);
-  weekStart.setHours(0, 0, 0, 0); // Monday 12:00 AM IST
+  const weekStartIST = new Date(nowIST);
+  weekStartIST.setUTCDate(nowIST.getUTCDate() + diff);
+  weekStartIST.setUTCHours(0, 0, 0, 0);
 
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7); // Next Monday 12:00 AM IST
+  const weekEndIST = new Date(weekStartIST);
+  weekEndIST.setUTCDate(weekStartIST.getUTCDate() + 7);
+
+  // Convert back to real UTC timestamps
+  const weekStart = new Date(weekStartIST.getTime() - IST_OFFSET);
+  const weekEnd = new Date(weekEndIST.getTime() - IST_OFFSET);
 
   return { weekStart, weekEnd };
 }
