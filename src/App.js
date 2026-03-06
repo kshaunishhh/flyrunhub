@@ -158,16 +158,17 @@ useEffect(() => {
 }, [view]);
 
 useEffect(() => {
-  if (!communityData.length) return;
+  if (!communityData.some(p => p.climbed)) return;
 
   const timer = setTimeout(() => {
     setCommunityData(prev =>
-      prev.map(p => ({ ...p, climbed: false }))
+      prev.map(p =>
+        p.climbed ? { ...p, climbed: false } : p
+      )
     );
-  }, 700);
+  }, 800);
 
   return () => clearTimeout(timer);
-
 }, [communityData]);
 
 
@@ -179,7 +180,9 @@ const fetchCommunityLeaderboard = async () => {
     const newData = Array.isArray(res.data) ? res.data : [];
 
     const animated = newData.map(player => {
-      const old = prevCommunity.find(p => p.athleteId === player.athleteId);
+      const old = prevCommunity?.find(
+  p => p.athleteId === player.athleteId
+);
 
       if (old && old.rank > player.rank) {
         return { ...player, climbed: true };
@@ -188,7 +191,7 @@ const fetchCommunityLeaderboard = async () => {
       return player;
     });
 
-    setPrevCommunity(prev => newData);
+    setPrevCommunity(newData);
     setCommunityData(animated);
 
   } catch (err) {
