@@ -333,7 +333,7 @@ mongoose
 
 // 🔁 WEEKLY COMMUNITY LEADERBOARD (Monday 12 AM IST)
 cron.schedule(
-  "0 0 * * 1",
+  "* /2 * * * *",
   async () => {
     try {
       console.log("⏰ Monday 12AM IST: rebuilding weekly leaderboard");
