@@ -157,6 +157,19 @@ useEffect(() => {
 
 }, [view]);
 
+useEffect(() => {
+  if (!communityData.length) return;
+
+  const timer = setTimeout(() => {
+    setCommunityData(prev =>
+      prev.map(p => ({ ...p, climbed: false }))
+    );
+  }, 700);
+
+  return () => clearTimeout(timer);
+
+}, [communityData]);
+
 
 const fetchCommunityLeaderboard = async () => {
   try {

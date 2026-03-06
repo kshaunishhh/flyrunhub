@@ -868,30 +868,20 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
   try {
     const now = Date.now();
 
-    // If cache exists and within 60 sec, return it
-    if (cachedLeaderboard && (now - lastGenerated < 60000)) {
-      return res.json(cachedLeaderboard);
-    }
-
-    // First time build
-    if (!cachedLeaderboard) {
+    if (!cachedLeaderboard || (now - lastGenerated > 60000)) {
       cachedLeaderboard = await buildWeeklyCommunityLeaderboard();
-    }
-    // Otherwise update only current athlete
-    else if (req.session?.athleteId) {
+      lastGenerated = now;
+    } else if (req.session?.athleteId) {
       await updateSingleAthlete(req.session.athleteId);
     }
 
-    lastGenerated = now;
-
-    return res.json(cachedLeaderboard);
+    res.json(cachedLeaderboard);
 
   } catch (err) {
     console.error("Community leaderboard error:", err.message);
     res.status(500).json({ error: "Failed to generate leaderboard" });
   }
 });
-
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
