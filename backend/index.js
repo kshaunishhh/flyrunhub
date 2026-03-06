@@ -197,18 +197,23 @@ function generateWeeks(count = 12) {
   return weeks;
 }
 
-
-
 function getCurrentWeekRange() {
   const now = new Date();
-  const day = now.getDay(); // 0 (Sun) - 6 (Sat)
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
 
-  const weekStart = new Date(now.setDate(diff));
-  weekStart.setHours(0, 0, 0, 0);
+  // Convert current time to IST
+  const istNow = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  );
+
+  const day = istNow.getDay(); // 0 = Sunday
+  const diff = day === 0 ? -6 : 1 - day;
+
+  const weekStart = new Date(istNow);
+  weekStart.setDate(istNow.getDate() + diff);
+  weekStart.setHours(0, 0, 0, 0); // Monday 12:00 AM IST
 
   const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7);
+  weekEnd.setDate(weekStart.getDate() + 7); // Next Monday 12:00 AM IST
 
   return { weekStart, weekEnd };
 }
@@ -321,18 +326,25 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch(err => console.error("Mongo error", err));
 
-// 🔁 WEEKLY COMMUNITY LEADERBOARD CRON
-cron.schedule("0 * * * *", async () => {
-  try {
-    console.log("⏰ Cron started: building community leaderboard");
-    await buildWeeklyCommunityLeaderboard();
-  } catch (err) {
-    console.error("❌ Cron failed:", err.message);
+
+// 🔁 WEEKLY COMMUNITY LEADERBOARD (Monday 12 AM IST)
+cron.schedule(
+  "0 0 * * 1",
+  async () => {
+    try {
+      console.log("⏰ Monday 12AM IST: rebuilding weekly leaderboard");
+      await buildWeeklyCommunityLeaderboard();
+    } catch (err) {
+      console.error("❌ Weekly cron failed:", err.message);
+    }
+  },
+  {
+    timezone: "Asia/Kolkata",
   }
-});
+);
+
+// 🔁 Build once when server starts
 buildWeeklyCommunityLeaderboard().catch(console.error);
-
-
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
