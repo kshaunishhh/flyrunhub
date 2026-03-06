@@ -8,10 +8,9 @@ const axios = require("axios");
 
 const db = require("./firestore");
 
-const cron = require("node-cron");
-
 app.set("trust proxy",1);
-
+let cachedLeaderboard = null;
+let lastGenerated = 0;
 
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
@@ -54,7 +53,6 @@ async function refreshStravaToken(athlete) {
 
 
 async function buildWeeklyCommunityLeaderboard() {
-  console.log("⏳ Building weekly community leaderboard...");
 
   const athletes = await Athlete.find({});
   const { weekStart, weekEnd } = getCurrentWeekRange();
@@ -62,10 +60,10 @@ async function buildWeeklyCommunityLeaderboard() {
   let leaderboard = [];
 
   for (const athlete of athletes) {
+
     try {
       let accessToken = athlete.accessToken;
 
-      // refresh token if expired
       if (athlete.tokenExpiresAt * 1000 < Date.now()) {
         accessToken = await refreshStravaToken(athlete);
       }
@@ -83,7 +81,7 @@ async function buildWeeklyCommunityLeaderboard() {
       );
 
       const runs = response.data.filter(a => a.type === "Run");
-      if (runs.length === 0) continue;
+      if (!runs.length) continue;
 
       const totalKm = runs.reduce(
         (sum, run) => sum + run.distance / 1000,
@@ -98,34 +96,16 @@ async function buildWeeklyCommunityLeaderboard() {
       });
 
     } catch (err) {
-      console.warn(
-        `Skipping athlete ${athlete.athleteId}`,
-        err.response?.data || err.message
-      );
       continue;
     }
   }
 
-  // sort & rank
   leaderboard.sort((a, b) => b.total_km - a.total_km);
-  leaderboard = leaderboard.map((a, i) => ({
+
+  return leaderboard.map((a, i) => ({
     rank: i + 1,
-    ...a,
+    ...a
   }));
-
-  // week key (Monday date)
-  const weekKey = weekStart.toISOString().split("T")[0];
-
-  // 🔥 SAVE TO FIRESTORE
-  await db
-    .collection("leaderboards_weekly")
-    .doc(weekKey)
-    .set({
-      generatedAt: new Date(),
-      data: leaderboard,
-    });
-
-  console.log("✅ Weekly leaderboard saved to Firestore");
 }
 
 async function fetchAllRuns(accessToken, maxPages = 10) {
@@ -331,24 +311,7 @@ mongoose
   .catch(err => console.error("Mongo error", err));
 
 
-// 🔁 WEEKLY COMMUNITY LEADERBOARD (Monday 12 AM IST)
-cron.schedule(
-  "* /2 * * * *",
-  async () => {
-    try {
-      console.log("⏰ Monday 12AM IST: rebuilding weekly leaderboard");
-      await buildWeeklyCommunityLeaderboard();
-    } catch (err) {
-      console.error("❌ Weekly cron failed:", err.message);
-    }
-  },
-  {
-    timezone: "Asia/Kolkata",
-  }
-);
 
-// 🔁 Build once when server starts
-buildWeeklyCommunityLeaderboard().catch(console.error);
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
@@ -838,26 +801,28 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 });
 
 app.get("/community/leaderboard/weekly", async (req, res) => {
+
   try {
-    const { weekStart } = getCurrentWeekRange();
-    const weekKey = weekStart.toISOString().split("T")[0];
 
-    const snap = await db
-      .collection("leaderboards_weekly")
-      .doc(weekKey)
-      .get();
+    const now = Date.now();
 
-    if (!snap.exists) {
-      return res.json([]);
+    // If generated in last 60 seconds, return cached
+    if (cachedLeaderboard && (now - lastGenerated < 60000)) {
+      return res.json(cachedLeaderboard);
     }
 
-    res.json(snap.data().data);
+    const leaderboard = await buildWeeklyCommunityLeaderboard();
+
+    cachedLeaderboard = leaderboard;
+    lastGenerated = now;
+
+    res.json(leaderboard);
+
   } catch (err) {
-    console.error("Community leaderboard read error:", err.message);
-    res.status(500).json({ error: "Failed to load leaderboard" });
+    console.error("Community leaderboard error:", err.message);
+    res.status(500).json({ error: "Failed to generate leaderboard" });
   }
 });
-
 
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
