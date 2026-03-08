@@ -21,6 +21,7 @@ function App() {
   const [currentType,setCurrentType] = useState(null);
   const [showToast, setShowToast] = useState(false);
   const [prevCommunity, setPrevCommunity] = useState([]);
+  const [selectedTypes, setSelectedTypes] = useState(["Run"]);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -145,6 +146,12 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  if (view === "community") {
+    fetchCommunityLeaderboard();
+  }
+}, [selectedTypes]);
+
+useEffect(() => {
   if (view !== "community") return;
 
   fetchCommunityLeaderboard();
@@ -175,7 +182,9 @@ useEffect(() => {
 const fetchCommunityLeaderboard = async () => {
   try {
     setLoading(true);
-    const res = await axios.get("/community/leaderboard/weekly");
+    const res = await axios.get(
+  `/community/leaderboard/weekly?types=${selectedTypes.join(",")}`
+);
 
     const newData = Array.isArray(res.data) ? res.data : [];
 
@@ -274,7 +283,6 @@ const fetchCommunityLeaderboard = async () => {
         return;
       }
       navigate("community");
-      fetchCommunityLeaderboard();
     }}
   >
     <span className="card-title">🏆Community Leaderboard</span>
@@ -496,7 +504,40 @@ const fetchCommunityLeaderboard = async () => {
                 <th>Rank</th>
                 <th>Athlete</th>
                 <th>Weekly KM</th>
-                <th>Runs</th>
+                <th>
+  <div className="activity-filter">
+    Activities
+
+    <div className="checkbox-dropdown">
+      {["Run", "Walk", "Ride"].map(type => (
+        <label key={type}>
+          <input
+            type="checkbox"
+            checked={selectedTypes.includes(type)}
+            onChange={(e) => {
+              let updated = [...selectedTypes];
+
+              if (e.target.checked) {
+  if (!updated.includes(type)) {
+    updated.push(type);
+  }
+}else {
+                updated = updated.filter(t => t !== type);
+              }
+
+              if (updated.length === 0) {
+                updated = ["Run"]; // fallback
+              }
+
+              setSelectedTypes(updated);
+            }}
+          />
+          {type}
+        </label>
+      ))}
+    </div>
+  </div>
+</th>
               </tr>
             </thead>
             <tbody>

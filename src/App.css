@@ -599,3 +599,33 @@ body {
     transform: translateY(0);
   }
 }
+
+
+
+.activity-filter {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.checkbox-dropdown {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 999;
+}
+
+.checkbox-dropdown label {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

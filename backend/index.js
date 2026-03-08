@@ -9,7 +9,7 @@ const axios = require("axios");
 const db = require("./firestore");
 
 app.set("trust proxy",1);
-let cachedLeaderboard = null;
+let cachedLeaderboards = {};
 let lastGenerated = 0;
 
 if (process.env.NODE_ENV === "production") {
@@ -50,9 +50,30 @@ async function refreshStravaToken(athlete) {
 
 //Helper functions
 
-async function updateSingleAthlete(athleteId) {
+function normalizeType(type) {
+  // Run group
+  if (["Run", "TrailRun"].includes(type)) return "Run";
 
-  if (!cachedLeaderboard) return;
+  // Walk group
+  if (["Walk", "Hike"].includes(type)) return "Walk";
+
+  // Ride group
+  if (
+    [
+      "Ride",
+      "MountainBikeRide",
+      "GravelRide",
+      "EBikeRide",
+      "EMountainBikeRide",
+      "VirtualRide"
+    ].includes(type)
+  ) return "Ride";
+
+  return null;
+}
+
+async function updateSingleAthlete(athleteId, selectedTypes, cacheKey) {
+  if (!cachedLeaderboards[cacheKey]) return;
 
   const athlete = await Athlete.findOne({ athleteId });
   if (!athlete) return;
@@ -77,10 +98,12 @@ async function updateSingleAthlete(athleteId) {
     }
   );
 
-  const runs = response.data.filter(a => a.type === "Run" || a.type === "Walk");
+  const activities = response.data.filter(a =>
+    selectedTypes.includes(normalizeType(a.type))
+  );
 
-  const totalKm = runs.reduce(
-    (sum, run) => sum + run.distance / 1000,
+  const totalKm = activities.reduce(
+    (sum, act) => sum + act.distance / 1000,
     0
   );
 
@@ -88,35 +111,30 @@ async function updateSingleAthlete(athleteId) {
     athleteId,
     name: `${athlete.firstname} ${athlete.lastname}`,
     total_km: Number(totalKm.toFixed(2)),
-    runs: runs.length,
+    runs: activities.length,
   };
 
-  if (!cachedLeaderboard) {
-    cachedLeaderboard = [];
-  }
+  let leaderboard = cachedLeaderboards[cacheKey].data;
 
-  // Remove old entry
-  cachedLeaderboard = cachedLeaderboard.filter(
+  leaderboard = leaderboard.filter(
     a => a.athleteId !== athleteId
   );
 
-  // Add updated entry
   if (totalKm > 0) {
-    cachedLeaderboard.push(updatedEntry);
+    leaderboard.push(updatedEntry);
   }
 
-  // Re-sort
-  cachedLeaderboard.sort((a, b) => b.total_km - a.total_km);
+  leaderboard.sort((a, b) => b.total_km - a.total_km);
 
-  // Re-rank
-  cachedLeaderboard = cachedLeaderboard.map((a, i) => ({
+  leaderboard = leaderboard.map((a, i) => ({
     rank: i + 1,
     ...a
   }));
 
+  cachedLeaderboards[cacheKey].data = leaderboard;
 }
 
-async function buildWeeklyCommunityLeaderboard() {
+async function buildWeeklyCommunityLeaderboard(selectedTypes) {
 
   const athletes = await Athlete.find({});
   const { weekStart, weekEnd } = getCurrentWeekRange();
@@ -144,10 +162,12 @@ async function buildWeeklyCommunityLeaderboard() {
         }
       );
 
-      const runs = response.data.filter(a => a.type === "Run" || a.type === "Walk");
-      if (!runs.length) continue;
+      const activities = response.data.filter(a =>
+  selectedTypes.includes(normalizeType(a.type))
+);
+      if (!activities.length) continue;
 
-      const totalKm = runs.reduce(
+      const totalKm = activities.reduce(
         (sum, run) => sum + run.distance / 1000,
         0
       );
@@ -156,7 +176,7 @@ async function buildWeeklyCommunityLeaderboard() {
         athleteId: athlete.athleteId,
         name: `${athlete.firstname} ${athlete.lastname}`,
         total_km: Number(totalKm.toFixed(2)),
-        runs: runs.length,
+        runs: activities.length,
       });
 
     } catch (err) {
@@ -172,32 +192,28 @@ async function buildWeeklyCommunityLeaderboard() {
   }));
 }
 
-async function fetchAllRuns(accessToken, maxPages = 10) {
-  let allRuns = [];
+async function fetchAllRuns(accessToken, selectedTypes, maxPages = 10) {
+  let all = [];
   let page = 1;
 
   while (page <= maxPages) {
     const res = await axios.get(
       "https://www.strava.com/api/v3/athlete/activities",
       {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        params: {
-          per_page: 100,
-          page,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
+        params: { per_page: 100, page },
       }
     );
 
     if (!res.data || res.data.length === 0) break;
 
-    allRuns.push(...res.data);
+    all.push(...res.data);
     page++;
   }
 
-  // only runs
-  return allRuns.filter(activity => activity.type === "Run" || activity.type === "Walk" );
+  return all.filter(a =>
+    selectedTypes.includes(normalizeType(a.type))
+  );
 }
 
 
@@ -584,9 +600,11 @@ app.get("/activities", requireAuth,async (req, res) => {
     );
 
     // STEP A: only RUNS
-    const runsOnly = response.data.filter(
-      (activity) => activity.type === "Run" || activity.type === "Walk"
-    );
+    const runsOnly = response.data.filter(activity =>
+  ["Run", "Walk", "Ride"].includes(
+    normalizeType(activity.type)
+  )
+);
 
     const formattedRuns = runsOnly.map((run) => {
       // distance in km (number)
@@ -660,7 +678,11 @@ app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
 
   try {
     // 1️⃣ Fetch ALL runs (important for old data)
-    const runsOnly = await fetchAllRuns(req.accessToken, 10);
+    const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
 
     // 2️⃣ Generate weeks (even empty ones)
     const weeks = generateWeeks(30);
@@ -719,7 +741,11 @@ app.get("/leaderboard/5k",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = await fetchAllRuns(req.accessToken, 10);
+     const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
     const formatted = runsOnly.map(formatRun);
 
     // keep only 5K by tolerance
@@ -759,7 +785,11 @@ app.get("/leaderboard/10k",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = await fetchAllRuns(req.accessToken, 10);
+     const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
     const formatted = runsOnly.map(formatRun);
 
     // keep only 10K by tolerance
@@ -804,7 +834,11 @@ app.get("/leaderboard/hm",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = await fetchAllRuns(req.accessToken, 10);
+     const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
     const formatted = runsOnly.map(formatRun);
 
     const halfMarathons = formatted
@@ -842,7 +876,11 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
       }
     );
 
-    const runsOnly = await fetchAllRuns(req.accessToken, 10);
+     const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
     const formatted = runsOnly.map(formatRun);
 
     const fullMarathons = formatted
@@ -866,16 +904,35 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 
 app.get("/community/leaderboard/weekly", async (req, res) => {
   try {
-    const now = Date.now();
+    const typesQuery = req.query.types;
+    let selectedTypes = ["Run"];
 
-    if (!cachedLeaderboard || (now - lastGenerated > 60000)) {
-      cachedLeaderboard = await buildWeeklyCommunityLeaderboard();
-      lastGenerated = now;
-    } else if (req.session?.athleteId) {
-      await updateSingleAthlete(req.session.athleteId);
+    if (typesQuery) {
+      selectedTypes = typesQuery.split(",");
     }
 
-    res.json(cachedLeaderboard);
+    const cacheKey = [...selectedTypes].sort().join(",");
+    const now = Date.now();
+
+    if (
+      !cachedLeaderboards[cacheKey] ||
+      now - cachedLeaderboards[cacheKey].generatedAt > 60000
+    ) {
+      const data = await buildWeeklyCommunityLeaderboard(selectedTypes);
+
+      cachedLeaderboards[cacheKey] = {
+        data,
+        generatedAt: now
+      };
+    } else if (req.session?.athleteId) {
+      await updateSingleAthlete(
+        req.session.athleteId,
+        selectedTypes,
+        cacheKey
+      );
+    }
+
+    res.json(cachedLeaderboards[cacheKey].data);
 
   } catch (err) {
     console.error("Community leaderboard error:", err.message);
