@@ -77,7 +77,7 @@ async function updateSingleAthlete(athleteId) {
     }
   );
 
-  const runs = response.data.filter(a => a.type === "Run");
+  const runs = response.data.filter(a => a.type === "Run" || a.type === "Walk");
 
   const totalKm = runs.reduce(
     (sum, run) => sum + run.distance / 1000,
@@ -144,7 +144,7 @@ async function buildWeeklyCommunityLeaderboard() {
         }
       );
 
-      const runs = response.data.filter(a => a.type === "Run");
+      const runs = response.data.filter(a => a.type === "Run" || a.type === "Walk");
       if (!runs.length) continue;
 
       const totalKm = runs.reduce(
@@ -197,7 +197,7 @@ async function fetchAllRuns(accessToken, maxPages = 10) {
   }
 
   // only runs
-  return allRuns.filter(activity => activity.type === "Run");
+  return allRuns.filter(activity => activity.type === "Run" || activity.type === "Walk" );
 }
 
 
@@ -585,7 +585,7 @@ app.get("/activities", requireAuth,async (req, res) => {
 
     // STEP A: only RUNS
     const runsOnly = response.data.filter(
-      (activity) => activity.type === "Run"
+      (activity) => activity.type === "Run" || activity.type === "Walk"
     );
 
     const formattedRuns = runsOnly.map((run) => {
