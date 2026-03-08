@@ -159,7 +159,7 @@ useEffect(() => {
 
   const interval = setInterval(() => {
     fetchCommunityLeaderboard();
-  }, 20000); // every 20 seconds
+  }, 60000); // every 20 seconds
 
   return () => clearInterval(interval);
 

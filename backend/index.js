@@ -72,69 +72,7 @@ function normalizeType(type) {
   return null;
 }
 
-async function updateSingleAthlete(athleteId, selectedTypes, cacheKey) {
-  if (!cachedLeaderboards[cacheKey]) return;
-
-  const athlete = await Athlete.findOne({ athleteId });
-  if (!athlete) return;
-
-  const { weekStart, weekEnd } = getCurrentWeekRange();
-
-  let accessToken = athlete.accessToken;
-
-  if (athlete.tokenExpiresAt * 1000 < Date.now()) {
-    accessToken = await refreshStravaToken(athlete);
-  }
-
-  const response = await axios.get(
-    "https://www.strava.com/api/v3/athlete/activities",
-    {
-      headers: { Authorization: `Bearer ${accessToken}` },
-      params: {
-        after: Math.floor(weekStart.getTime() / 1000),
-        before: Math.floor(weekEnd.getTime() / 1000),
-        per_page: 200,
-      },
-    }
-  );
-
-  const activities = response.data.filter(a =>
-    selectedTypes.includes(normalizeType(a.type))
-  );
-
-  const totalKm = activities.reduce(
-    (sum, act) => sum + act.distance / 1000,
-    0
-  );
-
-  const updatedEntry = {
-    athleteId,
-    name: `${athlete.firstname} ${athlete.lastname}`,
-    total_km: Number(totalKm.toFixed(2)),
-    runs: activities.length,
-  };
-
-  let leaderboard = cachedLeaderboards[cacheKey].data;
-
-  leaderboard = leaderboard.filter(
-    a => a.athleteId !== athleteId
-  );
-
-  if (totalKm > 0) {
-    leaderboard.push(updatedEntry);
-  }
-
-  leaderboard.sort((a, b) => b.total_km - a.total_km);
-
-  leaderboard = leaderboard.map((a, i) => ({
-    rank: i + 1,
-    ...a
-  }));
-
-  cachedLeaderboards[cacheKey].data = leaderboard;
-}
-
-async function buildWeeklyCommunityLeaderboard(selectedTypes) {
+async function buildWeeklyCommunityLeaderboard() {
 
   const athletes = await Athlete.find({});
   const { weekStart, weekEnd } = getCurrentWeekRange();
@@ -162,21 +100,31 @@ async function buildWeeklyCommunityLeaderboard(selectedTypes) {
         }
       );
 
-      const activities = response.data.filter(a =>
-  selectedTypes.includes(normalizeType(a.type))
-);
-      if (!activities.length) continue;
+      const weeklyTotals = {
+        Run: 0,
+        Walk: 0,
+        Ride: 0
+      };
 
-      const totalKm = activities.reduce(
-        (sum, run) => sum + run.distance / 1000,
-        0
-      );
+      const weeklyCounts = {
+        Run: 0,
+        Walk: 0,
+        Ride: 0
+      };
+
+      response.data.forEach(a => {
+        const type = normalizeType(a.type);
+        if (!type) return;
+
+        weeklyTotals[type] += a.distance / 1000;
+        weeklyCounts[type] += 1;
+      });
 
       leaderboard.push({
         athleteId: athlete.athleteId,
         name: `${athlete.firstname} ${athlete.lastname}`,
-        total_km: Number(totalKm.toFixed(2)),
-        runs: activities.length,
+        weeklyTotals,
+        weeklyCounts
       });
 
     } catch (err) {
@@ -184,12 +132,7 @@ async function buildWeeklyCommunityLeaderboard(selectedTypes) {
     }
   }
 
-  leaderboard.sort((a, b) => b.total_km - a.total_km);
-
-  return leaderboard.map((a, i) => ({
-    rank: i + 1,
-    ...a
-  }));
+  return leaderboard;
 }
 
 async function fetchAllRuns(accessToken, selectedTypes, maxPages = 10) {
@@ -904,6 +847,7 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 
 app.get("/community/leaderboard/weekly", async (req, res) => {
   try {
+
     const typesQuery = req.query.types;
     let selectedTypes = ["Run"];
 
@@ -911,28 +855,53 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
       selectedTypes = typesQuery.split(",");
     }
 
-    const cacheKey = [...selectedTypes].sort().join(",");
     const now = Date.now();
 
+    // STEP 3: CACHE BASE LEADERBOARD
     if (
-      !cachedLeaderboards[cacheKey] ||
-      now - cachedLeaderboards[cacheKey].generatedAt > 60000
+      !cachedLeaderboards["base"] ||
+      now - cachedLeaderboards["base"].generatedAt > 300000 // 5 minutes
     ) {
-      const data = await buildWeeklyCommunityLeaderboard(selectedTypes);
+      const baseData = await buildWeeklyCommunityLeaderboard();
 
-      cachedLeaderboards[cacheKey] = {
-        data,
+      cachedLeaderboards["base"] = {
+        data: baseData,
         generatedAt: now
       };
-    } else if (req.session?.athleteId) {
-      await updateSingleAthlete(
-        req.session.athleteId,
-        selectedTypes,
-        cacheKey
-      );
     }
 
-    res.json(cachedLeaderboards[cacheKey].data);
+    // ✅ THIS IS WHERE YOU PUT const baseData
+    const baseData = cachedLeaderboards["base"].data;
+
+    // ✅ THIS IS WHERE YOU PUT const filtered
+    const filtered = baseData.map(a => {
+
+      let totalKm = 0;
+      let totalCount = 0;
+
+      selectedTypes.forEach(type => {
+        totalKm += a.weeklyTotals[type] || 0;
+        totalCount += a.weeklyCounts[type] || 0;
+      });
+
+      return {
+        athleteId: a.athleteId,
+        name: a.name,
+        total_km: Number(totalKm.toFixed(2)),
+        runs: totalCount
+      };
+
+    }).filter(a => a.total_km > 0);
+
+    // SORT + RANK
+    filtered.sort((a, b) => b.total_km - a.total_km);
+
+    const ranked = filtered.map((a, i) => ({
+      rank: i + 1,
+      ...a
+    }));
+
+    res.json(ranked);
 
   } catch (err) {
     console.error("Community leaderboard error:", err.message);
