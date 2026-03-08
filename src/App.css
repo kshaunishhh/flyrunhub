@@ -629,3 +629,34 @@ body {
   align-items: center;
   gap: 6px;
 }
+
+.activity-filter {
+  position: relative;
+  display: inline-block;
+}
+
+.activity-header {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+}
+
+.checkbox-dropdown {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  background: #111;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+  z-index: 100;
+  min-width: 120px;
+}
+
+.checkbox-dropdown label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
