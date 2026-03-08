@@ -208,7 +208,7 @@ function getCurrentWeekRange() {
 
   const nowIST = new Date(nowUTC.getTime() + IST_OFFSET);
 
-  const day = nowIST.getDay(); // use UTC methods
+  const day = nowIST.getUTCDay(); // use UTC methods
   const diff = day === 0 ? -6 : 1 - day;
 
   const weekStartIST = new Date(nowIST);
