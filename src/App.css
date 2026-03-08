@@ -660,3 +660,18 @@ body {
   margin-bottom: 8px;
   cursor: pointer;
 }
+
+
+.activity-header {
+  cursor: pointer;
+  user-select: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #ff2e93;
+}
+
+.activity-header:hover {
+  color: #ff007a;
+}

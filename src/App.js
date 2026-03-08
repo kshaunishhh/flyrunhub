@@ -508,11 +508,17 @@ const fetchCommunityLeaderboard = async () => {
                 <th>
   <div className="activity-filter">
     <div
-      className="activity-header"
-      onClick={() => setShowDropdown(prev => !prev)}
-    >
-      Activities {showDropdown ? "▲" : "▼"}
-    </div>
+  className="activity-header"
+  onClick={() => setShowDropdown(prev => !prev)}
+>
+  {selectedTypes.length === 1
+    ? selectedTypes[0] + "s"
+    : "Activities"}
+
+  <span className={`arrow ${showDropdown ? "open" : ""}`}>
+    ▾
+  </span>
+</div>
 
     {showDropdown && (
       <div className="checkbox-dropdown">
