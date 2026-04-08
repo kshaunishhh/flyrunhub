@@ -93,6 +93,10 @@ useEffect(() => {
         url = "/leaderboard/fm";
         heading = "Full Marathon Leaderboard";
         break;
+      case "ULTRA":
+        url = "/leaderboard/ULTRA";
+        heading = "Ultra Leaderboard";
+        break;
       default:
         return;
     }
@@ -378,7 +382,9 @@ const fetchCommunityLeaderboard = async () => {
     { key: "5k", label: "5K" },
     { key: "10k", label: "10K" },
     { key: "hm", label: "HM" },
-    { key: "fm", label: "FM" }
+    { key: "fm", label: "FM" },
+    { key: "ULTRA", label: "ULTRA" }
+
   ].map(tab => (
     <button
       key={tab.key}

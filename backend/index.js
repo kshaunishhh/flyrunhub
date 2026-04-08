@@ -285,6 +285,9 @@ function formatRun(run) {
   } else if (distanceKm >= 41.0 && distanceKm <= 43.0) {
     raceType = "FM";
   }
+    else if (distanceKm >= 49.0) {
+    raceType = "ULTRA";
+  }
 
   // ✅ DATE FORMATTING (CORRECT PLACE)
   const raceDate = new Date(run.start_date_local).toLocaleDateString(
@@ -842,6 +845,47 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ error: "Failed to generate FM leaderboard" });
+  }
+});
+
+
+app.get("/leaderboard/ULTRA",requireAuth, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+
+
+  try {
+    const response = await axios.get(
+      "https://www.strava.com/api/v3/athlete/activities",
+      {
+        headers: { Authorization: `Bearer ${req.accessToken}` },
+        params: { per_page: 100 },
+      }
+    );
+
+     const runsOnly = await fetchAllRuns(
+  req.accessToken,
+  ["Run", "Walk", "Ride"],
+  10
+);
+    const formatted = runsOnly.map(formatRun);
+
+    const fullMarathons = formatted
+      .filter(r => r.raceType === "ULTRA")
+      .sort((a, b) => a.time_seconds - b.time_seconds)
+      .map((r, idx) => ({
+        rank: idx + 1,
+        name: r.name,
+        date: r.date,
+        distance_km: r.distance_km,
+        time: r.time,
+        pace: r.pace,
+      }));
+
+      res.json(paginate(fullMarathons, page, limit));
+
+  } catch (err) {
+    res.status(500).json({ error: "Failed to generate ULTRA leaderboard" });
   }
 });
 
