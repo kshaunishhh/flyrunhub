@@ -565,7 +565,16 @@ const fetchCommunityLeaderboard = async () => {
                   className={`leaderboard-row ${row.climbed ? "rank-up" : ""}`}
                 >
                   <td>{getMedal(row.rank)}</td>
-                  <td>{row.name}</td>
+                  <td>
+  <a 
+    href={row.stravaUrl} 
+    target="_blank" 
+    rel="noopener noreferrer"
+    style={{ color: "#fc4c02", fontWeight: "600", textDecoration: "none" }}
+  >
+    {row.name}
+  </a>
+</td>
                   <td>{row.total_km}</td>
                   <td>{row.runs}</td>
                 </tr>

@@ -928,12 +928,13 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
         totalCount += a.weeklyCounts[type] || 0;
       });
 
-      return {
-        athleteId: a.athleteId,
-        name: a.name,
-        total_km: Number(totalKm.toFixed(2)),
-        runs: totalCount
-      };
+return {
+  athleteId: a.athleteId,
+  name: a.name,
+  total_km: Number(totalKm.toFixed(2)),
+  runs: totalCount,
+  stravaUrl: `https://www.strava.com/athletes/${a.athleteId}`
+};
 
     }).filter(a => a.total_km > 0);
 
