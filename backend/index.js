@@ -282,7 +282,7 @@ function formatRun(run) {
     raceType = "10K";
   } else if (distanceKm >= 20.0 && distanceKm <= 22.0) {
     raceType = "HM";
-  } else if (distanceKm >= 41.0 && distanceKm <= 43.0) {
+  } else if (distanceKm >= 40.0 && distanceKm <= 43.0) {
     raceType = "FM";
   }
     else if (distanceKm >= 49.0) {
