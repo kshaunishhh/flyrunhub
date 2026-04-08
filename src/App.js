@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer
+} from "recharts";
 
 axios.defaults.withCredentials = true;
 
@@ -23,12 +26,22 @@ function App() {
   const [prevCommunity, setPrevCommunity] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState(["Run"]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [graphData, setGraphData] = useState([]);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
   if (rank === 3) return "🥉";
   return rank;
+};
+
+const fetchGraph = async (type) => {
+  try {
+    const res = await axios.get(`/stats/progress?type=${type}`);
+    setGraphData(res.data);
+  } catch (err) {
+    setGraphData([]);
+  }
 };
 
 
@@ -68,6 +81,7 @@ useEffect(() => {
   // Load default leaderboard
 
   const loadLeaderboard = (type,pageParam=1) => {
+    fetchGraph(type);
     setCurrentType(type);
     let url = "";
     let heading = "";
@@ -375,6 +389,21 @@ const fetchCommunityLeaderboard = async () => {
       {view === "personal" && (
         <div className="leaderboard">
           <h1>{title}</h1>
+          <div style={{ width: "100%", height: 220, marginBottom: "20px" }}>
+  <ResponsiveContainer>
+    <LineChart data={graphData}>
+      <XAxis dataKey="label" />
+      <YAxis />
+      <Tooltip />
+      <Line 
+        type="monotone" 
+        dataKey="value" 
+        stroke="#e6007a" 
+        strokeWidth={2}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
 
         <div className="tabs">
   {[

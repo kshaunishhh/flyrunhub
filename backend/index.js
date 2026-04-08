@@ -390,6 +390,71 @@ const requireAuth = async (req, res, next) => {
 };
 
 
+app.get("/stats/progress", requireAuth, async (req, res) => {
+  try {
+    const type = req.query.type;
+
+    const runs = await fetchAllRuns(
+      req.accessToken,
+      ["Run", "Walk", "Ride"],
+      10
+    );
+
+    const formatted = runs.map(formatRun);
+
+    let result = [];
+
+    // WEEKLY GRAPH
+    if (type === "weekly") {
+      const weeks = generateWeeks(12);
+
+      runs.forEach(run => {
+        const runDate = new Date(run.start_date_local);
+
+        weeks.forEach(week => {
+          const start = new Date(week.startDate);
+          const end = new Date(start);
+          end.setDate(start.getDate() + 6);
+
+          if (runDate >= start && runDate <= end) {
+            week.total_km += run.distance / 1000;
+          }
+        });
+      });
+
+      result = weeks.map(w => ({
+        label: w.label,
+        value: Number(w.total_km.toFixed(2))
+      }));
+    }
+
+    // RACE TYPES
+    else {
+      const mapType = {
+        "5k": "5K",
+        "10k": "10K",
+        "hm": "HM",
+        "fm": "FM"
+      };
+
+      const raceType = mapType[type];
+
+      result = formatted
+        .filter(r => r.raceType === raceType)
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .map(r => ({
+          label: r.date,
+          value: r.time_seconds
+        }));
+    }
+
+    res.json(result);
+
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch graph data" });
+  }
+});
+
 app.get("/auth/status", async (req, res) => {
   console.log("SESSION", req.session);
 
