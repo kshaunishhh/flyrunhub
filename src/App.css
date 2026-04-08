@@ -675,10 +675,3 @@ body {
 .activity-header:hover {
   color: #ff007a;
 }
-
-.chart-container {
-  background: #11111a;
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 20px;
-}
