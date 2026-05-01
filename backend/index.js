@@ -15,7 +15,7 @@ let lastGenerated = 0;
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
     axios
-      .get("https://flyrunhub-njma.onrender.com/health")
+      .get("https://flyrunhub.onrender.com/health")
       .then(() => console.log("Pinged self"))
       .catch(() => {});
   }, 1000 * 60 * 5); // every 5 minutes
@@ -433,7 +433,7 @@ app.get("/auth/strava", (req, res) => {
     "https://www.strava.com/oauth/authorize" +
     `?client_id=${process.env.STRAVA_CLIENT_ID}` +
     "&response_type=code" +
-    "&redirect_uri=https://flyrunhub-njma.onrender.com/callback" +
+    "&redirect_uri=https://flyrunhub.onrender.com/callback" +
     "&scope=read,profile:read_all,activity:read_all" +
     "&approval_prompt=force";
 
