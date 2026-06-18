@@ -752,16 +752,17 @@ const fetchCommunityLeaderboard = async () => {
 
    <div className="challenge-info-card">
 
-  <h2>Rules & About the Event</h2>
+  <h2>About the Event</h2>
 
   <p>📅 1st - 7th July 2026</p>
   <p>🌍 Venue: Anywhere</p>
-  <p>🎯 Run/Walk 7 km (Atleast) every day for 7 consecutive days</p>
+  <p>🎯 Run/Walk 7 km for 7 consecutive days</p>
   <p>💰 Contribution: ₹400</p>
 
 </div>
 
 <div className="history-list">
+  <h2> Daily Leaderboards</h2>
 
   <button className="history-btn">
     Day 1 
