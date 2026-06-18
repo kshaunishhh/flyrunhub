@@ -25,6 +25,8 @@ function App() {
   const [prevCommunity, setPrevCommunity] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState(["Run"]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [comingSoonMessage, setComingSoonMessage] = useState("");
+
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -764,33 +766,75 @@ const fetchCommunityLeaderboard = async () => {
 <div className="history-list">
   <h3> Daily Leaderboards</h3>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 1 bro!"
+    );
+  }}
+>
     Day 1 
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 2 bro!"
+    );
+  }}>
     Day 2 
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 3 bro!"
+    );
+  }}>
     Day 3
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 4 bro!"
+    );
+  }}>
     Day 4
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 5 bro!"
+    );
+  }}>
     Day 5
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 6 bro!"
+    );
+  }}>
     Day 6
   </button>
 
-  <button className="history-btn">
+  <button className="history-btn"
+    onClick={() => {
+    setComingSoonMessage(
+      "Today is not july 7 bro!"
+    );
+  }}>
     Day 7
   </button>
+
+  {comingSoonMessage && (
+  <div className="coming-soon-box">
+    {comingSoonMessage}
+  </div>
+)}
 
 </div>
 
