@@ -504,7 +504,7 @@ const fetchCommunityLeaderboard = async () => {
     className={`tab ${communityView === "current" ? "active" : ""}`}
     onClick={() => setCommunityView("current")}
   >
-    Current Week
+    Live
   </button>
 
   <button

@@ -49,6 +49,22 @@ async function refreshStravaToken(athlete) {
 
 //Helper functions
 
+
+function shouldSaveSnapshot() {
+  const now = new Date();
+
+  // IST
+  const ist = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+  );
+
+  const day = ist.getDay(); // Sunday = 0
+  const hour = ist.getHours();
+
+  return day === 0 && hour >= 21;
+}
+
+
 function normalizeType(type) {
   // Run group
   if (["Run", "TrailRun"].includes(type)) return "Run";
@@ -919,21 +935,26 @@ return {
       rank: i + 1,
       ...a
     }));
+    if (shouldSaveSnapshot()) {
 
-    const weekKey = getWeekKey(new Date());
+  const weekKey = getWeekKey(new Date());
 
-const snapshotDoc = await db
-  .collection("weekly_snapshots")
-  .doc(weekKey)
-  .get();
+  const snapshotDoc = await db
+    .collection("weekly_snapshots")
+    .doc(weekKey)
+    .get();
 
-if (!snapshotDoc.exists) {
-   await db.collection("weekly_snapshots")
+  if (!snapshotDoc.exists) {
+
+    await db.collection("weekly_snapshots")
       .doc(weekKey)
       .set({
-         leaderboard: ranked,
-         generatedAt: new Date()
+        leaderboard: ranked,
+        generatedAt: new Date()
       });
+
+    console.log("Weekly snapshot saved");
+  }
 }
 
     
