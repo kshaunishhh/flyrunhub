@@ -675,11 +675,7 @@ const fetchCommunityLeaderboard = async () => {
       }}
     >
       <span className="card-title">
-        🏃‍♀️ RUNFINITY 7X7 CHALLENGE
-      </span>
-
-      <span className="card-sub">
-        1–7 July 2026 • 7 Days. 7 Kilometres. 1 Community.
+        RUNFINITY 7X7 CHALLENGE
       </span>
     </button>
 
