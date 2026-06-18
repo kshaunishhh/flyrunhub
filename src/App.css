@@ -795,3 +795,35 @@ body {
     0 0 20px rgba(255, 0, 180, 0.4),
     0 0 40px rgba(160, 32, 240, 0.25);
 }
+
+.challenge-tagline{
+  color: #ffb347;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.challenge-info-card{
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.day-grid{
+  display:grid;
+  grid-template-columns: repeat(2,1fr);
+  gap:12px;
+  margin-top:24px;
+}
+
+.day-btn{
+  background: var(--bg-elevated);
+  border:1px solid var(--border-subtle);
+  color:white;
+  padding:16px;
+  border-radius:14px;
+  font-weight:600;
+}

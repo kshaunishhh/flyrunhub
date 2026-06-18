@@ -744,23 +744,35 @@ const fetchCommunityLeaderboard = async () => {
 
   <div className="leaderboard">
 
-    <h1>🏃 RUNFINITY 7X7 CHALLENGE</h1>
+    <h1>RUNFINITY 7X7</h1>
 
     <p className="challenge-tagline">
       7 Days. 7 Kilometres. 1 Community.
     </p>
 
-    <p>
-      📅 1st July – 7th July 2026
-    </p>
+   <div className="challenge-info-card">
 
-    <p>
-      🌍 Anywhere in the world
-    </p>
+  <h2>Rules & About the Event</h2>
 
-    <p>
-      🎯 Run or Walk 7 km every day for 7 consecutive days.
-    </p>
+  <p>📅 1st - 7th July 2026</p>
+  <p>🌍 Venue: Anywhere</p>
+  <p>🎯 Run/Walk 7 km (Atleast) every day for 7 consecutive days</p>
+  <p>💰 Contribution: ₹400</p>
+
+</div>
+
+<div className="day-grid">
+
+  <button className="day-btn">Day 1</button>
+  <button className="day-btn">Day 2</button>
+  <button className="day-btn">Day 3</button>
+  <button className="day-btn">Day 4</button>
+  <button className="day-btn">Day 5</button>
+  <button className="day-btn">Day 6</button>
+  <button className="day-btn">Day 7</button>
+
+</div>
+
 
     <button className="back-btn"
       onClick={() => navigate("challenges")}
