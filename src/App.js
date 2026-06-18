@@ -14,6 +14,8 @@ function App() {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
   const [communityData, setCommunityData] = useState([]);
+  const [communityView, setCommunityView] = useState("current");
+  const [historyData, setHistoryData] = useState([]);
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [athlete, setAthlete] = useState(null);
@@ -151,39 +153,36 @@ useEffect(() => {
   window.history.replaceState({ view: "home" }, "", "#home");
 }, []);
 
-useEffect(() => {
-  if (view === "community") {
-    fetchCommunityLeaderboard();
-  }
-}, [selectedTypes]);
 
 useEffect(() => {
   if (view !== "community") return;
 
-  fetchCommunityLeaderboard();
-
-  const interval = setInterval(() => {
+  if (communityView === "current") {
     fetchCommunityLeaderboard();
-  }, 60000); // every 20 seconds
 
-  return () => clearInterval(interval);
+    const interval = setInterval(fetchCommunityLeaderboard, 60000);
 
-}, [view]);
+    return () => clearInterval(interval);
+  }
 
-useEffect(() => {
-  if (!communityData.some(p => p.climbed)) return;
+  if (communityView === "history") {
+    fetchHistory();
+  }
 
-  const timer = setTimeout(() => {
-    setCommunityData(prev =>
-      prev.map(p =>
-        p.climbed ? { ...p, climbed: false } : p
-      )
-    );
-  }, 800);
+}, [view, communityView, selectedTypes]);
+const fetchHistory = async () => {
+  try {
+    setLoading(true);
 
-  return () => clearTimeout(timer);
-}, [communityData]);
+    const res = await axios.get("/community/leaderboard/history");
 
+    setHistoryData(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    setHistoryData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const fetchCommunityLeaderboard = async () => {
   try {
@@ -500,11 +499,32 @@ const fetchCommunityLeaderboard = async () => {
       {view === "community" && (
         <div className="leaderboard">
           <h1>Community Weekly Leaderboard</h1>
-          {loading && (
+          <div className="tabs">
+  <button
+    className={`tab ${communityView === "current" ? "active" : ""}`}
+    onClick={() => setCommunityView("current")}
+  >
+    Current Week
+  </button>
+
+  <button
+    className={`tab ${communityView === "history" ? "active" : ""}`}
+    onClick={() => setCommunityView("history")}
+  >
+    History
+  </button>
+</div>
+          {loading && communityView === "current" && (
       <p style={{ textAlign: "center", fontWeight: "bold" }}>
         Loading leaderboard...
       </p>
     )}
+    {loading && communityView === "history" && (
+  <p style={{ textAlign: "center", fontWeight: "bold" }}>
+    Loading history...
+  </p>
+)}
+    {communityView === "current" && (
         <div className="table-wrapper">
           <table className="leaderboard-table">
             <thead>
@@ -590,6 +610,48 @@ const fetchCommunityLeaderboard = async () => {
             </tbody>
           </table>
         </div>
+        )}
+
+        {communityView === "history" && (
+  <div className="history-list">
+    {safeArray(historyData).length === 0 && !loading && (
+  <p style={{ textAlign: "center" }}>
+    No historical leaderboards yet.
+  </p>
+)}
+
+    {safeArray(historyData).map(week => (
+      <div className="history-card" key={week.weekKey}>
+
+        <h3>{week.label}</h3>
+
+        <table className="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Athlete</th>
+              <th>KM</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {safeArray(week.leaderboard).slice(0,10).map(row => (
+              <tr key={row.athleteId}>
+                <td>{getMedal(row.rank)}</td>
+                <td>{row.name}</td>
+                <td>{row.total_km}</td>
+              </tr>
+            ))}
+          </tbody>
+
+        </table>
+
+      </div>
+    ))}
+
+  </div>
+)}
+
           <button onClick={() => navigate("home")}>Back</button>
         </div>
       )}

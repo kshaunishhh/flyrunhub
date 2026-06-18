@@ -10,7 +10,6 @@ const db = require("./firestore");
 
 app.set("trust proxy",1);
 let cachedLeaderboards = {};
-let lastGenerated = 0;
 
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
@@ -128,8 +127,13 @@ async function buildWeeklyCommunityLeaderboard() {
       });
 
     } catch (err) {
-      continue;
-    }
+  console.log(
+    "Skipping athlete:",
+    athlete.firstname,
+    err.message
+  );
+  continue;
+}
   }
 
   return leaderboard;
@@ -235,15 +239,16 @@ function getWeekKey(dateString) {
 }
 
 function getWeekLabel(dateString) {
-  const date = new Date(dateString);
+  const start = new Date(dateString);
 
-  const year = date.getFullYear();
-  const month = date.toLocaleString("en-US", { month: "short" });
+  const end = new Date(start);
+  end.setDate(start.getDate() + 6);
 
-  const day = date.getDate();
-  const weekOfMonth = Math.ceil(day / 7);
+  const month = start.toLocaleString("en-US", {
+    month: "short"
+  });
 
-  return `${year}/${month}/${weekOfMonth}`;
+  return `${month} ${start.getDate()} - ${end.getDate()}, ${start.getFullYear()}`;
 }
 
 
@@ -679,13 +684,6 @@ app.get("/leaderboard/5k",requireAuth, async (req, res) => {
 
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${req.accessToken}` },
-        params: { per_page: 100 },
-      }
-    );
 
      const runsOnly = await fetchAllRuns(
   req.accessToken,
@@ -723,13 +721,7 @@ app.get("/leaderboard/10k",requireAuth, async (req, res) => {
 
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${req.accessToken}` },
-        params: { per_page: 100 },
-      }
-    );
+    
 
      const runsOnly = await fetchAllRuns(
   req.accessToken,
@@ -772,13 +764,7 @@ app.get("/leaderboard/hm",requireAuth, async (req, res) => {
 
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${req.accessToken}` },
-        params: { per_page: 100 },
-      }
-    );
+    
 
      const runsOnly = await fetchAllRuns(
   req.accessToken,
@@ -814,13 +800,7 @@ app.get("/leaderboard/fm",requireAuth, async (req, res) => {
 
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${req.accessToken}` },
-        params: { per_page: 100 },
-      }
-    );
+    
 
      const runsOnly = await fetchAllRuns(
   req.accessToken,
@@ -855,13 +835,7 @@ app.get("/leaderboard/ULTRA",requireAuth, async (req, res) => {
 
 
   try {
-    const response = await axios.get(
-      "https://www.strava.com/api/v3/athlete/activities",
-      {
-        headers: { Authorization: `Bearer ${req.accessToken}` },
-        params: { per_page: 100 },
-      }
-    );
+
 
      const runsOnly = await fetchAllRuns(
   req.accessToken,
@@ -946,6 +920,24 @@ return {
       ...a
     }));
 
+    const weekKey = getWeekKey(new Date());
+
+const snapshotDoc = await db
+  .collection("weekly_snapshots")
+  .doc(weekKey)
+  .get();
+
+if (!snapshotDoc.exists) {
+   await db.collection("weekly_snapshots")
+      .doc(weekKey)
+      .set({
+         leaderboard: ranked,
+         generatedAt: new Date()
+      });
+}
+
+    
+
     res.json(ranked);
 
   } catch (err) {
@@ -953,6 +945,36 @@ return {
     res.status(500).json({ error: "Failed to generate leaderboard" });
   }
 });
+
+app.get("/community/leaderboard/history", async (req, res) => {
+  try {
+
+    const snapshotRef = await db
+      .collection("weekly_snapshots")
+      .orderBy("generatedAt", "desc")
+      .get();
+
+    const history = [];
+
+    snapshotRef.forEach(doc => {
+      const data = doc.data();
+      history.push({
+    weekKey: doc.id,
+    label: getWeekLabel(doc.id),
+    leaderboard: Array.isArray(data.leaderboard)
+      ? data.leaderboard
+      : []
+});
+    });
+
+    res.json(history);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json([]);
+  }
+});
+
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
