@@ -25,8 +25,7 @@ function App() {
   const [prevCommunity, setPrevCommunity] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState(["Run"]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [comingSoonMessage, setComingSoonMessage] = useState("");
-
+  const [selectedDay, setSelectedDay] = useState(null);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -742,6 +741,41 @@ const fetchCommunityLeaderboard = async () => {
 
 )}
 
+{view === "dayDetail" && (
+
+  <div className="leaderboard">
+
+    <h1>🏃 Day {selectedDay}</h1>
+
+    <p className="challenge-tagline">
+      RUNFINITY 7×7 Challenge
+    </p>
+
+    <div className="coming-soon-page">
+
+      <h2>Oops! 🚀</h2>
+
+      <p>
+        Day {selectedDay} leaderboard is not available yet.
+      </p>
+
+      <p>
+        It will become available on July {selectedDay}, 2026.
+      </p>
+
+    </div>
+
+    <button
+      className="back-btn"
+      onClick={() => navigate("sevenForSeven")}
+    >
+      ← Back
+    </button>
+
+  </div>
+
+)}
+
 {view === "sevenForSeven" && (
 
   <div className="leaderboard">
@@ -766,75 +800,34 @@ const fetchCommunityLeaderboard = async () => {
 <div className="history-list">
   <h3> Daily Leaderboards</h3>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 1 bro!"
-    );
-  }}
->
+  <button className="history-btn">
     Day 1 
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 2 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 2 
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 3 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 3
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 4 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 4
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 5 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 5
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 6 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 6
   </button>
 
-  <button className="history-btn"
-    onClick={() => {
-    setComingSoonMessage(
-      "Today is not july 7 bro!"
-    );
-  }}>
+  <button className="history-btn">
     Day 7
   </button>
 
-  {comingSoonMessage && (
-  <div className="coming-soon-box">
-    {comingSoonMessage}
-  </div>
-)}
 
 </div>
 

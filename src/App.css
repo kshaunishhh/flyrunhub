@@ -809,17 +809,3 @@ body {
   margin-bottom: 30px;
 }
 
-
-.coming-soon-box{
-  margin-top: 25px;
-  padding: 18px;
-
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,179,71,0.25);
-
-  border-radius: 18px;
-
-  color: #ffb347;
-  font-weight: 600;
-  text-align: center;
-}
