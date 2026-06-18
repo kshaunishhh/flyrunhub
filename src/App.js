@@ -666,7 +666,7 @@ const fetchCommunityLeaderboard = async () => {
 
   <div className="leaderboard">
 
-    <h1>🔥 Challenges</h1>
+    <h1>🔥Community Challenges</h1>
 
     <button
       className="card-btn challenge-card"
