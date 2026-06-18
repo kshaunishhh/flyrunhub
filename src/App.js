@@ -764,31 +764,31 @@ const fetchCommunityLeaderboard = async () => {
 <div className="history-list">
 
   <button className="history-btn">
-    🏃 Day 1 • July 1
+    Day 1 
   </button>
 
   <button className="history-btn">
-    🏃 Day 2 • July 2
+    Day 2 
   </button>
 
   <button className="history-btn">
-    🏃 Day 3 • July 3
+    Day 3
   </button>
 
   <button className="history-btn">
-    🏃 Day 4 • July 4
+    Day 4
   </button>
 
   <button className="history-btn">
-    🏃 Day 5 • July 5
+    Day 5
   </button>
 
   <button className="history-btn">
-    🏃 Day 6 • July 6
+    Day 6
   </button>
 
   <button className="history-btn">
-    🏃 Day 7 • July 7
+    Day 7
   </button>
 
 </div>
