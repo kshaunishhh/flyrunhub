@@ -657,6 +657,9 @@ const fetchCommunityLeaderboard = async () => {
   <div className="leaderboard">
 
     <h1>{selectedHistory.label}</h1>
+    <p className="snapshot-info">
+  {selectedHistory.leaderboard.length} athletes recorded
+</p>
 
     <div className="table-wrapper">
       <table className="leaderboard-table">
