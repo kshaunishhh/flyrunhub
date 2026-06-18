@@ -300,7 +300,7 @@ const fetchCommunityLeaderboard = async () => {
   </button>
 
   <button
-    className="card-btn"
+    className="card-btn challenge-home"
     onClick={() => {
       navigate("challenges");
     }}

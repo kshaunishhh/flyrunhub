@@ -760,3 +760,38 @@ body {
 .challenge-card .card-sub {
   color: rgba(255,255,255,0.9);
 }
+
+.challenge-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.challenge-home {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 0, 128, 0.15),
+    rgba(160, 32, 240, 0.18)
+  );
+
+  border: 1px solid rgba(255, 0, 180, 0.25);
+
+  box-shadow:
+    0 0 15px rgba(255, 0, 180, 0.25),
+    0 0 35px rgba(160, 32, 240, 0.15);
+
+  transition: all 0.3s ease;
+}
+
+.challenge-home:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 0 20px rgba(255, 0, 180, 0.4),
+    0 0 40px rgba(160, 32, 240, 0.25);
+}
