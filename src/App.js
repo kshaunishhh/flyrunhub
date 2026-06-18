@@ -248,9 +248,6 @@ const fetchCommunityLeaderboard = async () => {
     Track <span>•</span> Compete <span>•</span> Improve
   </p>
 
-  <p className="hero-subtitle">
-    Weekly &amp; Race-based leaderboards powered by Strava
-  </p>
 </div>
       {/* 🔗 CONNECT WITH STRAVA */}
 {!isAuthenticated && (
@@ -301,6 +298,18 @@ const fetchCommunityLeaderboard = async () => {
     <span className="card-sub">
     </span>
   </button>
+
+  <button
+    className="card-btn"
+    onClick={() => {
+      navigate("challenges");
+    }}
+  >
+    <span className="card-title">🔥Challenges</span>
+    <span className="card-sub">
+    </span>
+  </button>
+
 
 </div>
 
@@ -652,6 +661,41 @@ const fetchCommunityLeaderboard = async () => {
           <button onClick={() => navigate("home")}>Back</button>
         </div>
       )}
+
+      {view === "challenges" && (
+
+  <div className="leaderboard">
+
+    <h1>🔥 Challenges</h1>
+
+    <button
+      className="card-btn challenge-card"
+      onClick={() => {
+        navigate("sevenForSeven");
+      }}
+    >
+      <span className="card-title">
+        🏃‍♀️ RUNFINITY 7X7 CHALLENGE
+      </span>
+
+      <span className="card-sub">
+        1–7 July 2026 • 7 Days. 7 Kilometres. 1 Community.
+      </span>
+    </button>
+
+    <button
+      className="back-btn"
+      onClick={() => navigate("home")}
+    >
+      ← Back
+    </button>
+
+  </div>
+
+)}
+
+
+
       {view === "historyDetail" && selectedHistory && (
 
   <div className="leaderboard">
