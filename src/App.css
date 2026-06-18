@@ -811,19 +811,3 @@ body {
   padding: 20px;
   margin-bottom: 24px;
 }
-
-.day-grid{
-  display:grid;
-  grid-template-columns: repeat(2,1fr);
-  gap:12px;
-  margin-top:24px;
-}
-
-.day-btn{
-  background: var(--bg-elevated);
-  border:1px solid var(--border-subtle);
-  color:white;
-  padding:16px;
-  border-radius:14px;
-  font-weight:600;
-}
