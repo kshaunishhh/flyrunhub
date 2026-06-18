@@ -61,7 +61,7 @@ function shouldSaveSnapshot() {
   const day = ist.getDay(); // Sunday = 0
   const hour = ist.getHours();
 
-  return day === 0 && hour >= 21;
+  return day === 0 && hour >= 19 && hour < 22; // Sunday 7-10 PM IST
 }
 
 

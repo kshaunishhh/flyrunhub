@@ -16,6 +16,7 @@ function App() {
   const [communityData, setCommunityData] = useState([]);
   const [communityView, setCommunityView] = useState("current");
   const [historyData, setHistoryData] = useState([]);
+  const [selectedHistory, setSelectedHistory] = useState(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [athlete, setAthlete] = useState(null);
@@ -134,14 +135,20 @@ const navigate = (nextView) => {
 };
 
 useEffect(() => {
-  const onBack = () => {
-    const hash = window.location.hash.replace("#", "");
-    if (hash === "personal" || hash === "community") {
-      setView(hash);
-    } else {
-      setView("home");
-    }
-  };
+  const onBack = (e) => {
+  const state = e.state;
+
+  if (!state) {
+    setView("home");
+    return;
+  }
+
+  setView(state.view);
+
+  if (state.view === "historyDetail") {
+    setSelectedHistory(state.history);
+  }
+};
 
   window.addEventListener("popstate", onBack);
   return () => window.removeEventListener("popstate", onBack);
@@ -497,6 +504,7 @@ const fetchCommunityLeaderboard = async () => {
       )}
 
       {view === "community" && (
+        
         <div className="leaderboard">
           <h1>Community Weekly Leaderboard</h1>
           <div className="tabs">
@@ -621,33 +629,22 @@ const fetchCommunityLeaderboard = async () => {
 )}
 
     {safeArray(historyData).map(week => (
-      <div className="history-card" key={week.weekKey}>
-
-        <h3>{week.label}</h3>
-
-        <table className="leaderboard-table">
-          <thead>
-            <tr>
-              <th>Rank</th>
-              <th>Athlete</th>
-              <th>KM</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {safeArray(week.leaderboard).slice(0,10).map(row => (
-              <tr key={row.athleteId}>
-                <td>{getMedal(row.rank)}</td>
-                <td>{row.name}</td>
-                <td>{row.total_km}</td>
-              </tr>
-            ))}
-          </tbody>
-
-        </table>
-
-      </div>
-    ))}
+  <button
+    key={week.weekKey}
+    className="history-btn"
+   onClick={() => {
+  setSelectedHistory(week);
+  window.history.pushState(
+    { view: "historyDetail", history: week },
+    "",
+    "#historyDetail"
+  );
+  setView("historyDetail");
+}}
+  >
+    🏆 {week.label}
+  </button>
+))}
 
   </div>
 )}
@@ -655,6 +652,50 @@ const fetchCommunityLeaderboard = async () => {
           <button onClick={() => navigate("home")}>Back</button>
         </div>
       )}
+      {view === "historyDetail" && selectedHistory && (
+
+  <div className="leaderboard">
+
+    <h1>{selectedHistory.label}</h1>
+
+    <div className="table-wrapper">
+      <table className="leaderboard-table">
+
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Athlete</th>
+            <th>KM</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {safeArray(selectedHistory.leaderboard).map(row => (
+
+            <tr key={row.athleteId}>
+              <td>{getMedal(row.rank)}</td>
+              <td>{row.name}</td>
+              <td>{row.total_km}</td>
+            </tr>
+
+          ))}
+
+        </tbody>
+
+      </table>
+    </div>
+
+    <button
+      className="back-btn"
+      onClick={() => navigate("community")}
+    >
+      ← Back
+    </button>
+
+  </div>
+
+)}
     </div>
   );
 }
