@@ -739,6 +739,38 @@ const fetchCommunityLeaderboard = async () => {
   </div>
 
 )}
+
+{view === "sevenForSeven" && (
+
+  <div className="leaderboard">
+
+    <h1>🏃 RUNFINITY 7X7 CHALLENGE</h1>
+
+    <p className="challenge-tagline">
+      7 Days. 7 Kilometres. 1 Community.
+    </p>
+
+    <p>
+      📅 1st July – 7th July 2026
+    </p>
+
+    <p>
+      🌍 Anywhere in the world
+    </p>
+
+    <p>
+      🎯 Run or Walk 7 km every day for 7 consecutive days.
+    </p>
+
+    <button className="back-btn"
+      onClick={() => navigate("challenges")}
+    >
+      ← Back
+    </button>
+
+  </div>
+
+)}
     </div>
   );
 }
