@@ -75,6 +75,7 @@ async function buildDayLeaderboard(dayDate) {
   let leaderboard = [];
 
   for (const p of participants) {
+    console.log("Checking participant:", p);
 
     try {
 
