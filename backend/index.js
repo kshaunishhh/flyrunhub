@@ -49,6 +49,23 @@ async function refreshStravaToken(athlete) {
 
 //Helper functions
 
+async function getChallengeParticipants() {
+
+  const snapshot = await db
+    .collection("challenge_participants")
+    .where("challenge", "==", "7x7-2026")
+    .where("paymentDone", "==", true)
+    .get();
+
+  const participants = [];
+
+  snapshot.forEach(doc => {
+    participants.push(doc.data());
+  });
+
+  return participants;
+}
+
 
 function shouldSaveSnapshot() {
   const now = new Date();
@@ -994,6 +1011,14 @@ app.get("/community/leaderboard/history", async (req, res) => {
     console.error(err);
     res.status(500).json([]);
   }
+});
+
+app.get("/test-participants", async (req, res) => {
+
+  const participants = await getChallengeParticipants();
+
+  res.json(participants);
+
 });
 
 // Serve React build

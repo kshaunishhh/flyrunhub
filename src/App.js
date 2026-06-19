@@ -838,7 +838,7 @@ const fetchCommunityLeaderboard = async () => {
 <p>
   📝{" "}
   <a
-    href="https://docs.google.com/spreadsheets/d/1GONq0irfd5vX0ZYzS2jKI8YN9Asli9i8cNwmPX-W8HI/edit?gid=2005836048#gid=2005836048"
+    href="https://docs.google.com/forms/d/e/1FAIpQLSffOL_YGVBjI04HFllFB_c2s33q_uyxeKWW9_52Gqiwm_raLQ/viewform?pli=1"
     target="_blank"
     rel="noopener noreferrer"
     className="challenge-link"
