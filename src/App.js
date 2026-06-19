@@ -886,22 +886,34 @@ Avg Pace
 
 <tbody>
 
+{!loading && safeArray(challengeData).length === 0 && (
+  <tr>
+    <td
+      colSpan="4"
+      style={{
+        textAlign: "center",
+        padding: "30px",
+        color: "#bbb",
+        fontWeight: "600"
+      }}
+    >
+      Not started yet
+    </td>
+  </tr>
+)}
+
 {safeArray(challengeData).map(row => (
 
 <tr key={row.athleteId}>
 
 <td>{getMedal(row.rank)}</td>
-
 <td>{row.name}</td>
-
 <td>{row.completedDays}/7</td>
 
 <td>
-
-{challengeMetric === "today" && `${row.today_km} km`}
-{challengeMetric === "total" && `${row.total_km} km`}
-{challengeMetric === "pace" && `${row.avg_pace} min/km`}
-
+  {challengeMetric === "today" && row.today_km}
+  {challengeMetric === "total" && row.total_km}
+  {challengeMetric === "pace" && row.avg_pace}
 </td>
 
 </tr>
