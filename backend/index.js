@@ -222,11 +222,8 @@ async function buildWeeklyCommunityLeaderboard() {
   for (const athlete of athletes) {
 
     try {
-      let accessToken = athlete.accessToken;
 
-      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
-        accessToken = await refreshStravaToken(athlete);
-      }
+      let accessToken = await refreshStravaToken(athlete);
 
       const response = await axios.get(
         "https://www.strava.com/api/v3/athlete/activities",
