@@ -1202,6 +1202,32 @@ app.get("/community/leaderboard/history", async (req, res) => {
   }
 });
 
+app.get("/admin/import-challenge", async (req,res)=>{
+
+  const athletes = await db
+    .collection("athletes_public")
+    .get();
+
+  for (const doc of athletes.docs) {
+
+    const a = doc.data();
+
+    await db.collection("challenge_participants")
+      .doc(String(a.athleteId))
+      .set({
+        athleteId: a.athleteId,
+        firstname: a.firstname,
+        lastname: a.lastname,
+        challenge: "7x7-2026",
+        paymentDone: false,
+        registeredAt: new Date()
+      });
+
+  }
+
+  res.send("Imported");
+});
+
 app.get("/challenge/:date", async (req, res) => {
 
   try {
