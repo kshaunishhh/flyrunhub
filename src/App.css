@@ -810,12 +810,11 @@ body {
 }
 
 .challenge-link {
-  color: #ffb347;
-  text-decoration: none;
-  font-weight: 600;
-  transition: 0.2s ease;
+    color: #ff1493;
+    text-decoration: none;
+    font-weight: 700;
 }
 
 .challenge-link:hover {
-  text-decoration: underline;
+    opacity: 0.85;
 }

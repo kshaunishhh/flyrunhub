@@ -831,9 +831,9 @@ const fetchCommunityLeaderboard = async () => {
 
 </div>
 
-<h2 className="challenge-section-title">
+<h3 className="challenge-section-title">
   Links & Contact
-</h2>
+</h3>
 
 <p>
   📝{" "}
