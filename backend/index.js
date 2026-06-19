@@ -74,13 +74,13 @@ async function buildDayLeaderboard(dayDate) {
 
   for (const p of participants) {
 
-    const athlete = await Athlete.findOne({
+    try {
+
+      const athlete = await Athlete.findOne({
       athleteId: p.athleteId
     });
 
     if (!athlete) continue;
-
-    try {
 
       let accessToken = athlete.accessToken;
 
@@ -103,6 +103,7 @@ async function buildDayLeaderboard(dayDate) {
       let totalKm = 0;
 
       response.data.forEach(activity => {
+        if (!activity.start_date_local) return;
 
         const activityDate =
           activity.start_date_local.split("T")[0];
@@ -126,7 +127,11 @@ async function buildDayLeaderboard(dayDate) {
 
     } catch (err) {
 
-      console.log("Skipping athlete:", p.firstname);
+      console.log(
+  "Skipping athlete:",
+  p.firstname,
+  err.message
+); 
 
     }
 
@@ -1090,25 +1095,9 @@ app.get("/community/leaderboard/history", async (req, res) => {
 });
 
 app.get("/challenge/day1", async (req, res) => {
-
-  try {
-
-    const leaderboard =
-      await buildDayLeaderboard("2026-07-01");
-
-    res.json(leaderboard);
-
-  } catch (err) {
-
-    console.error(err);
-
-    res.status(500).json({
-      error: err.message
-    });
-
-  }
-
+  res.json({ working: true });
 });
+
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
