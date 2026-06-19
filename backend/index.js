@@ -98,20 +98,9 @@ console.log("Mongo athlete:", athlete);
 
     if (!athlete) continue;
 
-      let accessToken = athlete.accessToken;
+      console.log("Force refreshing token...");
 
-console.log(
-  "Token expiry:",
-  athlete.tokenExpiresAt,
-  Date.now() / 1000
-);
-
-if (athlete.tokenExpiresAt * 1000 < Date.now()) {
-
-  console.log("Refreshing token...");
-
-  accessToken = await refreshStravaToken(athlete);
-}
+let accessToken = await refreshStravaToken(athlete);
 
       const response = await axios.get(
         "https://www.strava.com/api/v3/athlete/activities",
