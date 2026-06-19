@@ -848,7 +848,7 @@ const fetchCommunityLeaderboard = async () => {
 </p>
 
 <p>
-  💬{" "}
+  🏃{" "}
   <a
     href="https://chat.whatsapp.com/L4ce3kfTeDfINxM0QnfCQo?s=qt&p=a&mlu=1K"
     target="_blank"
@@ -860,12 +860,14 @@ const fetchCommunityLeaderboard = async () => {
 </p>
 
 <p>
-  📧{" "}
+  💬{" "}
   <a
-    href="mailto:kshaunishgupta1@gmail.com"
+    href="https://wa.me/919717538449"
+    target="_blank"
+    rel="noopener noreferrer"
     className="challenge-link"
   >
-    Mail
+    Technical issues?
   </a>
 </p>
 
