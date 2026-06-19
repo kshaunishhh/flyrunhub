@@ -1091,13 +1091,24 @@ app.get("/community/leaderboard/history", async (req, res) => {
 
 app.get("/challenge/day1", async (req, res) => {
 
-  const leaderboard =
-    await buildDayLeaderboard("2026-07-01");
+  try {
 
-  res.json(leaderboard);
+    const leaderboard =
+      await buildDayLeaderboard("2026-07-01");
+
+    res.json(leaderboard);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
 
 });
-
 // Serve React build
 app.use(express.static(path.join(__dirname, "..", "build")));
 
