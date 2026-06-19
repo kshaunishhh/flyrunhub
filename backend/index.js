@@ -66,6 +66,82 @@ async function getChallengeParticipants() {
   return participants;
 }
 
+async function buildDayLeaderboard(dayDate) {
+
+  const participants = await getChallengeParticipants();
+
+  let leaderboard = [];
+
+  for (const p of participants) {
+
+    const athlete = await Athlete.findOne({
+      athleteId: p.athleteId
+    });
+
+    if (!athlete) continue;
+
+    try {
+
+      let accessToken = athlete.accessToken;
+
+      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+        accessToken = await refreshStravaToken(athlete);
+      }
+
+      const response = await axios.get(
+        "https://www.strava.com/api/v3/athlete/activities",
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          params: {
+            per_page: 100
+          }
+        }
+      );
+
+      let totalKm = 0;
+
+      response.data.forEach(activity => {
+
+        const activityDate =
+          activity.start_date_local.split("T")[0];
+
+        if (
+          activityDate === dayDate &&
+          ["Run", "Walk"].includes(normalizeType(activity.type))
+        ) {
+
+          totalKm += activity.distance / 1000;
+
+        }
+
+      });
+
+      leaderboard.push({
+        athleteId: p.athleteId,
+        name: `${p.firstname} ${p.lastname}`,
+        total_km: Number(totalKm.toFixed(2))
+      });
+
+    } catch (err) {
+
+      console.log("Skipping athlete:", p.firstname);
+
+    }
+
+  }
+
+  leaderboard = leaderboard
+    .filter(a => a.total_km > 0)
+    .sort((a, b) => b.total_km - a.total_km)
+    .map((a, i) => ({
+      rank: i + 1,
+      ...a
+    }));
+
+  return leaderboard;
+}
 
 function shouldSaveSnapshot() {
   const now = new Date();
@@ -1013,11 +1089,12 @@ app.get("/community/leaderboard/history", async (req, res) => {
   }
 });
 
-app.get("/test-participants", async (req, res) => {
+app.get("/challenge/day1", async (req, res) => {
 
-  const participants = await getChallengeParticipants();
+  const leaderboard =
+    await buildDayLeaderboard("2026-07-01");
 
-  res.json(participants);
+  res.json(leaderboard);
 
 });
 
