@@ -839,7 +839,7 @@ const getDayStatus = (day) => {
 
   <div className="leaderboard">
 
-    <h1>🏃 Day {selectedDay}</h1>
+    <h2>🏃 Day {selectedDay} Leaderboard</h2>
 
     <p className="challenge-tagline">
       RUNFINITY 7×7 Challenge
@@ -848,6 +848,16 @@ const getDayStatus = (day) => {
 
       <div className="table-wrapper">
 
+<table className="leaderboard-table">
+
+<thead>
+
+<tr>
+
+<th>Rank</th>
+<th>Athlete</th>
+<th>Days</th>
+<th>
 <select
 value={challengeMetric}
 onChange={(e)=>setChallengeMetric(e.target.value)}
@@ -862,21 +872,12 @@ Total KM
 </option>
 
 <option value="pace">
-Average Pace
+Avg Pace
 </option>
 
 </select>
 
-<table className="leaderboard-table">
-
-<thead>
-
-<tr>
-
-<th>Rank</th>
-<th>Athlete</th>
-<th>Days</th>
-<th>Value</th>
+</th>
 
 </tr>
 
