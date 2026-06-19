@@ -22,6 +22,7 @@ if (process.env.NODE_ENV === "production") {
 
 
 async function refreshStravaToken(athlete) {
+  try {
   const response = await axios.post(
     "https://www.strava.com/oauth/token",
     {
@@ -45,6 +46,17 @@ async function refreshStravaToken(athlete) {
   await athlete.save();
 
   return access_token;
+
+} catch (err) {
+
+  console.log(
+    "Refresh failed:",
+    err.response?.data || err.message
+  );
+
+  throw err;
+}
+
 }
 
 //Helper functions
@@ -88,9 +100,18 @@ console.log("Mongo athlete:", athlete);
 
       let accessToken = athlete.accessToken;
 
-      if (athlete.tokenExpiresAt * 1000 < Date.now()) {
-        accessToken = await refreshStravaToken(athlete);
-      }
+console.log(
+  "Token expiry:",
+  athlete.tokenExpiresAt,
+  Date.now() / 1000
+);
+
+if (athlete.tokenExpiresAt * 1000 < Date.now()) {
+
+  console.log("Refreshing token...");
+
+  accessToken = await refreshStravaToken(athlete);
+}
 
       const response = await axios.get(
         "https://www.strava.com/api/v3/athlete/activities",
