@@ -26,6 +26,8 @@ function App() {
   const [selectedTypes, setSelectedTypes] = useState(["Run"]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
+  const [challengeData, setChallengeData] = useState([]);
+  const [challengeMetric, setChallengeMetric] = useState("today");
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -161,6 +163,16 @@ useEffect(() => {
   window.history.replaceState({ view: "home" }, "", "#home");
 }, []);
 
+useEffect(() => {
+
+  if (!selectedDay) return;
+
+  fetchChallengeLeaderboard(
+    `2026-07-0${selectedDay}`
+  );
+
+}, [challengeMetric, selectedDay]);
+
 
 useEffect(() => {
   if (view !== "community") return;
@@ -227,7 +239,89 @@ const fetchCommunityLeaderboard = async () => {
   return <p style={{ textAlign: "center" }}>Checking authentication…</p>;
 }
 
+const fetchChallengeLeaderboard = async (date) => {
 
+  try {
+
+    setLoading(true);
+
+    const res = await axios.get(`/challenge/${date}`);
+
+    let rows = Array.isArray(res.data) ? res.data : [];
+
+    if (challengeMetric === "today") {
+
+      rows.sort((a,b)=>{
+
+        if (b.completedDays !== a.completedDays)
+          return b.completedDays - a.completedDays;
+
+        return b.today_km - a.today_km;
+
+      });
+
+    }
+
+    if (challengeMetric === "total") {
+
+      rows.sort((a,b)=>{
+
+        if (b.completedDays !== a.completedDays)
+          return b.completedDays - a.completedDays;
+
+        return b.total_km - a.total_km;
+
+      });
+
+    }
+
+    if (challengeMetric === "pace") {
+
+      rows.sort((a,b)=>{
+
+        if (b.completedDays !== a.completedDays)
+          return b.completedDays - a.completedDays;
+
+        return a.avg_pace_sec - b.avg_pace_sec;
+
+      });
+
+    }
+
+    rows = rows.map((r,i)=>({
+      ...r,
+      rank:i+1
+    }));
+
+    setChallengeData(rows);
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+};
+
+const getDayStatus = (day) => {
+
+  const today = new Date();
+
+  const challengeDate = new Date(
+    `2026-07-0${day}`
+  );
+
+  if (today < challengeDate) {
+    return "🔒";
+  }
+
+  if (today.toDateString() === challengeDate.toDateString()) {
+    return "🔴 Live";
+  }
+
+  return "✅ Finished";
+
+};
 
   return (
     <div className="App">
@@ -751,19 +845,75 @@ const fetchCommunityLeaderboard = async () => {
       RUNFINITY 7×7 Challenge
     </p>
 
-    <div className="coming-soon-page">
 
-      <h2>Oops! 🚀</h2>
+      <div className="table-wrapper">
 
-      <p>
-        Day {selectedDay} leaderboard is not available yet.
-      </p>
+<select
+value={challengeMetric}
+onChange={(e)=>setChallengeMetric(e.target.value)}
+>
 
-      <p>
-        It will become available on July {selectedDay}, 2026.
-      </p>
+<option value="today">
+Day KM
+</option>
 
-    </div>
+<option value="total">
+Total KM
+</option>
+
+<option value="pace">
+Average Pace
+</option>
+
+</select>
+
+<table className="leaderboard-table">
+
+<thead>
+
+<tr>
+
+<th>Rank</th>
+<th>Athlete</th>
+<th>Days</th>
+<th>Value</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{safeArray(challengeData).map(row => (
+
+<tr key={row.athleteId}>
+
+<td>{getMedal(row.rank)}</td>
+
+<td>{row.name}</td>
+
+<td>{row.completedDays}/7</td>
+
+<td>
+
+{challengeMetric === "today" && row.today_km}
+
+{challengeMetric === "total" && row.total_km}
+
+{challengeMetric === "pace" && row.avg_pace}
+
+</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
 
     <button
       className="back-btn"
@@ -800,34 +950,110 @@ const fetchCommunityLeaderboard = async () => {
 <div className="history-list">
   <h3> Daily Leaderboards</h3>
 
-  <button className="history-btn">
-    Day 1 
-  </button>
+  <button
+  className="history-btn"
+  onClick={() => {
 
-  <button className="history-btn">
-    Day 2 
-  </button>
+    setSelectedDay(1);
 
-  <button className="history-btn">
-    Day 3
-  </button>
+    fetchChallengeLeaderboard("2026-07-01");
 
-  <button className="history-btn">
-    Day 4
-  </button>
+    navigate("dayDetail");
 
-  <button className="history-btn">
-    Day 5
-  </button>
+  }}
+>
+  Day 1 {getDayStatus(1)}
+</button>
 
-  <button className="history-btn">
-    Day 6
-  </button>
+  <button
+  className="history-btn"
+  onClick={() => {
 
-  <button className="history-btn">
-    Day 7
-  </button>
+    setSelectedDay(2);
 
+    fetchChallengeLeaderboard("2026-07-02");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 2 {getDayStatus(2)}     
+</button>
+
+<button
+  className="history-btn"
+  onClick={() => {
+
+    setSelectedDay(3);
+
+    fetchChallengeLeaderboard("2026-07-03");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 3 {getDayStatus(3)}       
+</button>
+
+<button
+  className="history-btn"
+  onClick={() => {
+
+    setSelectedDay(4);
+
+    fetchChallengeLeaderboard("2026-07-04");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 4 {getDayStatus(4)}
+</button>
+
+<button
+  className="history-btn"
+  onClick={() => {
+
+    setSelectedDay(5);
+
+    fetchChallengeLeaderboard("2026-07-05");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 5 {getDayStatus(5)}     
+</button>
+
+<button
+  className="history-btn"
+  onClick={() => {
+
+    setSelectedDay(6);
+
+    fetchChallengeLeaderboard("2026-07-06");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 6 {getDayStatus(6)}
+</button>
+
+<button
+  className="history-btn"
+  onClick={() => {
+
+    setSelectedDay(7);
+
+    fetchChallengeLeaderboard("2026-07-07");
+
+    navigate("dayDetail");
+
+  }}
+>
+  Day 7 {getDayStatus(7)}
+</button>
 
 </div>
 

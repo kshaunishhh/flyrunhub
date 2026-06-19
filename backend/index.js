@@ -116,31 +116,104 @@ let accessToken = await refreshStravaToken(athlete);
 
       console.log("Activities fetched:", response.data.length);
 
-      let totalKm = 0;
+      const challengeDates = [
+  "2026-07-01",
+  "2026-07-02",
+  "2026-07-03",
+  "2026-07-04",
+  "2026-07-05",
+  "2026-07-06",
+  "2026-07-07"
+];
+
+let totalKm = 0;
+let todayKm = 0;
+let completedDays = 0;
+
+let paceDistance = 0;
+let paceTime = 0;
+
+const dayTotals = {};
+
+challengeDates.forEach(date => {
+  dayTotals[date] = 0;
+});
 
       response.data.forEach(activity => {
+
         if (!activity.start_date_local) return;
 
-        const activityDate =
-          activity.start_date_local.split("T")[0];
+const activityDate =
+  activity.start_date_local.split("T")[0];
 
-        if (
-          activityDate === dayDate &&
-          ["Run", "Walk"].includes(normalizeType(activity.type))
-        ) {
+if (
+  ["Run", "Walk"].includes(
+    normalizeType(activity.type)
+  )
+) {
 
-          totalKm += activity.distance / 1000;
+  const km = activity.distance / 1000;
 
-        }
+  // total km
+  if (challengeDates.includes(activityDate)) {
+    totalKm += km;
+    dayTotals[activityDate] += km;
+  }
+
+  // today's km
+  if (activityDate === dayDate) {
+    todayKm += km;
+  }
+
+  // pace calculation only if ≥7 km activity
+  if (
+    challengeDates.includes(activityDate) &&
+    km >= 7
+  ) {
+
+    paceDistance += km;
+    paceTime += activity.moving_time;
+  }
+
+}
 
       });
+
+      Object.values(dayTotals).forEach(km => {
+
+  if (km >= 7) {
+    completedDays++;
+  }
+
+});
+
+let avgPace = "--";
+let avgPaceSec = 999999;
+
+if (paceDistance > 0) {
+
+  const secPerKm =
+    paceTime / paceDistance;
+  avgPaceSec = secPerKm;
+  const min = Math.floor(secPerKm / 60);
+  const sec = Math.round(secPerKm % 60);
+
+  avgPace =
+    `${min}:${sec.toString().padStart(2,"0")}`;
+
+}
+
+
 
       leaderboard.push({
-        athleteId: p.athleteId,
-        name: `${p.firstname} ${p.lastname}`,
-        total_km: Number(totalKm.toFixed(2))
-      });
-
+  athleteId: p.athleteId,
+  name: `${p.firstname} ${p.lastname}`,
+  completedDays,
+  today_km: Number(todayKm.toFixed(2)),
+  total_km: Number(totalKm.toFixed(2)),
+  avg_pace: avgPace,
+avg_pace_sec: avgPaceSec
+});
     } catch (err) {
 
       console.log(
@@ -154,8 +227,15 @@ let accessToken = await refreshStravaToken(athlete);
   }
 
   leaderboard = leaderboard
-    .filter(a => a.total_km > 0)
-    .sort((a, b) => b.total_km - a.total_km)
+  .sort((a, b) => {
+
+    if (b.completedDays !== a.completedDays) {
+      return b.completedDays - a.completedDays;
+    }
+
+    return b.today_km - a.today_km;
+
+  })
     .map((a, i) => ({
       rank: i + 1,
       ...a
@@ -176,6 +256,21 @@ function shouldSaveSnapshot() {
   const hour = ist.getHours();
 
   return day === 0 && hour >= 19 && hour < 22; // Sunday 7-10 PM IST
+}
+
+
+function shouldSaveChallengeSnapshot() {
+
+  const now = new Date(
+    new Date().toLocaleString(
+      "en-US",
+      { timeZone: "Asia/Kolkata" }
+    )
+  );
+
+  const hour = now.getHours();
+
+  return hour >= 22; // after 10 PM IST
 }
 
 
@@ -1107,12 +1202,47 @@ app.get("/community/leaderboard/history", async (req, res) => {
   }
 });
 
-app.get("/challenge/day1", async (req, res) => {
+app.get("/challenge/:date", async (req, res) => {
 
   try {
 
+    const snapshotDoc = await db
+      .collection("challenge_snapshots")
+      .doc(req.params.date)
+      .get();
+
+    // already frozen?
+    if (snapshotDoc.exists) {
+
+      return res.json(
+        snapshotDoc.data().leaderboard
+      );
+
+    }
+
+    // live leaderboard
     const leaderboard =
-      await buildDayLeaderboard("2026-06-19");
+      await buildDayLeaderboard(req.params.date);
+
+    // save snapshot after 11 PM
+    if (shouldSaveChallengeSnapshot()) {
+
+      await db
+        .collection("challenge_snapshots")
+        .doc(req.params.date)
+        .set({
+
+          leaderboard,
+          generatedAt: new Date()
+
+        });
+
+      console.log(
+        "Challenge snapshot saved:",
+        req.params.date
+      );
+
+    }
 
     res.json(leaderboard);
 
