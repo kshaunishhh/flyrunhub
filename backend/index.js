@@ -1202,30 +1202,42 @@ app.get("/community/leaderboard/history", async (req, res) => {
   }
 });
 
-app.get("/admin/import-challenge", async (req,res)=>{
+app.get("/admin/import-challenge", async (req, res) => {
 
-  const athletes = await db
-    .collection("athletes_public")
-    .get();
+try {
 
-  for (const doc of athletes.docs) {
+const snapshot = await db
+.collection("athletes_public")
+.get();
 
-    const a = doc.data();
+for (const doc of snapshot.docs) {
 
-    await db.collection("challenge_participants")
-      .doc(String(a.athleteId))
-      .set({
-        athleteId: a.athleteId,
-        firstname: a.firstname,
-        lastname: a.lastname,
-        challenge: "7x7-2026",
-        paymentDone: false,
-        registeredAt: new Date()
-      });
+const a = doc.data();
 
-  }
+await db
+.collection("challenge_participants")
+.doc(doc.id)
+.set({
+athleteId: Number(doc.id),
+firstname: a.firstname || "",
+lastname: a.lastname || "",
+challenge: "7x7-2026",
+paymentDone: false,
+registeredAt: new Date()
+});
 
-  res.send("Imported");
+}
+
+res.send("Import successful");
+
+} catch (err) {
+
+console.error(err);
+
+res.status(500).send(err.message);
+
+}
+
 });
 
 app.get("/challenge/:date", async (req, res) => {
