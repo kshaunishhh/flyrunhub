@@ -831,6 +831,44 @@ const fetchCommunityLeaderboard = async () => {
 
 </div>
 
+<h2 className="challenge-section-title">
+  Links & Contact
+</h2>
+
+<p>
+  📝{" "}
+  <a
+    href="https://docs.google.com/spreadsheets/d/1GONq0irfd5vX0ZYzS2jKI8YN9Asli9i8cNwmPX-W8HI/edit?gid=2005836048#gid=2005836048"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="challenge-link"
+  >
+    Register for the Challenge
+  </a>
+</p>
+
+<p>
+  💬{" "}
+  <a
+    href="https://chat.whatsapp.com/L4ce3kfTeDfINxM0QnfCQo?s=qt&p=a&mlu=1K"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="challenge-link"
+  >
+    Join Runfinity Community
+  </a>
+</p>
+
+<p>
+  📧{" "}
+  <a
+    href="mailto:kshaunishgupta1@gmail.com"
+    className="challenge-link"
+  >
+    Mail
+  </a>
+</p>
+
     <button className="back-btn"
       onClick={() => navigate("challenges")}
     >

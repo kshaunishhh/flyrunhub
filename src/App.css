@@ -809,3 +809,13 @@ body {
   margin-bottom: 30px;
 }
 
+.challenge-link {
+  color: #ffb347;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.challenge-link:hover {
+  text-decoration: underline;
+}
