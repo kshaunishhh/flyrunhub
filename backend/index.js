@@ -1104,7 +1104,7 @@ app.get("/challenge/day1", async (req, res) => {
   try {
 
     const leaderboard =
-      await buildDayLeaderboard("2026-07-01");
+      await buildDayLeaderboard("2026-06-19");
 
     res.json(leaderboard);
 
