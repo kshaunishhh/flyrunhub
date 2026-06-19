@@ -70,6 +70,8 @@ async function buildDayLeaderboard(dayDate) {
 
   const participants = await getChallengeParticipants();
 
+  console.log("Participants:", participants);
+
   let leaderboard = [];
 
   for (const p of participants) {
@@ -77,8 +79,9 @@ async function buildDayLeaderboard(dayDate) {
     try {
 
       const athlete = await Athlete.findOne({
-      athleteId: p.athleteId
-    });
+  athleteId: Number(p.athleteId)
+});
+console.log("Mongo athlete:", athlete);
 
     if (!athlete) continue;
 
@@ -99,6 +102,8 @@ async function buildDayLeaderboard(dayDate) {
           }
         }
       );
+
+      console.log("Activities fetched:", response.data.length);
 
       let totalKm = 0;
 
@@ -1095,7 +1100,24 @@ app.get("/community/leaderboard/history", async (req, res) => {
 });
 
 app.get("/challenge/day1", async (req, res) => {
-  res.json({ working: true });
+
+  try {
+
+    const leaderboard =
+      await buildDayLeaderboard("2026-07-01");
+
+    res.json(leaderboard);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+
 });
 
 // Serve React build
