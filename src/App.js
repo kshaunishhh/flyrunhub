@@ -371,6 +371,18 @@ const getDayStatus = (day) => {
  <div className="card-container">
 
   <button
+    className="card-btn challenge-home"
+    onClick={() => {
+      navigate("challenges");
+    }}
+  >
+    <span className="card-title">🔥Challenges</span>
+    <span className="card-sub">
+    </span>
+  </button>
+
+
+  <button
     className="card-btn"
     onClick={() => {
       if (!isAuthenticated){
@@ -402,17 +414,6 @@ const getDayStatus = (day) => {
    <span className="card-sub">
   Your Rank: {yourRank ? `#${yourRank}` : "—"}
 </span>
-  </button>
-
-  <button
-    className="card-btn challenge-home"
-    onClick={() => {
-      navigate("challenges");
-    }}
-  >
-    <span className="card-title">🔥Challenges</span>
-    <span className="card-sub">
-    </span>
   </button>
 
 
