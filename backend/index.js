@@ -1203,6 +1203,80 @@ app.get("/community/leaderboard/history", async (req, res) => {
 });
 
 
+app.get("/admin/sync-athletes", async (req, res) => {
+
+  try {
+
+    const athletes = await Athlete.find({});
+
+    for (const athlete of athletes) {
+
+      await db
+        .collection("athletes_public")
+        .doc(String(athlete.athleteId))
+        .set(
+          {
+            firstname: athlete.firstname || "",
+            lastname: athlete.lastname || "",
+            username: athlete.username || null,
+            joinedAt: new Date()
+          },
+          { merge: true }
+        );
+
+    }
+
+    res.send("Athletes synced successfully");
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).send(err.message);
+
+  }
+
+});
+
+app.get("/admin/import-challenge", async (req, res) => {
+
+  try {
+
+    const snapshot = await db
+      .collection("athletes_public")
+      .get();
+
+    for (const doc of snapshot.docs) {
+
+      const a = doc.data();
+
+      await db
+        .collection("challenge_participants")
+        .doc(doc.id)
+        .set(
+          {
+            athleteId: Number(doc.id),
+            firstname: a.firstname || "",
+            lastname: a.lastname || "",
+            challenge: "7x7-2026",
+            paymentDone: false,
+            registeredAt: new Date()
+          },
+          { merge: true }
+        );
+
+    }
+
+    res.send("Challenge participants imported");
+
+  } catch (err) {
+
+    console.error(err);
+    res.status(500).send(err.message);
+
+  }
+
+});
+
 app.get("/challenge/:date", async (req, res) => {
 
   try {
