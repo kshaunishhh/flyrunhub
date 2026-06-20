@@ -1165,7 +1165,24 @@ return {
 
     
 
-    res.json(ranked);
+    let yourRank = null;
+
+if (req.session?.athleteId) {
+
+  const me = ranked.find(
+    a => a.athleteId === req.session.athleteId
+  );
+
+  if (me) {
+    yourRank = me.rank;
+  }
+
+}
+
+res.json({
+  leaderboard: ranked,
+  yourRank
+});
 
   } catch (err) {
     console.error("Community leaderboard error:", err.message);

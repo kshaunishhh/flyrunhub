@@ -28,6 +28,7 @@ function App() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [challengeData, setChallengeData] = useState([]);
   const [challengeMetric, setChallengeMetric] = useState("today");
+  const [yourRank, setYourRank] = useState(null);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -138,6 +139,10 @@ const navigate = (nextView) => {
 };
 
 useEffect(() => {
+  fetchCommunityLeaderboard();
+}, []);
+
+useEffect(() => {
   const onBack = (e) => {
   const state = e.state;
 
@@ -211,7 +216,11 @@ const fetchCommunityLeaderboard = async () => {
   `/community/leaderboard/weekly?types=${selectedTypes.join(",")}`
 );
 
-    const newData = Array.isArray(res.data) ? res.data : [];
+    const newData = Array.isArray(res.data.leaderboard)
+  ? res.data.leaderboard
+  : [];
+
+setYourRank(res.data.yourRank);
 
     const animated = newData.map(player => {
       const old = prevCommunity?.find(
@@ -390,8 +399,9 @@ const getDayStatus = (day) => {
     }}
   >
     <span className="card-title">🏆Community Leaderboard</span>
-    <span className="card-sub">
-    </span>
+   <span className="card-sub">
+  Your Rank: {yourRank ? `#${yourRank}` : "—"}
+</span>
   </button>
 
   <button
