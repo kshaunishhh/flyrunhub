@@ -433,7 +433,7 @@ const getDayStatus = (day) => {
     {/* ✅ FOOTER ONLY ON HOME */}
     <footer className="app-footer">
       <div className="footer-content">
-        <p className="footer-title"> FlyRunHub • v1.0 (Beta)
+        <p className="footer-title"> FlyRunHub • (Beta)
 </p>
 
         <p className="footer-text">
