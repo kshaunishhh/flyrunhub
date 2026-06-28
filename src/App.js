@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { toPng } from "html-to-image";
+import LeaderboardPoster from "./LeaderboardPoster";
 import "./App.css";
 import axios from "axios";
 axios.defaults.withCredentials = true;
@@ -869,6 +870,9 @@ const getDayStatus = (day) => {
 
       </table>
     </div>
+    <hr style={{ margin: "40px 0" }} />
+
+<LeaderboardPoster history={selectedHistory} />
 
     <button
       className="back-btn"
