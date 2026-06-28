@@ -861,9 +861,9 @@ body {
 }
 
 .poster-export {
-    width: 1080px;
-    min-height: 800px;
-    background: red;
-    color: white;
-    padding: 40px;
+    width:1080px;
+    min-height:800px;
+    background:red;
+    color:white;
+    padding:40px;
 }
