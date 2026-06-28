@@ -15,11 +15,22 @@
     font-family:Arial,Helvetica,sans-serif;
 
 }
-.poster-header{
+.poster-header h1{
 
-    text-align:center;
+    margin:0;
 
-    margin-bottom:35px;
+    font-size:72px;
+
+    font-weight:900;
+
+    color:#ff2d95;
+
+    letter-spacing:3px;
+
+    text-shadow:
+        0 0 6px #ff2d95,
+        0 0 20px #ff2d95,
+        0 0 45px rgba(255,45,149,.95);
 
 }
 
@@ -43,30 +54,40 @@
 
 .poster-tagline{
 
-    margin-top:12px;
+    margin-top:10px;
 
-    color:#bdbdbd;
+    margin-bottom:34px;
 
-    letter-spacing:4px;
+    color:#c7c7c7;
 
     font-size:18px;
 
+    letter-spacing:3px;
+
+    text-transform:uppercase;
+
 }
+
 .poster-title{
 
-    margin-top:40px;
+    margin-top:28px;
 
-    margin-bottom:24px;
+    margin-bottom:26px;
 
-    font-size:68px;
+    font-size:86px;
+
+    line-height:1.05;
 
     font-weight:900;
+
+    text-transform:uppercase;
 
     color:white;
 
     text-shadow:
-        0 0 15px #ff4da6,
-        0 0 35px #ff4da6;
+        0 0 10px #ff2d95,
+        0 0 28px rgba(255,45,149,.9),
+        0 0 60px rgba(255,45,149,.6);
 
 }
 
@@ -74,27 +95,35 @@
 
     display:inline-block;
 
-    padding:16px 36px;
+    padding:18px 46px;
 
     border-radius:999px;
 
-    background:#ff5ba8;
+    background:linear-gradient(
+        90deg,
+        #ff3f9f,
+        #ff74bd
+    );
 
     color:white;
 
     font-size:26px;
 
-    font-weight:bold;
+    font-weight:800;
 
 }
 
 .poster-athletes{
 
-    margin-top:18px;
+    margin-top:20px;
 
-    color:#d6d6d6;
+    margin-bottom:14px;
+
+    color:#d8d8d8;
 
     font-size:24px;
+
+    font-weight:600;
 
 }
 
