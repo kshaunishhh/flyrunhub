@@ -872,8 +872,9 @@ const getDayStatus = (day) => {
     </div>
     <hr style={{ margin: "40px 0" }} />
 
-<LeaderboardPoster history={selectedHistory} />
-
+<div ref={posterRef}>
+  <LeaderboardPoster history={selectedHistory} />
+</div>
     <button
       className="back-btn"
       onClick={() => navigate("community")}
@@ -1166,26 +1167,7 @@ Avg Pace
     </button>
   </div>
 )}
-   <div ref={posterRef} className="poster-export">
-  <div
-    style={{
-      width: "1080px",
-      minHeight: "800px",
-      background: "red",
-      color: "white",
-      padding: "40px",
-      fontSize: "40px",
-    }}
-  >
-    <h1>TEST EXPORT</h1>
-
-    <p>{selectedHistory?.label}</p>
-
-    <p>
-      Athletes: {selectedHistory?.leaderboard?.length}
-    </p>
-  </div>
-</div>
+   
 
     </div>
   );
