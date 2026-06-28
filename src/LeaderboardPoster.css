@@ -36,9 +36,9 @@
     letter-spacing:3px;
 
     text-shadow:
-        0 0 6px #ff2d95,
-        0 0 20px #ff2d95,
-        0 0 45px rgba(255,45,149,.95);
+    0 0 6px #ff007f,
+    0 0 20px #ff007f,
+    0 0 45px rgba(255,0,127,.95);
 
 }
 
@@ -54,17 +54,14 @@
 
     font-weight:900;
 
-    color:#ff007f;
-
     letter-spacing:3px;
 
-    text-shadow:
+    color:#ff007f;
 
-        0 0 8px #ff2d95,
-
-        0 0 20px #ff2d95,
-
-        0 0 45px rgba(255,45,149,.8);
+text-shadow:
+    0 0 8px #ff007f,
+    0 0 20px #ff007f,
+    0 0 45px rgba(255,0,127,.8);
 
 }
 
@@ -101,9 +98,9 @@
     color:white;
 
     text-shadow:
-        0 0 10px #ff2d95,
-        0 0 28px rgba(255,45,149,.9),
-        0 0 60px rgba(255,45,149,.6);
+        0 0 10px #ff007f,
+        0 0 28px rgba(255,0,127,.9),
+        0 0 60px rgba(255,0,127,.6);
 
 }
 
@@ -116,10 +113,10 @@
     border-radius:999px;
 
     background:linear-gradient(
-        90deg,
-        #ff2d95,
-        #ff5cad
-    );
+    90deg,
+    #ff007f,
+    #ff4da6
+);
 
     color:#111111;
 
@@ -183,7 +180,7 @@
 
     text-transform:uppercase;
 
-    color:#ff63b0;
+    color:#ff007f;
 
     letter-spacing:1px;
 
@@ -237,7 +234,7 @@
 
     font-weight:900;
 
-    color:#ff4da6;
+    color:#ff007f;
 
 }
 
@@ -249,7 +246,7 @@
 
     font-weight:900;
 
-    color:#ff4da6;
+    color:#ff007f;
 
 }
 
