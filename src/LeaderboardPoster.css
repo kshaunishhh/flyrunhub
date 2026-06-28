@@ -23,41 +23,50 @@
 
 }
 
-.poster-header h1{
+.poster-brand{
 
-    color:#ff4da6;
+    display:flex;
 
-    font-size:60px;
+    justify-content:center;
 
-    margin:0;
+    align-items:center;
+
+    gap:16px;
+
+    font-size:58px;
 
     font-weight:900;
 
-}
-
-.poster-header p{
-
-    color:#bbbbbb;
-
-    margin:10px 0;
-
-    letter-spacing:2px;
-
-    font-size:20px;
+    color:#ff4da6;
 
 }
 
-.poster-header h2{
+.poster-tagline{
+
+    margin-top:12px;
+
+    color:#bdbdbd;
+
+    letter-spacing:4px;
+
+    font-size:18px;
+
+}
+.poster-title{
+
+    margin-top:40px;
+
+    margin-bottom:24px;
+
+    font-size:68px;
+
+    font-weight:900;
 
     color:white;
 
-    font-size:72px;
-
-    margin:35px 0 20px;
-
-    text-transform:uppercase;
-
-    text-shadow:0 0 20px #ff4da6;
+    text-shadow:
+        0 0 15px #ff4da6,
+        0 0 35px #ff4da6;
 
 }
 
@@ -93,53 +102,79 @@
 
     width:100%;
 
-    border-collapse:collapse;
+    margin-top:45px;
 
-    overflow:hidden;
+    border-collapse:separate;
+
+    border-spacing:0;
+
+    border:2px solid rgba(255,99,176,.45);
 
     border-radius:24px;
 
-    margin-top:40px;
+    overflow:hidden;
+
+    background:#10131d;
+
+    box-shadow:0 0 25px rgba(255,99,176,.12);
 
 }
 
 .poster-table thead{
 
-    background:#191527;
+    background:rgba(255,99,176,.08);
 
 }
 
 .poster-table th{
 
-    padding:20px;
-
-    color:#ff63b0;
+    padding:22px;
 
     font-size:24px;
 
-    border-bottom:1px solid #333;
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    color:#ff63b0;
+
+    letter-spacing:1px;
 
 }
 
 .poster-table td{
 
-    padding:18px;
+    padding:18px 22px;
 
-    font-size:22px;
+    font-size:28px;
 
-    border-bottom:1px solid #222;
+    font-weight:600;
+
+    border-bottom:1px solid rgba(255,255,255,.08);
 
 }
 
-.poster-table tbody tr:nth-child(odd){
+.poster-table td:nth-child(2){
 
-    background:#11111d;
+    font-weight:800;
+
+    color:white;
+
+    text-align:left;
+
+}
+
+.poster-table tbody tr{
+
+    background:#0f1117;
+
+    transition:.2s;
 
 }
 
 .poster-table tbody tr:nth-child(even){
 
-    background:#161626;
+    background:#131723;
 
 }
 
@@ -149,9 +184,9 @@
 
     text-align:center;
 
-    font-weight:bold;
+    font-size:28px;
 
-    color:#ff63b0;
+    font-weight:900;
 
 }
 
@@ -159,9 +194,11 @@
 
     text-align:right;
 
-    color:#ff63b0;
+    font-size:30px;
 
-    font-weight:bold;
+    font-weight:900;
+
+    color:#ff63b0;
 
 }
 

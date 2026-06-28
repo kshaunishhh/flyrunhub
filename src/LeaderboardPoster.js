@@ -8,22 +8,39 @@ export default function LeaderboardPoster({ history }) {
 
       <div className="poster-header">
 
-        <h1>FLYRUNHUB</h1>
+  <div className="poster-brand">
 
-        <p>RUN TOGETHER. RISE TOGETHER.</p>
+    🏃
 
-        <h2>WEEKLY LEADERBOARD</h2>
+    <span>FLYRUNHUB</span>
 
-        <div className="poster-week">
-          {history.label}
-        </div>
+  </div>
 
-        <div className="poster-athletes">
-          👥 {history.leaderboard.length} Athletes Recorded
-        </div>
+  <div className="poster-tagline">
 
-      </div>
+    TRACK • COMPETE • IMPROVE
 
+  </div>
+
+  <h2 className="poster-title">
+
+    WEEKLY COMMUNITY LEADERBOARD
+
+  </h2>
+
+  <div className="poster-week">
+
+    {history.label}
+
+  </div>
+
+  <div className="poster-athletes">
+
+    👥 {history.leaderboard.length} ATHLETES
+
+  </div>
+
+</div>
       <table className="poster-table">
 
         <thead>
@@ -47,10 +64,10 @@ export default function LeaderboardPoster({ history }) {
             <tr key={runner.athleteId || index}>
 
               <td>
-                {index===0?"🥇":
-                 index===1?"🥈":
-                 index===2?"🥉":
-                 index+1}
+                {index === 0 ? "🥇" :
+ index === 1 ? "🥈" :
+ index === 2 ? "🥉" :
+ `#${index + 1}`}
               </td>
 
               <td>{runner.name}</td>
