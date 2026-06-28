@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { toPng } from "html-to-image";
 import "./App.css";
 import axios from "axios";
 axios.defaults.withCredentials = true;
-
 const safeArray = (arr) => Array.isArray(arr) ? arr : [];
 
 
@@ -29,6 +29,7 @@ function App() {
   const [challengeData, setChallengeData] = useState([]);
   const [challengeMetric, setChallengeMetric] = useState("today");
   const [yourRank, setYourRank] = useState(null);
+  const posterRef = useRef(null);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -71,9 +72,29 @@ useEffect(() => {
 }, [showToast]);
 
 
+const exportLeaderboard = async () => {
+  if (!posterRef.current) return;
 
+  try {
+    const dataUrl = await toPng(posterRef.current, {
+      pixelRatio: 4,
+      cacheBust: true,
+    });
+
+    const link = document.createElement("a");
+    link.download = `${selectedHistory.label}.png`;
+    link.href = dataUrl;
+    link.click();
+  } catch (err) {
+    console.error(err);
+    alert("Export failed");
+  }
+};
 
   // Load default leaderboard
+
+
+
 
   const loadLeaderboard = (type,pageParam=1) => {
     setCurrentType(type);
@@ -807,6 +828,13 @@ const getDayStatus = (day) => {
   {selectedHistory.leaderboard.length} athletes recorded
 </p>
 
+<button
+  className="export-btn"
+  onClick={exportLeaderboard}
+>
+📤 Export
+</button>
+
     <div className="table-wrapper">
       <table className="leaderboard-table">
 
@@ -1125,10 +1153,41 @@ Avg Pace
     >
       ← Back
     </button>
-
   </div>
-
 )}
+   <div ref={posterRef} className="poster-export">
+  {selectedHistory && (
+    <>
+      <div className="poster-header">
+        <h1>🏃 FLYRUNHUB</h1>
+        <p>Track • Compete • Improve</p>
+
+        <h2>Weekly Community Leaderboard</h2>
+
+        <h3>{selectedHistory.label}</h3>
+
+        <p>{selectedHistory.leaderboard.length} Athletes</p>
+      </div>
+
+      <table className="poster-table">
+        <tbody>
+          {selectedHistory.leaderboard.map((row) => (
+            <tr key={row.athleteId}>
+              <td>{getMedal(row.rank)}</td>
+              <td>{row.name}</td>
+              <td>{row.total_km} km</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <p className="poster-footer">
+        Run Together • Rise Together
+      </p>
+    </>
+  )}
+</div>
+
     </div>
   );
 }

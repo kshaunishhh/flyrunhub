@@ -848,3 +848,56 @@ body {
 .challenge-select {
   min-width: 95px;
 }
+
+.export-btn {
+  background: #fc4c02;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.poster-export{
+    position:fixed;
+    left:-99999px;
+    top:0;
+
+    width:1080px;
+
+    background:#0f172a;
+
+    color:white;
+
+    padding:60px;
+
+    font-family:Arial,sans-serif;
+} 
+
+.poster-header{
+    text-align:center;
+    margin-bottom:40px;
+}
+
+.poster-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.poster-table td{
+    padding:14px 0;
+    font-size:30px;
+    border-bottom:1px solid #333;
+}
+
+.poster-table td:last-child{
+    text-align:right;
+}
+
+.poster-footer{
+    margin-top:40px;
+    text-align:center;
+    color:#999;
+}
