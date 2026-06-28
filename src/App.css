@@ -861,17 +861,15 @@ body {
 }
 
 .poster-export {
-    position: absolute;
-
-    left: -9999px;
+    position: fixed;
     top: 0;
+    left: 0;
 
     width: 1080px;
 
     background: #0f1117;
     color: white;
-
     padding: 60px;
 
-    font-family: Arial, sans-serif;
+    transform: translateY(-200vh);
 }
