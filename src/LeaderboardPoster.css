@@ -152,7 +152,7 @@ text-shadow:
 
     border-spacing:0;
 
-    border:2px solid rgba(255,99,176,.45);
+    border:2px solid rgba(255,0,127,.45);
 
     border-radius:24px;
 
@@ -160,13 +160,13 @@ text-shadow:
 
     background:#10131d;
 
-    box-shadow:0 0 25px rgba(255,99,176,.12);
+    box-shadow:none;
 
 }
 
 .poster-table thead{
 
-    background:rgba(255,99,176,.08);
+    background:rgba(255,0,127,.08);
 
 }
 
