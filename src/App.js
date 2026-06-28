@@ -1156,36 +1156,24 @@ Avg Pace
   </div>
 )}
    <div ref={posterRef} className="poster-export">
-  {selectedHistory && (
-    <>
-      <div className="poster-header">
-        <h1>🏃 FLYRUNHUB</h1>
-        <p>Track • Compete • Improve</p>
+  <div
+    style={{
+      width: "1080px",
+      minHeight: "800px",
+      background: "red",
+      color: "white",
+      padding: "40px",
+      fontSize: "40px",
+    }}
+  >
+    <h1>TEST EXPORT</h1>
 
-        <h2>Weekly Community Leaderboard</h2>
+    <p>{selectedHistory?.label}</p>
 
-        <h3>{selectedHistory.label}</h3>
-
-        <p>{selectedHistory.leaderboard.length} Athletes</p>
-      </div>
-
-      <table className="poster-table">
-        <tbody>
-          {selectedHistory.leaderboard.map((row) => (
-            <tr key={row.athleteId}>
-              <td>{getMedal(row.rank)}</td>
-              <td>{row.name}</td>
-              <td>{row.total_km} km</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <p className="poster-footer">
-        Run Together • Rise Together
-      </p>
-    </>
-  )}
+    <p>
+      Athletes: {selectedHistory?.leaderboard?.length}
+    </p>
+  </div>
 </div>
 
     </div>
