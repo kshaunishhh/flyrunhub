@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { toPng } from "html-to-image";
+import { toCanvas } from "html-to-image";
 import "./App.css";
 import axios from "axios";
 axios.defaults.withCredentials = true;
@@ -73,21 +73,24 @@ useEffect(() => {
 
 
 const exportLeaderboard = async () => {
-  if (!posterRef.current) return;
+  console.log("REF:", posterRef.current);
+
+  if (!posterRef.current) {
+    alert("No ref");
+    return;
+  }
 
   try {
-    const dataUrl = await toPng(posterRef.current, {
-      pixelRatio: 4,
-      cacheBust: true,
-    });
+    const canvas = await toCanvas(posterRef.current);
+
+    document.body.appendChild(canvas);
 
     const link = document.createElement("a");
-    link.download = `${selectedHistory.label}.png`;
-    link.href = dataUrl;
+    link.download = "test.png";
+    link.href = canvas.toDataURL();
     link.click();
-  } catch (err) {
-    console.error(err);
-    alert("Export failed");
+  } catch (e) {
+    console.error(e);
   }
 };
 

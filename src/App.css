@@ -860,15 +860,10 @@ body {
   margin-bottom: 20px;
 }
 
-.poster-export{
-    position:fixed;
-
-    top:0;
-    left:0;
-
-    opacity:0;
-
-    pointer-events:none;
-
-    z-index:-1;
+.poster-export {
+    width: 1080px;
+    min-height: 800px;
+    background: red;
+    color: white;
+    padding: 40px;
 }
