@@ -10,7 +10,6 @@ export default function LeaderboardPoster({ history }) {
 
   <div className="poster-brand">
 
-    🏃
 
     <span>FLYRUNHUB</span>
 
@@ -24,7 +23,7 @@ export default function LeaderboardPoster({ history }) {
 
   <h2 className="poster-title">
 
-    WEEKLY COMMUNITY LEADERBOARD
+    WEEKLY LEADERBOARD
 
   </h2>
 
@@ -36,7 +35,7 @@ export default function LeaderboardPoster({ history }) {
 
   <div className="poster-athletes">
 
-    👥 {history.leaderboard.length} ATHLETES
+     {history.leaderboard.length} ATHLETES RECORDED
 
   </div>
 
@@ -72,7 +71,7 @@ export default function LeaderboardPoster({ history }) {
 
               <td>{runner.name}</td>
 
-              <td>{runner.total_km}</td>
+              <td>{runner.total_km} km</td>
 
             </tr>
 
@@ -84,10 +83,19 @@ export default function LeaderboardPoster({ history }) {
 
       <div className="poster-footer">
 
-        Every step counts.
-        Every runner inspires.
+    <span>EVERY STEP COUNTS.</span>
 
-      </div>
+    <br/>
+
+    <strong>EVERY RUNNER INSPIRES.</strong>
+
+    <div className="poster-url">
+
+        flyrunhub.onrender.com
+
+    </div>
+
+</div>
 
     </div>
   );

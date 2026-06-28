@@ -590,14 +590,14 @@ const getDayStatus = (day) => {
                     {currentType === "weekly" ? (
                       <>
                         <td>{row.week || "-"}</td>
-                        <td>{row.total_km || "-"}</td>
+                        <td>{row.total_km || "-"} km</td>
                         <td>{row.total_time || "-"}</td>
                       </>
                     ) : (
                       <>
                         <td>{getMedal((page - 1) * 10 + idx + 1)}</td>
                         <td>{row.date || "-"}</td>
-                        <td>{row.distance_km || "-"}</td>
+                        <td>{row.distance_km || "-"} km</td>
                         <td>{row.time || "-"}</td>
                         <td>{row.pace || "-"}</td>
                       </>
@@ -753,7 +753,7 @@ const getDayStatus = (day) => {
     {row.name}
   </a>
 </td>
-                  <td>{row.total_km}</td>
+                  <td>{row.total_km} km</td>
                   <td>{row.runs}</td>
                 </tr>
               ))}
@@ -866,7 +866,7 @@ const getDayStatus = (day) => {
             <tr key={row.athleteId}>
               <td>{getMedal(row.rank)}</td>
               <td>{row.name}</td>
-              <td>{row.total_km}</td>
+              <td>{row.total_km} km</td>
             </tr>
 
           ))}

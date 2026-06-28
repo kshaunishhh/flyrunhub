@@ -15,6 +15,14 @@
     font-family:Arial,Helvetica,sans-serif;
 
 }
+
+.poster-header{
+
+    text-align:center;
+
+    margin-bottom:50px;
+
+}
 .poster-header h1{
 
     margin:0;
@@ -42,13 +50,21 @@
 
     align-items:center;
 
-    gap:16px;
-
-    font-size:58px;
+    font-size:64px;
 
     font-weight:900;
 
-    color:#ff4da6;
+    color:#ff2d95;
+
+    letter-spacing:3px;
+
+    text-shadow:
+
+        0 0 8px #ff2d95,
+
+        0 0 20px #ff2d95,
+
+        0 0 45px rgba(255,45,149,.8);
 
 }
 
@@ -70,11 +86,11 @@
 
 .poster-title{
 
-    margin-top:28px;
+    margin-top:18px;
 
     margin-bottom:26px;
 
-    font-size:86px;
+    font-size:96px;
 
     line-height:1.05;
 
@@ -244,5 +260,23 @@
     color:#cccccc;
 
     font-size:24px;
+
+}
+
+.poster-footer strong{
+
+    color:#ff2d95;
+
+}
+
+.poster-url{
+
+    margin-top:16px;
+
+    color:#999;
+
+    font-size:18px;
+
+    letter-spacing:2px;
 
 }
