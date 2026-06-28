@@ -74,31 +74,36 @@ useEffect(() => {
 
 
 const exportLeaderboard = async () => {
+
   if (!posterRef.current) return;
 
-  try {
-    // Wait one frame so React finishes rendering
-    await new Promise((resolve) => requestAnimationFrame(resolve));
+  await new Promise(resolve =>
+    requestAnimationFrame(resolve)
+  );
 
-    const dataUrl = await toPng(posterRef.current, {
-      cacheBust: true,
-      pixelRatio: 3,
-      backgroundColor: "#0f1117",
-    });
+  const dataUrl = await toPng(posterRef.current, {
 
-    const link = document.createElement("a");
+    cacheBust:true,
 
-    // Unique filename every time
-    link.download = `leaderboard-${Date.now()}.png`;
+    pixelRatio:2,
 
-    link.href = dataUrl;
+    backgroundColor:"#0b0b14",
 
-    link.click();
-  } catch (err) {
-    console.error(err);
-  }
+    canvasWidth:1080,
+
+    canvasHeight:posterRef.current.scrollHeight,
+
+  });
+
+  const link=document.createElement("a");
+
+  link.download=`leaderboard-${Date.now()}.png`;
+
+  link.href=dataUrl;
+
+  link.click();
+
 };
-
   // Load default leaderboard
 
 
@@ -872,15 +877,24 @@ const getDayStatus = (day) => {
     </div>
     <hr style={{ margin: "40px 0" }} />
 
-<div ref={posterRef}>
-  <LeaderboardPoster history={selectedHistory} />
+<div
+  style={{
+    position: "fixed",
+    left: "-99999px",
+    top: 0,
+  }}
+>
+  <div ref={posterRef}>
+    <LeaderboardPoster history={selectedHistory} />
+  </div>
 </div>
-    <button
-      className="back-btn"
-      onClick={() => navigate("community")}
-    >
-      ← Back
-    </button>
+
+<button
+  className="back-btn"
+  onClick={() => navigate("community")}
+>
+  ← Back
+</button>
 
   </div>
 
