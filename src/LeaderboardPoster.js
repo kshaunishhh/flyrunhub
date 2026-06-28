@@ -66,7 +66,7 @@ export default function LeaderboardPoster({ history }) {
                 {index === 0 ? "🥇" :
  index === 1 ? "🥈" :
  index === 2 ? "🥉" :
- `#${index + 1}`}
+ index + 1}
               </td>
 
               <td>{runner.name}</td>
@@ -83,7 +83,7 @@ export default function LeaderboardPoster({ history }) {
 
       <div className="poster-footer">
 
-    <span>EVERY STEP COUNTS.</span>
+    <span>EVERY KILOMETER COUNTS.</span>
 
     <br/>
 
