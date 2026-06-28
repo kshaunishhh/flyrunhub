@@ -885,7 +885,10 @@ const getDayStatus = (day) => {
   }}
 >
   <div ref={posterRef}>
-    <LeaderboardPoster history={selectedHistory} />
+    <LeaderboardPoster
+    history={selectedHistory}
+    title="WEEKLY LEADERBOARD"
+/>
   </div>
 </div>
 
@@ -905,6 +908,15 @@ const getDayStatus = (day) => {
   <div className="leaderboard">
 
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
+
+    {getDayStatus(selectedDay) === "✅ Finished" && (
+  <button
+    className="export-btn"
+    onClick={exportLeaderboard}
+  >
+    📤 Export
+  </button>
+)}
 
     <p className="challenge-tagline">
       RUNFINITY 7×7 Challenge

@@ -1,6 +1,6 @@
 import "./LeaderboardPoster.css";
 
-export default function LeaderboardPoster({ history }) {
+export default function LeaderboardPoster({ history, title = "WEEKLY LEADERBOARD" }) {
   if (!history) return null;
 
   return (
@@ -23,7 +23,7 @@ export default function LeaderboardPoster({ history }) {
 
   <h2 className="poster-title">
 
-    WEEKLY LEADERBOARD
+    {title}
 
   </h2>
 
