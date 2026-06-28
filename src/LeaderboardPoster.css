@@ -31,7 +31,7 @@
 
     font-weight:900;
 
-    color:#ff2d95;
+    color:#ff007f;
 
     letter-spacing:3px;
 
@@ -54,7 +54,7 @@
 
     font-weight:900;
 
-    color:#ff2d95;
+    color:#ff007f;
 
     letter-spacing:3px;
 
@@ -111,21 +111,23 @@
 
     display:inline-block;
 
-    padding:18px 46px;
+    padding:20px 52px;
 
     border-radius:999px;
 
     background:linear-gradient(
         90deg,
-        #ff3f9f,
-        #ff74bd
+        #ff2d95,
+        #ff5cad
     );
 
-    color:white;
+    color:#111111;
 
-    font-size:26px;
+    font-size:34px;
 
-    font-weight:800;
+    font-weight:900;
+
+    letter-spacing:1px;
 
 }
 
@@ -137,9 +139,9 @@
 
     color:#d8d8d8;
 
-    font-size:24px;
+    font-size:26px;
 
-    font-weight:600;
+    font-weight:700;
 
 }
 
@@ -173,11 +175,11 @@
 
 .poster-table th{
 
-    padding:22px;
+    padding:24px;
 
-    font-size:24px;
+    font-size:30px;
 
-    font-weight:800;
+    font-weight:900;
 
     text-transform:uppercase;
 
