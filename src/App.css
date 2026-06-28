@@ -861,9 +861,17 @@ body {
 }
 
 .poster-export {
-    width:1080px;
-    min-height:800px;
-    background:red;
-    color:white;
-    padding:40px;
+    position: absolute;
+
+    left: -9999px;
+    top: 0;
+
+    width: 1080px;
+
+    background: #0f1117;
+    color: white;
+
+    padding: 60px;
+
+    font-family: Arial, sans-serif;
 }
