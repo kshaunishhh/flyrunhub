@@ -853,12 +853,14 @@ const challengeDateLabel = selectedDay
   {selectedHistory.leaderboard.length} athletes recorded
 </p>
 
-<button
-  className="export-btn"
-  onClick={exportLeaderboard}
->
- Export
-</button>
+<div className="export-btn-container">
+  <button
+    className="export-btn"
+    onClick={exportLeaderboard}
+  >
+    Export
+  </button>
+</div>
 
     <div className="table-wrapper">
       <table className="leaderboard-table">
@@ -926,12 +928,15 @@ const challengeDateLabel = selectedDay
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
 
     {getDayStatus(selectedDay) === "✅ Finished" && (
+      
+  <div className="export-btn-container">
   <button
     className="export-btn"
     onClick={exportLeaderboard}
   >
     Export
   </button>
+</div>
 )}
 
     <p className="challenge-tagline">

@@ -850,15 +850,22 @@ body {
   min-width: 95px;
 }
 
-.export-btn {
-  background: #ff0080;
-  color: white;
-  border: none;
-  padding: 21px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-  margin-bottom: 18px;
+.export-btn-container{
+    display:flex;
+    justify-content:flex-end;
+    margin:20px 0 30px;
+}
+
+.export-btn{
+    padding:14px 32px;
+    border:none;
+    border-radius:18px;
+    background:#ff007f;
+    color:#fff;
+    font-size:20px;
+    font-weight:700;
+    cursor:pointer;
+    transition:.2s;
 }
 
 .poster-export {
