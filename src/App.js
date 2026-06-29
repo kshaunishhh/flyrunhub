@@ -857,7 +857,7 @@ const challengeDateLabel = selectedDay
   className="export-btn"
   onClick={exportLeaderboard}
 >
-📤 Export
+ Export
 </button>
 
     <div className="table-wrapper">
@@ -930,7 +930,7 @@ const challengeDateLabel = selectedDay
     className="export-btn"
     onClick={exportLeaderboard}
   >
-    📤 Export
+    Export
   </button>
 )}
 

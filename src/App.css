@@ -406,7 +406,7 @@ body {
 .leaderboard-table tbody td {
   padding: 14px 12px;
   text-align: center;
-  font-weight: 500;
+  font-weight: 800;
   color: var(--text-main);
 }
 
@@ -420,7 +420,7 @@ body {
 /* Distance & Time (primary metrics) */
 .leaderboard-table td:nth-child(3),
 .leaderboard-table td:nth-child(4) {
-  font-weight: 700;
+  font-weight: 800;
   color: #ffffff;
 }
 
@@ -701,6 +701,7 @@ body {
     rgba(25,25,40,0.95),
     rgba(15,15,30,0.95)
   );
+  
 
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 24px;
@@ -853,11 +854,11 @@ body {
   background: #ff0080;
   color: white;
   border: none;
-  padding: 13px 20px;
+  padding: 21px;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 800;
-  margin-bottom: 20px;
+  font-weight: 700;
+  margin-bottom: 18px;
 }
 
 .poster-export {
