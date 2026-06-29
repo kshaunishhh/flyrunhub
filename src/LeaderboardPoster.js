@@ -6,7 +6,8 @@ export default function LeaderboardPoster({
   subtitle = "",
   showAthleteCount = true,
   showFooterText = true,
-  showTagline = true
+  showTagline = true,
+  metric = "total"
 })  {
   if (!history) return null;
 
@@ -74,7 +75,13 @@ export default function LeaderboardPoster({
 
             <th>Athlete</th>
 
-            <th>KM</th>
+            <th>
+  {metric === "today"
+    ? "DAY KM"
+    : metric === "pace"
+    ? "PACE"
+    : "TOTAL KM"}
+</th>
 
           </tr>
 
@@ -96,7 +103,11 @@ export default function LeaderboardPoster({
               <td>{runner.name}</td>
 
               <td>
-  {runner.total_km ?? runner.today_km} km
+  {metric === "today"
+    ? `${runner.today_km} km`
+    : metric === "pace"
+    ? runner.avg_pace
+    : `${runner.total_km} km`}
 </td>
 
             </tr>

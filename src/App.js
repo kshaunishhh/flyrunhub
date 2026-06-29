@@ -928,7 +928,7 @@ const challengeDateLabel = selectedDay
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
 
     {getDayStatus(selectedDay) === "✅ Finished" && (
-      
+
   <div className="export-btn-container">
   <button
     className="export-btn"
@@ -1009,8 +1009,8 @@ Avg Pace
 <td>{row.completedDays}/7</td>
 
 <td>
-  {challengeMetric === "today" && row.today_km}
-  {challengeMetric === "total" && row.total_km}
+  {challengeMetric === "today" && `${row.today_km} km`}
+  {challengeMetric === "total" && `${row.total_km} km`}
   {challengeMetric === "pace" && row.avg_pace}
 </td>
 
@@ -1042,6 +1042,7 @@ Avg Pace
   showAthleteCount={false}
   showFooterText={false}
   showTagline={false}
+  metric={challengeMetric}
 />
   </div>
 </div>
