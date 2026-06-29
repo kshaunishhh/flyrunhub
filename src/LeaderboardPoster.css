@@ -281,3 +281,21 @@ text-shadow:
     font-weight:700;
 
 }
+
+.poster-subtitle{
+
+    margin-top:18px;
+
+    margin-bottom:14px;
+
+    font-size:30px;
+
+    font-weight:700;
+
+    color:#ff007f;
+
+    letter-spacing:2px;
+
+    text-transform:uppercase;
+
+}

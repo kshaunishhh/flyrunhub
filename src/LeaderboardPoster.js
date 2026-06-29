@@ -1,6 +1,12 @@
 import "./LeaderboardPoster.css";
 
-export default function LeaderboardPoster({ history, title = "WEEKLY LEADERBOARD" }) {
+export default function LeaderboardPoster({
+  history,
+  title = "WEEKLY LEADERBOARD",
+  subtitle = "",
+  showAthleteCount = true,
+  showFooterText = true
+})  {
   if (!history) return null;
 
   return (
@@ -20,6 +26,17 @@ export default function LeaderboardPoster({ history, title = "WEEKLY LEADERBOARD
     TRACK • COMPETE • IMPROVE
 
   </div>
+  {subtitle && (
+
+  <div className="poster-subtitle">
+
+    {subtitle}
+
+  </div>
+
+)}
+
+  {title && (
 
   <h2 className="poster-title">
 
@@ -27,17 +44,23 @@ export default function LeaderboardPoster({ history, title = "WEEKLY LEADERBOARD
 
   </h2>
 
+)}
+
   <div className="poster-week">
 
     {history.label}
 
   </div>
 
+  {showAthleteCount && (
+
   <div className="poster-athletes">
 
-     {history.leaderboard.length} ATHLETES RECORDED
+      {history.leaderboard.length} ATHLETES RECORDED
 
   </div>
+
+)}
 
 </div>
       <table className="poster-table">
@@ -83,20 +106,25 @@ export default function LeaderboardPoster({ history, title = "WEEKLY LEADERBOARD
 
       <div className="poster-footer">
 
-    <span>EVERY KILOMETER COUNTS.</span>
+  {showFooterText && (
+    <>
+      <span>EVERY KILOMETER COUNTS.</span>
 
-    <br/>
+      <br/>
 
-    <strong>EVERY RUNNER INSPIRES.</strong>
+      <strong>EVERY RUNNER INSPIRES.</strong>
 
-    <div className="poster-url">
+      <br/>
+    </>
+  )}
 
-        flyrunhub.onrender.com
+  <div className="poster-url">
 
-    </div>
+      flyrunhub.onrender.com
+
+  </div>
 
 </div>
-
     </div>
   );
 }

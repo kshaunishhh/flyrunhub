@@ -888,6 +888,9 @@ const getDayStatus = (day) => {
     <LeaderboardPoster
     history={selectedHistory}
     title="WEEKLY LEADERBOARD"
+    subtitle=""
+    showAthleteCount={true}
+    showFooterText={true}
 />
   </div>
 </div>
@@ -1001,6 +1004,27 @@ Avg Pace
 
 </table>
 
+</div>
+
+<div
+  style={{
+    position: "fixed",
+    left: "-99999px",
+    top: 0,
+  }}
+>
+  <div ref={posterRef}>
+    <LeaderboardPoster
+      history={{
+        label: `DAY ${selectedDay} • JULY ${selectedDay}, 2026`,
+        leaderboard: challengeData,
+      }}
+      title=""
+      subtitle="RUNFINITY 7×7 CHALLENGE"
+      showAthleteCount={false}
+      showFooterText={false}
+    />
+  </div>
 </div>
 
 
