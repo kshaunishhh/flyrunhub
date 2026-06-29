@@ -366,6 +366,18 @@ const getDayStatus = (day) => {
 
 };
 
+const challengeDateLabel = selectedDay
+  ? `DAY ${selectedDay} • ${new Date(
+      `2026-07-${String(selectedDay).padStart(2, "0")}`
+    ).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }).toUpperCase()}`
+  : "";
+
+
+
   return (
     <div className="App">
       {showToast && athlete && (
@@ -886,11 +898,12 @@ const getDayStatus = (day) => {
 >
   <div ref={posterRef}>
     <LeaderboardPoster
-    history={selectedHistory}
-    title="WEEKLY LEADERBOARD"
-    subtitle=""
-    showAthleteCount={true}
-    showFooterText={true}
+  history={selectedHistory}
+  title="WEEKLY LEADERBOARD"
+  subtitle=""
+  showAthleteCount={true}
+  showFooterText={true}
+  showTagline={true}
 />
   </div>
 </div>
@@ -1015,15 +1028,16 @@ Avg Pace
 >
   <div ref={posterRef}>
     <LeaderboardPoster
-      history={{
-        label: `DAY ${selectedDay} • JULY ${selectedDay}, 2026`,
-        leaderboard: challengeData,
-      }}
-      title=""
-      subtitle="RUNFINITY 7×7 CHALLENGE"
-      showAthleteCount={false}
-      showFooterText={false}
-    />
+  history={{
+    label: challengeDateLabel,
+    leaderboard: challengeData,
+  }}
+  title=""
+  subtitle="RUNFINITY 7×7 CHALLENGE"
+  showAthleteCount={false}
+  showFooterText={false}
+  showTagline={false}
+/>
   </div>
 </div>
 

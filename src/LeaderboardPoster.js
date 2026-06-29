@@ -5,7 +5,8 @@ export default function LeaderboardPoster({
   title = "WEEKLY LEADERBOARD",
   subtitle = "",
   showAthleteCount = true,
-  showFooterText = true
+  showFooterText = true,
+  showTagline = true
 })  {
   if (!history) return null;
 
@@ -21,11 +22,11 @@ export default function LeaderboardPoster({
 
   </div>
 
+ {showTagline && (
   <div className="poster-tagline">
-
     TRACK • COMPETE • IMPROVE
-
   </div>
+)}
   {subtitle && (
 
   <div className="poster-subtitle">
@@ -94,7 +95,9 @@ export default function LeaderboardPoster({
 
               <td>{runner.name}</td>
 
-              <td>{runner.total_km} km</td>
+              <td>
+  {runner.total_km ?? runner.today_km} km
+</td>
 
             </tr>
 

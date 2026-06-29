@@ -20,7 +20,7 @@
 
     text-align:center;
 
-    margin-bottom:50px;
+    margin-bottom:28px;
 
 }
 .poster-header h1{
@@ -284,15 +284,15 @@ text-shadow:
 
 .poster-subtitle{
 
-    margin-top:18px;
+    margin-top:10px;
 
-    margin-bottom:14px;
+    margin-bottom:22px;
 
-    font-size:30px;
+    font-size:40px;
 
     font-weight:700;
 
-    color:#ff007f;
+    color:#ffb347;
 
     letter-spacing:2px;
 
