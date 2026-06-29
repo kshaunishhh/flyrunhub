@@ -857,12 +857,12 @@ body {
 }
 
 .export-btn{
-    padding:14px 32px;
+    padding:10px 22px;
     border:none;
-    border-radius:18px;
+    border-radius:12px;
     background:#ff007f;
     color:#fff;
-    font-size:20px;
+    font-size:16px;
     font-weight:700;
     cursor:pointer;
     transition:.2s;
