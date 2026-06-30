@@ -80,6 +80,8 @@ async function getChallengeParticipants() {
 
 async function buildDayLeaderboard(dayDate) {
 
+  const challengeStart = new Date("2026-07-01T00:00:00+05:30");
+
   const participants = await getChallengeParticipants();
 
   console.log("Participants:", participants);
@@ -98,21 +100,27 @@ console.log("Mongo athlete:", athlete);
 
     if (!athlete) continue;
 
-      console.log("Force refreshing token...");
+let accessToken = athlete.accessToken;
 
-let accessToken = await refreshStravaToken(athlete);
+if (
+  !athlete.tokenExpiresAt ||
+  athlete.tokenExpiresAt * 1000 < Date.now() + 5 * 60 * 1000
+) {
+  accessToken = await refreshStravaToken(athlete);
+}
 
-      const response = await axios.get(
-        "https://www.strava.com/api/v3/athlete/activities",
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`
-          },
-          params: {
-            per_page: 100
-          }
-        }
-      );
+const response = await axios.get(
+  "https://www.strava.com/api/v3/athlete/activities",
+  {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    },
+    params: {
+      after: Math.floor(challengeStart.getTime() / 1000),
+      per_page: 20
+    }
+  }
+);
 
       console.log("Activities fetched:", response.data.length);
 
@@ -307,7 +315,14 @@ async function buildWeeklyCommunityLeaderboard() {
 
     try {
 
-      let accessToken = await refreshStravaToken(athlete);
+      let accessToken = athlete.accessToken;
+
+if (
+  !athlete.tokenExpiresAt ||
+  athlete.tokenExpiresAt * 1000 < Date.now() + 5 * 60 * 1000
+) {
+  accessToken = await refreshStravaToken(athlete);
+}
 
       const response = await axios.get(
         "https://www.strava.com/api/v3/athlete/activities",
@@ -316,7 +331,7 @@ async function buildWeeklyCommunityLeaderboard() {
           params: {
             after: Math.floor(weekStart.getTime() / 1000),
             before: Math.floor(weekEnd.getTime() / 1000),
-            per_page: 200,
+            per_page: 50,
           },
         }
       );
@@ -767,7 +782,7 @@ app.get("/activities", requireAuth,async (req, res) => {
           Authorization: `Bearer ${req.accessToken}`,
         },
         params: {
-          per_page: 50,
+          per_page: 80,
         },
       }
     );
@@ -1100,7 +1115,7 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
     // STEP 3: CACHE BASE LEADERBOARD
     if (
       !cachedLeaderboards["base"] ||
-      now - cachedLeaderboards["base"].generatedAt > 300000 // 5 minutes
+      now - cachedLeaderboards["base"].generatedAt > 900000 // 15 minutes
     ) {
       const baseData = await buildWeeklyCommunityLeaderboard();
 
