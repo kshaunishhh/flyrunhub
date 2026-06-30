@@ -1205,6 +1205,72 @@ res.json({
   }
 });
 
+
+app.get("/community/my-rank", async (req, res) => {
+
+  try {
+
+    if (!req.session?.athleteId) {
+      return res.json({ yourRank: null });
+    }
+
+    const base = cachedLeaderboards["base"];
+
+    if (!base) {
+      return res.json({ yourRank: null });
+    }
+
+    const athlete = base.data.find(
+      a => a.athleteId === req.session.athleteId
+    );
+
+    if (!athlete) {
+      return res.json({ yourRank: null });
+    }
+
+    let rank = 1;
+
+    const selectedTypes = ["Run"];
+
+    const ranked = base.data
+      .map(a => {
+
+        let totalKm = 0;
+
+        selectedTypes.forEach(type => {
+          totalKm += a.weeklyTotals[type] || 0;
+        });
+
+        return {
+          athleteId: a.athleteId,
+          total_km: totalKm
+        };
+
+      })
+      .filter(a => a.total_km > 0)
+      .sort((a,b)=>b.total_km-a.total_km);
+
+    rank =
+      ranked.findIndex(
+        a=>a.athleteId===req.session.athleteId
+      ) + 1;
+
+    res.json({
+      yourRank: rank || null
+    });
+
+  } catch(err){
+
+    console.error(err);
+
+    res.json({
+      yourRank:null
+    });
+
+  }
+
+});
+
 app.get("/community/leaderboard/history", async (req, res) => {
   try {
 

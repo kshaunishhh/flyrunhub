@@ -173,7 +173,20 @@ const navigate = (nextView) => {
 };
 
 useEffect(() => {
-  fetchCommunityLeaderboard();
+
+  axios
+    .get("/community/my-rank")
+    .then(res => {
+
+      setYourRank(res.data.yourRank);
+
+    })
+    .catch(() => {
+
+      setYourRank(null);
+
+    });
+
 }, []);
 
 useEffect(() => {
