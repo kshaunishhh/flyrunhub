@@ -1264,24 +1264,34 @@ app.get("/admin/import-challenge", async (req, res) => {
 
     for (const doc of snapshot.docs) {
 
-      const a = doc.data();
+  const a = doc.data();
 
-      await db
-        .collection("challenge_participants")
-        .doc(doc.id)
-        .set(
-          {
-            athleteId: Number(doc.id),
-            firstname: a.firstname || "",
-            lastname: a.lastname || "",
-            challenge: "7x7-2026",
-            paymentDone: false,
-            registeredAt: new Date()
-          },
-          { merge: true }
-        );
+  const ref = db
+    .collection("challenge_participants")
+    .doc(doc.id);
 
-    }
+  const existing = await ref.get();
+
+  await ref.set(
+    {
+      athleteId: Number(doc.id),
+      firstname: a.firstname || "",
+      lastname: a.lastname || "",
+      challenge: "7x7-2026",
+
+      paymentDone:
+        existing.exists
+          ? existing.data().paymentDone
+          : false,
+
+      registeredAt:
+        existing.exists
+          ? existing.data().registeredAt
+          : new Date()
+    },
+    { merge: true }
+  );
+}
 
     res.send("Challenge participants imported");
 
