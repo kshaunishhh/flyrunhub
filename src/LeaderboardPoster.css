@@ -103,7 +103,7 @@
 
     display:inline-block;
 
-    padding:20px 52px;
+    padding:18px 48px;
 
     border-radius:999px;
 
@@ -182,15 +182,10 @@
 }
 
 .poster-table td{
-
-    padding:18px 22px;
-
-    font-size:28px;
-
+    padding:15px 18px;
+    font-size:26px;
     font-weight:600;
-
     border-bottom:1px solid rgba(255,255,255,.08);
-
 }
 
 .poster-table td:nth-child(2){
@@ -350,9 +345,9 @@
 }
 .progress-bar{
 
-    width:145px;
+    width:120px;
 
-    height:14px;
+    height:12px;
 
     border-radius:999px;
 
@@ -399,4 +394,8 @@
 
 .challenge-poster .poster-table td:nth-child(3){
     text-align:center;
+}
+
+.challenge-poster .poster-table td:nth-child(2){
+    font-size:28px;
 }
