@@ -1322,6 +1322,8 @@ app.get("/admin/import-challenge", async (req, res) => {
 app.get("/challenge/:date", async (req, res) => {
 
   try {
+    const cacheKey = `challenge-${req.params.date}`;
+    const now = Date.now();
 
     const snapshotDoc = await db
       .collection("challenge_snapshots")
@@ -1337,9 +1339,22 @@ app.get("/challenge/:date", async (req, res) => {
 
     }
 
+    if (
+  cachedLeaderboards[cacheKey] &&
+  now - cachedLeaderboards[cacheKey].generatedAt < 15 * 60 * 1000
+) {
+  console.log("Serving challenge leaderboard from cache");
+  return res.json(cachedLeaderboards[cacheKey].data);
+}
+
     // live leaderboard
     const leaderboard =
-      await buildDayLeaderboard(req.params.date);
+    await buildDayLeaderboard(req.params.date);
+
+cachedLeaderboards[cacheKey] = {
+    data: leaderboard,
+    generatedAt: now
+};
 
     // save snapshot after 11 PM
     if (shouldSaveChallengeSnapshot()) {
