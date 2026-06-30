@@ -32,7 +32,7 @@ export default function LeaderboardPoster({
 };
 
   return (
-    <div className="poster">
+    <div className={`poster ${isChallenge ? "challenge-poster" : ""}`}>
 
       <div className="poster-header">
 
