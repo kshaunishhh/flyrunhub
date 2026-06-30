@@ -1043,6 +1043,7 @@ Avg Pace
   showFooterText={false}
   showTagline={false}
   metric={challengeMetric}
+  isChallenge={true}
 />
   </div>
 </div>

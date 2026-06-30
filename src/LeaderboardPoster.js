@@ -7,9 +7,29 @@ export default function LeaderboardPoster({
   showAthleteCount = true,
   showFooterText = true,
   showTagline = true,
-  metric = "total"
+  metric = "total",
+  isChallenge = false
 })  {
   if (!history) return null;
+
+  const renderProgress = (days) => {
+  return (
+    <div className="progress-wrapper">
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{
+            width: `${(days / 7) * 100}%`
+          }}
+        />
+      </div>
+
+      <span className="progress-text">
+        {days}/7
+      </span>
+    </div>
+  );
+};
 
   return (
     <div className="poster">
@@ -68,24 +88,24 @@ export default function LeaderboardPoster({
       <table className="poster-table">
 
         <thead>
+  <tr>
+    <th>Rank</th>
 
-          <tr>
+    <th>Athlete</th>
 
-            <th>Rank</th>
+    {isChallenge && (
+      <th style={{ width: "240px" }}>Progress</th>
+    )}
 
-            <th>Athlete</th>
-
-            <th>
-  {metric === "today"
-    ? "DAY KM"
-    : metric === "pace"
-    ? "PACE"
-    : "TOTAL KM"}
-</th>
-
-          </tr>
-
-        </thead>
+    <th>
+      {metric === "today"
+        ? "DAY KM"
+        : metric === "pace"
+        ? "PACE"
+        : "TOTAL KM"}
+    </th>
+  </tr>
+</thead>
 
         <tbody>
 
@@ -101,6 +121,10 @@ export default function LeaderboardPoster({
               </td>
 
               <td>{runner.name}</td>
+
+              {isChallenge && (
+                <td>{renderProgress(runner.completedDays || 0)}</td>
+              )}
 
               <td>
   {metric === "today"
