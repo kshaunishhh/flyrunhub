@@ -227,8 +227,9 @@ avg_pace_sec: avgPaceSec
       console.log(
   "Skipping athlete:",
   p.firstname,
-  err.message
-); 
+  err.response?.status,
+  err.response?.data || err.message
+);
 
     }
 
@@ -278,7 +279,7 @@ function shouldSaveChallengeSnapshot() {
 
   const hour = now.getHours();
 
-  return hour >= 22; // after 10 PM IST
+  return hour >= 23; // after 11 PM IST
 }
 
 
