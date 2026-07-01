@@ -1415,7 +1415,7 @@ app.get("/challenge/:date", async (req, res) => {
 
     if (
   cachedLeaderboards[cacheKey] &&
-  now - cachedLeaderboards[cacheKey].generatedAt < 180 * 60 * 1000
+  now - cachedLeaderboards[cacheKey].generatedAt < 20 * 60 * 1000
 ) {
   console.log("Serving challenge leaderboard from cache");
   return res.json(cachedLeaderboards[cacheKey].data);
