@@ -141,11 +141,12 @@ let completedDays = 0;
 let paceDistance = 0;
 let paceTime = 0;
 
-const dayTotals = {};
+const bestActivityPerDay = {};
 
 challengeDates.forEach(date => {
-  dayTotals[date] = 0;
+  bestActivityPerDay[date] = null;
 });
+
 
       response.data.forEach(activity => {
 
@@ -163,35 +164,39 @@ if (
   const km = activity.distance / 1000;
 
   // total km
-  if (challengeDates.includes(activityDate)) {
-    totalKm += km;
-    dayTotals[activityDate] += km;
+if (
+    challengeDates.includes(activityDate)
+) {
+    const current =
+        bestActivityPerDay[activityDate];
+
+    if (!current || km > current.km) {
+        bestActivityPerDay[activityDate] = {
+            km,
+            moving_time: activity.moving_time
+        };
+    }
   }
-
-  // today's km
-  if (activityDate === dayDate) {
-    todayKm += km;
-  }
-
-  // pace calculation only if ≥7 km activity
-  if (
-    challengeDates.includes(activityDate) &&
-    km >= 7
-  ) {
-
-    paceDistance += km;
-    paceTime += activity.moving_time;
-  }
-
 }
 
       });
 
-      Object.values(dayTotals).forEach(km => {
 
-  if (km >= 7) {
-    completedDays++;
-  }
+      Object.entries(bestActivityPerDay).forEach(([date, activity]) => {
+    if (!activity) return;
+
+    totalKm += activity.km;
+
+    if (date === dayDate) {
+        todayKm = activity.km;
+    }
+
+    if (activity.km >= 7) {
+        completedDays++;
+
+        paceDistance += activity.km;
+        paceTime += activity.moving_time;
+    }
 
 });
 
@@ -236,7 +241,7 @@ avg_pace_sec: avgPaceSec
   }
 
 
-  
+
   leaderboard = leaderboard
   .sort((a, b) => {
 
