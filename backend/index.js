@@ -235,6 +235,8 @@ avg_pace_sec: avgPaceSec
 
   }
 
+
+  
   leaderboard = leaderboard
   .sort((a, b) => {
 
