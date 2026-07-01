@@ -868,6 +868,9 @@ app.get("/health", (req, res) => {
 });
 
 
+
+
+
 app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
