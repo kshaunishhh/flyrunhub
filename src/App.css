@@ -406,13 +406,13 @@ body {
 .leaderboard-table tbody td {
   padding: 14px 12px;
   text-align: center;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--text-main);
 }
 
 /* Rank */
 .leaderboard-table td:first-child {
-  font-weight: 800;
+  font-weight: 700;
   font-size: 16px;
   color: var(--accent-main);
 }
@@ -420,7 +420,7 @@ body {
 /* Distance & Time (primary metrics) */
 .leaderboard-table td:nth-child(3),
 .leaderboard-table td:nth-child(4) {
-  font-weight: 800;
+  font-weight: 700;
   color: #ffffff;
 }
 
@@ -882,12 +882,3 @@ body {
     transform: translateY(-200vh);
 }
 
-.days-header{
-    color:#FFB347;
-    font-weight:700;
-}
-
-.challenge-select{
-    color:#ff1493;
-    font-weight:700;
-}

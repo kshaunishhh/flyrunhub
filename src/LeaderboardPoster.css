@@ -301,9 +301,7 @@
 
     color:#1b1b1b;
 
-    box-shadow:
-        0 0 12px rgba(255,193,7,.45),
-        0 0 28px rgba(255,193,7,.25);
+    box-shadow:none;
 
 }
 .challenge-poster .poster-subtitle{
@@ -327,10 +325,10 @@
 
 .challenge-poster .poster-table th{
 
-    color:#ffd54f;
+    color:#ff2d95;
 
     text-shadow:
-        0 0 10px rgba(255,213,79,.45);
+        0 0 10px rgba(255,45,149,.35);
 
 }
 
@@ -381,17 +379,17 @@
 
 .challenge-poster .poster-table td:last-child{
 
-    color:#ffd54f;
+    color:#ff2d95;
 
 }
 
 .challenge-poster .poster-table{
+
     border:2px solid rgba(255,193,7,.45);
 
-    box-shadow:
-        0 0 25px rgba(255,193,7,.10);
-}
+    box-shadow:none;
 
+}
 .challenge-poster .poster-table td:nth-child(3){
     text-align:center;
 }

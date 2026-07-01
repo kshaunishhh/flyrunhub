@@ -967,7 +967,7 @@ const challengeDateLabel = selectedDay
 
 <th>Rank</th>
 <th>Athlete</th>
-<th className="days-header">Days</th>
+<th>Days</th>
 <th>
 <select
 className="challenge-select"
@@ -1024,9 +1024,9 @@ Avg Pace
     target="_blank"
     rel="noopener noreferrer"
     style={{
-      color:"#fc4c02",
+      color:"#FFB347",
       textDecoration:"none",
-      fontWeight:"600"
+      fontWeight:"650"
     }}
   >
     {row.name}
@@ -1034,7 +1034,12 @@ Avg Pace
 </td>
 <td>{row.completedDays}/7</td>
 
-<td>
+<td
+  style={{
+    color:"#ff007f",
+    fontWeight:"700"
+  }}
+>
   {challengeMetric === "today" && `${row.today_km} km`}
   {challengeMetric === "total" && `${row.total_km} km`}
   {challengeMetric === "pace" && row.avg_pace}
@@ -1116,7 +1121,6 @@ Avg Pace
 
     setSelectedDay(1);
 
-    fetchChallengeLeaderboard("2026-07-01");
 
     navigate("dayDetail");
 
@@ -1131,7 +1135,6 @@ Avg Pace
 
     setSelectedDay(2);
 
-    fetchChallengeLeaderboard("2026-07-02");
 
     navigate("dayDetail");
 
@@ -1146,8 +1149,6 @@ Avg Pace
 
     setSelectedDay(3);
 
-    fetchChallengeLeaderboard("2026-07-03");
-
     navigate("dayDetail");
 
   }}
@@ -1160,8 +1161,6 @@ Avg Pace
   onClick={() => {
 
     setSelectedDay(4);
-
-    fetchChallengeLeaderboard("2026-07-04");
 
     navigate("dayDetail");
 
@@ -1176,8 +1175,6 @@ Avg Pace
 
     setSelectedDay(5);
 
-    fetchChallengeLeaderboard("2026-07-05");
-
     navigate("dayDetail");
 
   }}
@@ -1191,7 +1188,6 @@ Avg Pace
 
     setSelectedDay(6);
 
-    fetchChallengeLeaderboard("2026-07-06");
 
     navigate("dayDetail");
 
@@ -1206,7 +1202,6 @@ Avg Pace
 
     setSelectedDay(7);
 
-    fetchChallengeLeaderboard("2026-07-07");
 
     navigate("dayDetail");
 
