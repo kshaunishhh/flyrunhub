@@ -940,7 +940,7 @@ const challengeDateLabel = selectedDay
 
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
 
-    {true && (
+    {getDayStatus(selectedDay) === "✅ Finished" && (
 
   <div className="export-btn-container">
   <button
