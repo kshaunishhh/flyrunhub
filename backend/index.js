@@ -1115,7 +1115,7 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
     // STEP 3: CACHE BASE LEADERBOARD
     if (
       !cachedLeaderboards["base"] ||
-      now - cachedLeaderboards["base"].generatedAt > 60 * 60 * 1000 // 1 hour
+      now - cachedLeaderboards["base"].generatedAt > 360 * 60 * 1000 // 6 hours
     ) {
       const baseData = await buildWeeklyCommunityLeaderboard();
 
@@ -1407,7 +1407,7 @@ app.get("/challenge/:date", async (req, res) => {
 
     if (
   cachedLeaderboards[cacheKey] &&
-  now - cachedLeaderboards[cacheKey].generatedAt < 60 * 60 * 1000
+  now - cachedLeaderboards[cacheKey].generatedAt < 180 * 60 * 1000
 ) {
   console.log("Serving challenge leaderboard from cache");
   return res.json(cachedLeaderboards[cacheKey].data);

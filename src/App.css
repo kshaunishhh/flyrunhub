@@ -881,3 +881,13 @@ body {
 
     transform: translateY(-200vh);
 }
+
+.days-header{
+    color:#FFB347;
+    font-weight:700;
+}
+
+.challenge-select{
+    color:#ff1493;
+    font-weight:700;
+}

@@ -940,7 +940,7 @@ const challengeDateLabel = selectedDay
 
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
 
-    {getDayStatus(selectedDay) === "✅ Finished" && (
+    {true && (
 
   <div className="export-btn-container">
   <button
@@ -967,7 +967,7 @@ const challengeDateLabel = selectedDay
 
 <th>Rank</th>
 <th>Athlete</th>
-<th>Days</th>
+<th className="days-header">Days</th>
 <th>
 <select
 className="challenge-select"
@@ -1018,7 +1018,20 @@ Avg Pace
 <tr key={row.athleteId}>
 
 <td>{getMedal(row.rank)}</td>
-<td>{row.name}</td>
+<td>
+  <a
+    href={`https://www.strava.com/athletes/${row.athleteId}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      color:"#fc4c02",
+      textDecoration:"none",
+      fontWeight:"600"
+    }}
+  >
+    {row.name}
+  </a>
+</td>
 <td>{row.completedDays}/7</td>
 
 <td>
