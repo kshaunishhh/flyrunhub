@@ -869,8 +869,6 @@ app.get("/health", (req, res) => {
 
 
 
-
-
 app.get("/leaderboard/weekly", requireAuth, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
@@ -1216,6 +1214,45 @@ res.json({
   }
 });
 
+app.get("/admin/rebuild-challenge/:date", async (req, res) => {
+  try {
+
+    const day = req.params.date;
+
+    // validate date
+    const challengeDates = [
+      "2026-07-01",
+      "2026-07-02",
+      "2026-07-03",
+      "2026-07-04",
+      "2026-07-05",
+      "2026-07-06",
+      "2026-07-07"
+    ];
+
+    if (!challengeDates.includes(day)) {
+      return res.status(400).send("Invalid challenge date");
+    }
+
+    // clear cache
+    delete cachedLeaderboards[`challenge-${day}`];
+
+    // rebuild
+    const leaderboard = await buildDayLeaderboard(day);
+
+    // cache again
+    cachedLeaderboards[`challenge-${day}`] = {
+      data: leaderboard,
+      generatedAt: Date.now()
+    };
+
+    res.send(`${day} rebuilt successfully`);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
 
 app.get("/community/my-rank", async (req, res) => {
 
