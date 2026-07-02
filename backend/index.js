@@ -117,7 +117,7 @@ const response = await axios.get(
     },
     params: {
       after: Math.floor(challengeStart.getTime() / 1000),
-      per_page: 20
+      per_page: 25
     }
   }
 );
@@ -1250,6 +1250,13 @@ app.get("/admin/rebuild-challenge/:date", async (req, res) => {
 
     // rebuild
     const leaderboard = await buildDayLeaderboard(day);
+    await db
+  .collection("challenge_snapshots")
+  .doc(day)
+  .set({
+    leaderboard,
+    generatedAt: new Date()
+  });
 
 
     // cache again
@@ -1459,18 +1466,21 @@ app.get("/challenge/:date", async (req, res) => {
     // already frozen?
     if (snapshotDoc.exists) {
 
-      return res.json(
-        snapshotDoc.data().leaderboard
-      );
+  return res.json({
+    leaderboard: snapshotDoc.data().leaderboard,
+    generatedAt: snapshotDoc.data().generatedAt
+  });
 
-    }
-
+}
     if (
   cachedLeaderboards[cacheKey] &&
   now - cachedLeaderboards[cacheKey].generatedAt < 240 * 60 * 1000
 ) {
   console.log("Serving challenge leaderboard from cache");
-  return res.json(cachedLeaderboards[cacheKey].data);
+  return res.json({
+  leaderboard: cachedLeaderboards[cacheKey].data,
+  generatedAt: new Date(cachedLeaderboards[cacheKey].generatedAt)
+});
 }
 
     // live leaderboard
@@ -1502,7 +1512,10 @@ cachedLeaderboards[cacheKey] = {
 
     }
 
-    res.json(leaderboard);
+    res.json({
+  leaderboard,
+  generatedAt: new Date()
+});
 
   } catch (err) {
 

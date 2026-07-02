@@ -33,6 +33,7 @@ function App() {
   const posterRef = useRef(null);
   const posterRef1 = useRef(null);
   const posterRef2 = useRef(null);
+  const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -342,10 +343,14 @@ const fetchChallengeLeaderboard = async (date) => {
   try {
 
     setLoading(true);
+    
+const res = await axios.get(`/challenge/${date}`);
 
-    const res = await axios.get(`/challenge/${date}`);
+setChallengeUpdatedAt(res.data.generatedAt);
 
-    let rows = Array.isArray(res.data) ? res.data : [];
+let rows = Array.isArray(res.data)
+  ? res.data
+  : res.data.leaderboard || [];
 
     if (challengeMetric === "today") {
 
@@ -1008,6 +1013,21 @@ const secondHalf = {
     <p className="challenge-tagline">
       RUNFINITY 7×7 Challenge
     </p>
+    {challengeUpdatedAt && (
+  <p className="challenge-updated">
+    Last updated:{" "}
+    {new Date(challengeUpdatedAt).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })}{" "}
+    IST
+  </p>
+)}
 
 
       <div className="table-wrapper">
