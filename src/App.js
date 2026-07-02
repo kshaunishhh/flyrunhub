@@ -406,6 +406,21 @@ let rows = Array.isArray(res.data)
 
 };
 
+
+const isDayUnlocked = (day) => {
+
+  const nowIST = new Date(
+    new Date().toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata"
+    })
+  );
+
+  const challengeDate = new Date(`2026-07-0${day}T00:00:00`);
+
+  return nowIST >= challengeDate;
+};
+
+
 const getDayStatus = (day) => {
 
   const today = new Date();
@@ -1226,7 +1241,10 @@ const secondHalf = {
 
 <button
   className="history-btn"
+  disabled={!isDayUnlocked(3)}
   onClick={() => {
+
+    if (!isDayUnlocked(3)) return;
 
     setSelectedDay(3);
 
@@ -1234,12 +1252,14 @@ const secondHalf = {
 
   }}
 >
-  Day 3 {getDayStatus(3)}       
-</button>
+  </button>
 
 <button
   className="history-btn"
+  disabled={!isDayUnlocked(4)}
   onClick={() => {
+    
+    if (!isDayUnlocked(4)) return;
 
     setSelectedDay(4);
 
@@ -1248,12 +1268,15 @@ const secondHalf = {
   }}
 >
   Day 4 {getDayStatus(4)}
+  
 </button>
 
 <button
   className="history-btn"
+  disabled={!isDayUnlocked(5)}
   onClick={() => {
 
+    if (!isDayUnlocked(5)) return;
     setSelectedDay(5);
 
     navigate("dayDetail");
@@ -1265,8 +1288,10 @@ const secondHalf = {
 
 <button
   className="history-btn"
+  disabled={!isDayUnlocked(6)}
   onClick={() => {
 
+    if (!isDayUnlocked(6)) return;
     setSelectedDay(6);
 
 
@@ -1279,8 +1304,10 @@ const secondHalf = {
 
 <button
   className="history-btn"
+  disabled={!isDayUnlocked(7)}
   onClick={() => {
 
+    if (!isDayUnlocked(7)) return;
     setSelectedDay(7);
 
 

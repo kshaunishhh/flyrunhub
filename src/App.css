@@ -904,3 +904,9 @@ body {
     font-size:15px;
     font-weight:600;
 }
+
+
+.history-btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+}

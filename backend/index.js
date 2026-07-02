@@ -1472,6 +1472,23 @@ app.get("/admin/import-challenge", async (req, res) => {
 app.get("/challenge/:date", async (req, res) => {
 
   try {
+
+    const todayIST = new Date(
+  new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata"
+  })
+);
+
+const today =
+  todayIST.toISOString().slice(0,10);
+
+if (req.params.date > today) {
+
+  return res.status(403).json({
+    error: "Leaderboard not available yet."
+  });
+
+}
     const cacheKey = `challenge-${req.params.date}`;
     const now = Date.now();
 
