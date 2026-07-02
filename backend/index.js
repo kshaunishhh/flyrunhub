@@ -122,6 +122,17 @@ const response = await axios.get(
   }
 );
 
+if (p.athleteId === 556206477) {
+  console.log(
+    response.data.map(a => ({
+      name: a.name,
+      type: a.type,
+      km: (a.distance / 1000).toFixed(2),
+      date: a.start_date_local
+    }))
+  );
+}
+
       console.log("Activities fetched:", response.data.length);
 
       const challengeDates = [
@@ -1239,6 +1250,7 @@ app.get("/admin/rebuild-challenge/:date", async (req, res) => {
 
     // rebuild
     const leaderboard = await buildDayLeaderboard(day);
+
 
     // cache again
     cachedLeaderboards[`challenge-${day}`] = {

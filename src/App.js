@@ -31,6 +31,8 @@ function App() {
   const [challengeMetric, setChallengeMetric] = useState("today");
   const [yourRank, setYourRank] = useState(null);
   const posterRef = useRef(null);
+  const posterRef1 = useRef(null);
+  const posterRef2 = useRef(null);
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -73,37 +75,77 @@ useEffect(() => {
 }, [showToast]);
 
 
-const exportLeaderboard = async () => {
+const exportChallengeLeaderboard = async () => {
+
+  const posters = [
+    {
+      ref: posterRef1,
+      file: `challenge-${selectedDay}-ranks1-28.png`
+    },
+    {
+      ref: posterRef2,
+      file: `challenge-${selectedDay}-ranks29-56.png`
+    }
+  ];
+
+  for (const poster of posters) {
+
+    if (!poster.ref.current) continue;
+
+    await new Promise(r =>
+      requestAnimationFrame(r)
+    );
+
+    const dataUrl = await toPng(
+      poster.ref.current,
+      {
+        cacheBust: true,
+        pixelRatio: 2,
+        backgroundColor: "#0b0b14",
+        canvasWidth: 1080,
+        canvasHeight:
+          poster.ref.current.scrollHeight,
+      }
+    );
+
+    const link =
+      document.createElement("a");
+
+    link.download = poster.file;
+
+    link.href = dataUrl;
+
+    link.click();
+  }
+};
+
+
+const exportCommunityLeaderboard = async () => {
 
   if (!posterRef.current) return;
 
-  await new Promise(resolve =>
-    requestAnimationFrame(resolve)
+  await new Promise(r => requestAnimationFrame(r));
+
+  const dataUrl = await toPng(
+    posterRef.current,
+    {
+      cacheBust: true,
+      pixelRatio: 2,
+      backgroundColor: "#0b0b14",
+      canvasWidth: 1080,
+      canvasHeight: posterRef.current.scrollHeight,
+    }
   );
 
-  const dataUrl = await toPng(posterRef.current, {
+  const link = document.createElement("a");
 
-    cacheBust:true,
+  link.download = `${selectedHistory.label}.png`;
 
-    pixelRatio:2,
-
-    backgroundColor:"#0b0b14",
-
-    canvasWidth:1080,
-
-    canvasHeight:posterRef.current.scrollHeight,
-
-  });
-
-  const link=document.createElement("a");
-
-  link.download=`leaderboard-${Date.now()}.png`;
-
-  link.href=dataUrl;
+  link.href = dataUrl;
 
   link.click();
-
 };
+
   // Load default leaderboard
 
 
@@ -390,6 +432,15 @@ const challengeDateLabel = selectedDay
   : "";
 
 
+const firstHalf = {
+  label: challengeDateLabel,
+  leaderboard: challengeData.slice(0, 28),
+};
+
+const secondHalf = {
+  label: challengeDateLabel,
+  leaderboard: challengeData.slice(28),
+};
 
   return (
     <div className="App">
@@ -869,7 +920,7 @@ const challengeDateLabel = selectedDay
 <div className="export-btn-container">
   <button
     className="export-btn"
-    onClick={exportLeaderboard}
+    onClick={exportCommunityLeaderboard}
   >
     Export
   </button>
@@ -911,6 +962,8 @@ const challengeDateLabel = selectedDay
     top: 0,
   }}
 >
+
+
   <div ref={posterRef}>
     <LeaderboardPoster
   history={selectedHistory}
@@ -945,7 +998,7 @@ const challengeDateLabel = selectedDay
   <div className="export-btn-container">
   <button
     className="export-btn"
-    onClick={exportLeaderboard}
+    onClick={exportChallengeLeaderboard}
   >
     Export
   </button>
@@ -1055,6 +1108,7 @@ Avg Pace
 
 </div>
 
+
 <div
   style={{
     position: "fixed",
@@ -1062,20 +1116,30 @@ Avg Pace
     top: 0,
   }}
 >
-  <div ref={posterRef}>
+  <div ref={posterRef1}>
     <LeaderboardPoster
-  history={{
-    label: challengeDateLabel,
-    leaderboard: challengeData,
-  }}
-  title=""
-  subtitle="RUNFINITY 7×7 CHALLENGE"
-  showAthleteCount={false}
-  showFooterText={false}
-  showTagline={false}
-  metric={challengeMetric}
-  isChallenge={true}
-/>
+      history={firstHalf}
+      title=""
+      subtitle="RUNFINITY 7×7 CHALLENGE"
+      showAthleteCount={false}
+      showFooterText={false}
+      showTagline={false}
+      metric={challengeMetric}
+      isChallenge={true}
+    />
+  </div>
+
+  <div ref={posterRef2}>
+    <LeaderboardPoster
+      history={secondHalf}
+      title=""
+      subtitle="RUNFINITY 7×7 CHALLENGE"
+      showAthleteCount={false}
+      showFooterText={false}
+      showTagline={false}
+      metric={challengeMetric}
+      isChallenge={true}
+    />
   </div>
 </div>
 
