@@ -1126,6 +1126,7 @@ Avg Pace
       showTagline={false}
       metric={challengeMetric}
       isChallenge={true}
+      rankOffset={0}
     />
   </div>
 
@@ -1139,6 +1140,7 @@ Avg Pace
       showTagline={false}
       metric={challengeMetric}
       isChallenge={true}
+      rankOffset={28}
     />
   </div>
 </div>

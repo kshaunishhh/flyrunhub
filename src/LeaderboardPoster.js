@@ -8,7 +8,8 @@ export default function LeaderboardPoster({
   showFooterText = true,
   showTagline = true,
   metric = "total",
-  isChallenge = false
+  isChallenge = false,
+  rankOffset = 0
 })  {
   if (!history) return null;
 
@@ -114,10 +115,10 @@ export default function LeaderboardPoster({
             <tr key={runner.athleteId || index}>
 
               <td>
-                {index === 0 ? "🥇" :
- index === 1 ? "🥈" :
- index === 2 ? "🥉" :
- index + 1}
+                {rankOffset === 0 && index === 0 ? "🥇" :
+ rankOffset === 0 && index === 1 ? "🥈" :
+ rankOffset === 0 && index === 2 ? "🥉" :
+ rankOffset + index + 1}
               </td>
 
               <td>{runner.name}</td>
