@@ -1031,42 +1031,6 @@ const fullLeaderboard = {
 
     <h1>🏃 Day {selectedDay} Leaderboard</h1>
 
-    {true && (
-
-  <div className="export-wrapper">
-
-<select
-    className="export-select"
-    value={exportType}
-    onChange={(e) => {
-        setExportType(e.target.value);
-        exportChallengeLeaderboard(e.target.value);
-    }}
->
-
-
-<option value="" disabled>
-Export
-</option>
-
-<option value="full">
-Full Leaderboard
-</option>
-
-<option value="first">
-Ranks 1–{splitIndex}
-</option>
-
-<option value="second">
-Ranks {splitIndex + 1}–{challengeData.length}
-</option>
-
-</select>
-
-<span className="export-arrow">▼</span>
-
-</div>
-)}
 
     <p className="challenge-tagline">
       RUNFINITY 7×7 Challenge
@@ -1235,12 +1199,49 @@ Ranks {splitIndex + 1}–{challengeData.length}
 </div>
 
 
-    <button
-      className="back-btn"
-      onClick={() => navigate("sevenForSeven")}
+    <div className="bottom-actions">
+
+  <button
+    className="back-btn"
+    onClick={() => navigate("sevenForSeven")}
+  >
+    ← Back
+  </button>
+
+  <div className="export-wrapper">
+
+    <select
+      className="export-select"
+      value={exportType}
+      onChange={(e) => {
+        setExportType(e.target.value);
+        exportChallengeLeaderboard(e.target.value);
+      }}
     >
-      ← Back
-    </button>
+
+      <option value="" disabled>
+        Export
+      </option>
+
+      <option value="full">
+        Full Leaderboard
+      </option>
+
+      <option value="first">
+        Ranks 1–{splitIndex}
+      </option>
+
+      <option value="second">
+        Ranks {splitIndex + 1}–{challengeData.length}
+      </option>
+
+    </select>
+
+    <span className="export-arrow">▼</span>
+
+  </div>
+
+</div>
 
   </div>
 
