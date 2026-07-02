@@ -1250,20 +1250,20 @@ app.get("/admin/rebuild-challenge/:date", async (req, res) => {
 
     // rebuild
     const leaderboard = await buildDayLeaderboard(day);
-    await db
-  .collection("challenge_snapshots")
-  .doc(day)
-  .set({
-    leaderboard,
-    generatedAt: new Date()
-  });
 
 
     // cache again
-    cachedLeaderboards[`challenge-${day}`] = {
-      data: leaderboard,
-      generatedAt: Date.now()
-    };
+    const generatedAt = new Date();
+
+cachedLeaderboards[`challenge-${day}`] = {
+    data: leaderboard,
+    generatedAt
+};
+
+res.json({
+    success: true,
+    generatedAt
+});
 
     res.send(`${day} rebuilt successfully`);
 
@@ -1468,7 +1468,7 @@ app.get("/challenge/:date", async (req, res) => {
 
   return res.json({
     leaderboard: snapshotDoc.data().leaderboard,
-    generatedAt: snapshotDoc.data().generatedAt
+    generatedAt: snapshotDoc.data().generatedAt.toDate().toISOString()
   });
 
 }
