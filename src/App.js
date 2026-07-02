@@ -34,6 +34,7 @@ function App() {
   const posterRef1 = useRef(null);
   const posterRef2 = useRef(null);
   const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
+  const [exportType, setExportType] = useState("full");
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -78,46 +79,53 @@ useEffect(() => {
 
 const exportChallengeLeaderboard = async () => {
 
-  const posters = [
-    {
+  let poster;
+
+  if (exportType === "full") {
+
+    poster = {
+      ref: posterRef,
+      file: `challenge-${selectedDay}-full.png`
+    };
+
+  } else if (exportType === "first") {
+
+    poster = {
       ref: posterRef1,
-      file: `challenge-${selectedDay}-ranks1-28.png`
-    },
-    {
+      file: `challenge-${selectedDay}-first-half.png`
+    };
+
+  } else {
+
+    poster = {
       ref: posterRef2,
-      file: `challenge-${selectedDay}-ranks29-56.png`
-    }
-  ];
+      file: `challenge-${selectedDay}-second-half.png`
+    };
 
-  for (const poster of posters) {
-
-    if (!poster.ref.current) continue;
-
-    await new Promise(r =>
-      requestAnimationFrame(r)
-    );
-
-    const dataUrl = await toPng(
-      poster.ref.current,
-      {
-        cacheBust: true,
-        pixelRatio: 2,
-        backgroundColor: "#0b0b14",
-        canvasWidth: 1080,
-        canvasHeight:
-          poster.ref.current.scrollHeight,
-      }
-    );
-
-    const link =
-      document.createElement("a");
-
-    link.download = poster.file;
-
-    link.href = dataUrl;
-
-    link.click();
   }
+
+  if (!poster.ref.current) return;
+
+  await new Promise(r => requestAnimationFrame(r));
+
+  const dataUrl = await toPng(
+    poster.ref.current,
+    {
+      cacheBust: true,
+      pixelRatio: 2,
+      backgroundColor:"#0b0b14",
+      canvasWidth:1080,
+      canvasHeight:poster.ref.current.scrollHeight
+    }
+  );
+
+  const link=document.createElement("a");
+
+  link.download=poster.file;
+
+  link.href=dataUrl;
+
+  link.click();
 };
 
 
@@ -452,14 +460,22 @@ const challengeDateLabel = selectedDay
   : "";
 
 
+const splitIndex = Math.ceil(challengeData.length / 2);
+
 const firstHalf = {
   label: challengeDateLabel,
-  leaderboard: challengeData.slice(0, 28),
+  leaderboard: challengeData.slice(0, splitIndex),
 };
+
 
 const secondHalf = {
   label: challengeDateLabel,
-  leaderboard: challengeData.slice(28),
+  leaderboard: challengeData.slice(splitIndex),
+};
+
+const fullLeaderboard = {
+  label: challengeDateLabel,
+  leaderboard: challengeData,
 };
 
   return (
@@ -1016,12 +1032,32 @@ const secondHalf = {
     {true && (
 
   <div className="export-btn-container">
-  <button
+
+<select
+    value={exportType}
+    onChange={(e)=>setExportType(e.target.value)}
+>
+
+<option value="full">
+Full Leaderboard
+</option>
+
+<option value="first">
+Top {splitIndex}
+</option>
+
+<option value="second">
+Bottom {challengeData.length - splitIndex}
+</option>
+</select>
+
+<button
     className="export-btn"
     onClick={exportChallengeLeaderboard}
-  >
+>
     Export
-  </button>
+</button>
+
 </div>
 )}
 
@@ -1146,6 +1182,22 @@ const secondHalf = {
     top: 0,
   }}
 >
+
+  <div ref={posterRef}>
+  <LeaderboardPoster
+      history={fullLeaderboard}
+      title=""
+      subtitle="RUNFINITY 7×7 CHALLENGE"
+      showAthleteCount={false}
+      showFooterText={false}
+      showTagline={false}
+      metric={challengeMetric}
+      isChallenge={true}
+      rankOffset={0}
+  />
+</div>
+
+
   <div ref={posterRef1}>
     <LeaderboardPoster
       history={firstHalf}
@@ -1170,7 +1222,7 @@ const secondHalf = {
       showTagline={false}
       metric={challengeMetric}
       isChallenge={true}
-      rankOffset={28}
+      rankOffset={splitIndex}
     />
   </div>
 </div>
