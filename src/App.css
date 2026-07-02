@@ -927,7 +927,7 @@ body {
     border:none;
     border-radius:14px;
 
-    padding:12px 42px 12px 18px;
+    padding:12px 34px 12px 16px;
 
     font-weight:700;
     font-size:1rem;
@@ -991,7 +991,7 @@ body {
 
 .bottom-actions .export-select{
 
-    width:46vw;
+    width:42vw;
 
 }
 
