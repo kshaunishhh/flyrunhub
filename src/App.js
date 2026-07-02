@@ -1041,26 +1041,21 @@ const secondHalf = {
 <th>Rank</th>
 <th>Athlete</th>
 <th>Days</th>
+
 <th>
-<select
-className="challenge-select"
-value={challengeMetric}
-onChange={(e)=>setChallengeMetric(e.target.value)}
->
+<div className="challenge-select-wrapper">
+  <select
+    className="challenge-select"
+    value={challengeMetric}
+    onChange={(e)=>setChallengeMetric(e.target.value)}
+  >
+    <option value="today">Day KM</option>
+    <option value="total">Total KM</option>
+    <option value="pace">Avg Pace</option>
+  </select>
 
-<option value="today">
-Day KM
-</option>
-
-<option value="total">
-Total KM
-</option>
-
-<option value="pace">
-Avg Pace
-</option>
-
-</select>
+  <span className="challenge-arrow">▼</span>
+</div>
 
 </th>
 

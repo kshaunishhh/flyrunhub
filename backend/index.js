@@ -1225,12 +1225,23 @@ res.json({
   }
 });
 
+let rebuildingChallenge = false;
+
 app.get("/admin/rebuild-challenge/:date", async (req, res) => {
+
+  if (rebuildingChallenge) {
+    return res.status(429).json({
+      success: false,
+      message: "Challenge leaderboard is already rebuilding."
+    });
+  }
+
+  rebuildingChallenge = true;
+
   try {
 
     const day = req.params.date;
 
-    // validate date
     const challengeDates = [
       "2026-07-01",
       "2026-07-02",
@@ -1242,33 +1253,41 @@ app.get("/admin/rebuild-challenge/:date", async (req, res) => {
     ];
 
     if (!challengeDates.includes(day)) {
+      rebuildingChallenge = false;
       return res.status(400).send("Invalid challenge date");
     }
 
-    // clear cache
+    // Clear cache
     delete cachedLeaderboards[`challenge-${day}`];
 
-    // rebuild
+    // Build fresh leaderboard
     const leaderboard = await buildDayLeaderboard(day);
 
+    // Save in cache
+    const generatedAt = Date.now();
 
-    // cache again
-    const generatedAt = new Date();
+    cachedLeaderboards[`challenge-${day}`] = {
+      data: leaderboard,
+      generatedAt
+    };
 
-cachedLeaderboards[`challenge-${day}`] = {
-    data: leaderboard,
-    generatedAt
-};
-
-res.json({
-    success: true,
-    generatedAt : new Date().toISOString()
-});
+    res.json({
+      success: true,
+      athletes: leaderboard.length,
+      generatedAt: new Date(generatedAt).toISOString()
+    });
 
   } catch (err) {
+
     console.error(err);
     res.status(500).send(err.message);
+
+  } finally {
+
+    rebuildingChallenge = false;
+
   }
+
 });
 
 app.get("/community/my-rank", async (req, res) => {
@@ -1487,9 +1506,11 @@ app.get("/challenge/:date", async (req, res) => {
     const leaderboard =
     await buildDayLeaderboard(req.params.date);
 
+const generatedAt = Date.now();
+
 cachedLeaderboards[cacheKey] = {
     data: leaderboard,
-    generatedAt: now
+    generatedAt
 };
 
     // save snapshot after 11 PM
@@ -1514,7 +1535,7 @@ cachedLeaderboards[cacheKey] = {
 
     res.json({
   leaderboard,
-  generatedAt: new Date().toISOString()
+  generatedAt: new Date(generatedAt).toISOString()
 });
 
   } catch (err) {
