@@ -1043,11 +1043,11 @@ Full Leaderboard
 </option>
 
 <option value="first">
-Top {splitIndex}
+Ranks 1–{splitIndex}
 </option>
 
 <option value="second">
-Bottom {challengeData.length - splitIndex}
+Ranks {splitIndex + 1}–{challengeData.length}
 </option>
 </select>
 
