@@ -1243,7 +1243,7 @@ const secondHalf = {
   className="history-btn"
   disabled={!isDayUnlocked(3)}
   onClick={() => {
-
+    
     if (!isDayUnlocked(3)) return;
 
     setSelectedDay(3);
@@ -1252,7 +1252,9 @@ const secondHalf = {
 
   }}
 >
-  </button>
+  Day 3 {getDayStatus(3)}
+  
+</button>
 
 <button
   className="history-btn"
