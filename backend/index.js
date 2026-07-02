@@ -5,7 +5,7 @@ const Athlete=require("./models/Athlete");
 const express = require("express");
 const app = express();
 const axios = require("axios");
-const day2Snapshot = require("./day2snapshot.json");
+
 const db = require("./firestore");
 
 app.set("trust proxy",1);
@@ -686,27 +686,7 @@ app.get("/auth/status", async (req, res) => {
   });
 });
 
-app.get("/admin/import-day2-snapshot", async (req, res) => {
-  try {
 
-    await db
-      .collection("challenge_snapshots")
-      .doc("2026-07-02")
-      .set({
-        leaderboard: day2Snapshot.leaderboard,
-        generatedAt: new Date(day2Snapshot.generatedAt)
-      });
-
-    res.json({
-      success: true,
-      athletes: day2Snapshot.leaderboard.length
-    });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send(err.message);
-  }
-});
 
 // Step 1: Redirect user to Strava login
 app.get("/auth/strava", (req, res) => {
@@ -1157,6 +1137,21 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
       !cachedLeaderboards["base"] ||
       now - cachedLeaderboards["base"].generatedAt > 360 * 60 * 1000 // 6 hours
     ) {
+      let requestedBy = "Guest";
+
+if (req.session?.athleteId) {
+  const athlete = await Athlete.findOne({
+    athleteId: req.session.athleteId
+  });
+
+  if (athlete) {
+    requestedBy = `${athlete.firstname} ${athlete.lastname}`;
+  }
+}
+
+console.log(
+  `[COMMUNITY REBUILD] By: ${requestedBy} | IP: ${req.ip} | ${new Date().toISOString()}`
+);
       const baseData = await buildWeeklyCommunityLeaderboard();
 
       cachedLeaderboards["base"] = {
@@ -1530,15 +1525,49 @@ if (req.params.date > today) {
   cachedLeaderboards[cacheKey] &&
   now - cachedLeaderboards[cacheKey].generatedAt < 240 * 60 * 1000
 ) {
+
   console.log("Serving challenge leaderboard from cache");
+
+  // Save snapshot after 11 PM using cache
+  if (shouldSaveChallengeSnapshot() && !snapshotDoc.exists) {
+
+    await db
+      .collection("challenge_snapshots")
+      .doc(req.params.date)
+      .set({
+        leaderboard: cachedLeaderboards[cacheKey].data,
+        generatedAt: new Date()
+      });
+
+    console.log(
+      "Challenge snapshot saved from cache:",
+      req.params.date
+    );
+  }
+
   return res.json({
-  leaderboard: cachedLeaderboards[cacheKey].data,
-  generatedAt: new Date(
-    cachedLeaderboards[cacheKey].generatedAt
-).toISOString()
-});
+    leaderboard: cachedLeaderboards[cacheKey].data,
+    generatedAt: new Date(
+      cachedLeaderboards[cacheKey].generatedAt
+    ).toISOString()
+  });
 }
 
+let requestedBy = "Guest";
+
+if (req.session?.athleteId) {
+  const athlete = await Athlete.findOne({
+    athleteId: req.session.athleteId
+  });
+
+  if (athlete) {
+    requestedBy = `${athlete.firstname} ${athlete.lastname}`;
+  }
+}
+
+console.log(
+  `[CHALLENGE REBUILD] Day: ${req.params.date} | By: ${requestedBy} | IP: ${req.ip} | ${new Date().toISOString()}`
+);
     // live leaderboard
     const leaderboard =
     await buildDayLeaderboard(req.params.date);
