@@ -34,7 +34,7 @@ function App() {
   const posterRef1 = useRef(null);
   const posterRef2 = useRef(null);
   const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
-  const [exportType, setExportType] = useState("full");
+  const [exportType, setExportType] = useState("");
 
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
@@ -77,18 +77,18 @@ useEffect(() => {
 }, [showToast]);
 
 
-const exportChallengeLeaderboard = async () => {
+const exportChallengeLeaderboard = async (type = exportType) => {
 
   let poster;
 
-  if (exportType === "full") {
+  if (type === "full") {
 
     poster = {
       ref: posterRef,
       file: `challenge-${selectedDay}-full.png`
     };
 
-  } else if (exportType === "first") {
+  } else if (type === "first") {
 
     poster = {
       ref: posterRef1,
@@ -126,6 +126,8 @@ const exportChallengeLeaderboard = async () => {
   link.href=dataUrl;
 
   link.click();
+
+setExportType("");
 };
 
 
@@ -1031,12 +1033,21 @@ const fullLeaderboard = {
 
     {true && (
 
-  <div className="export-btn-container">
+  <div className="export-wrapper">
 
 <select
+    className="export-select"
     value={exportType}
-    onChange={(e)=>setExportType(e.target.value)}
+    onChange={(e) => {
+        setExportType(e.target.value);
+        exportChallengeLeaderboard(e.target.value);
+    }}
 >
+
+
+<option value="" disabled>
+Export
+</option>
 
 <option value="full">
 Full Leaderboard
@@ -1049,14 +1060,10 @@ Ranks 1–{splitIndex}
 <option value="second">
 Ranks {splitIndex + 1}–{challengeData.length}
 </option>
+
 </select>
 
-<button
-    className="export-btn"
-    onClick={exportChallengeLeaderboard}
->
-    Export
-</button>
+<span className="export-arrow">▼</span>
 
 </div>
 )}
