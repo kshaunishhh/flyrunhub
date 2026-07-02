@@ -5,7 +5,7 @@ const Athlete=require("./models/Athlete");
 const express = require("express");
 const app = express();
 const axios = require("axios");
-
+const day2Snapshot = require("./day2snapshot.json");
 const db = require("./firestore");
 
 app.set("trust proxy",1);
@@ -686,7 +686,27 @@ app.get("/auth/status", async (req, res) => {
   });
 });
 
+app.get("/admin/import-day2-snapshot", async (req, res) => {
+  try {
 
+    await db
+      .collection("challenge_snapshots")
+      .doc("2026-07-02")
+      .set({
+        leaderboard: day2Snapshot.leaderboard,
+        generatedAt: new Date(day2Snapshot.generatedAt)
+      });
+
+    res.json({
+      success: true,
+      athletes: day2Snapshot.leaderboard.length
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
+});
 
 // Step 1: Redirect user to Strava login
 app.get("/auth/strava", (req, res) => {
