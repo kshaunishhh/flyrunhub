@@ -1262,10 +1262,8 @@ cachedLeaderboards[`challenge-${day}`] = {
 
 res.json({
     success: true,
-    generatedAt
+    generatedAt : new Date().toISOString()
 });
-
-    res.send(`${day} rebuilt successfully`);
 
   } catch (err) {
     console.error(err);
@@ -1479,7 +1477,9 @@ app.get("/challenge/:date", async (req, res) => {
   console.log("Serving challenge leaderboard from cache");
   return res.json({
   leaderboard: cachedLeaderboards[cacheKey].data,
-  generatedAt: new Date(cachedLeaderboards[cacheKey].generatedAt)
+  generatedAt: new Date(
+    cachedLeaderboards[cacheKey].generatedAt
+).toISOString()
 });
 }
 
@@ -1514,7 +1514,7 @@ cachedLeaderboards[cacheKey] = {
 
     res.json({
   leaderboard,
-  generatedAt: new Date()
+  generatedAt: new Date().toISOString()
 });
 
   } catch (err) {
