@@ -33,6 +33,10 @@ function App() {
   const posterRef = useRef(null);
   const posterRef1 = useRef(null);
   const posterRef2 = useRef(null);
+
+  const communityPosterRef = useRef(null);
+  const communityPosterRef1 = useRef(null);
+  const communityPosterRef2 = useRef(null);
   const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
   const [exportType, setExportType] = useState("");
 
@@ -131,32 +135,56 @@ setExportType("");
 };
 
 
-const exportCommunityLeaderboard = async () => {
+const exportCommunityLeaderboard = async (type) => {
 
-  if (!posterRef.current) return;
+  let poster;
+
+  if (type === "full") {
+
+    poster = {
+      ref: communityPosterRef,
+      file: `${selectedHistory.label}-full.png`
+    };
+
+  } else if (type === "first") {
+
+    poster = {
+      ref: communityPosterRef1,
+      file: `${selectedHistory.label}-first-half.png`
+    };
+
+  } else {
+
+    poster = {
+      ref: communityPosterRef2,
+      file: `${selectedHistory.label}-second-half.png`
+    };
+
+  }
+
+  if (!poster.ref.current) return;
 
   await new Promise(r => requestAnimationFrame(r));
 
   const dataUrl = await toPng(
-    posterRef.current,
+    poster.ref.current,
     {
-      cacheBust: true,
-      pixelRatio: 2,
-      backgroundColor: "#0b0b14",
-      canvasWidth: 1080,
-      canvasHeight: posterRef.current.scrollHeight,
+      cacheBust:true,
+      pixelRatio:2,
+      backgroundColor:"#0b0b14",
+      canvasWidth:1080,
+      canvasHeight:poster.ref.current.scrollHeight
     }
   );
 
-  const link = document.createElement("a");
+  const link=document.createElement("a");
 
-  link.download = `${selectedHistory.label}.png`;
+  link.download=poster.file;
 
-  link.href = dataUrl;
+  link.href=dataUrl;
 
   link.click();
 };
-
   // Load default leaderboard
 
 
@@ -478,6 +506,25 @@ const secondHalf = {
 const fullLeaderboard = {
   label: challengeDateLabel,
   leaderboard: challengeData,
+};
+
+const communitySplitIndex = Math.ceil(
+  selectedHistory?.leaderboard.length / 2
+);
+
+const communityFirstHalf = {
+  ...selectedHistory,
+  leaderboard: selectedHistory?.leaderboard.slice(
+    0,
+    communitySplitIndex
+  )
+};
+
+const communitySecondHalf = {
+  ...selectedHistory,
+  leaderboard: selectedHistory?.leaderboard.slice(
+    communitySplitIndex
+  )
 };
 
   return (
@@ -955,14 +1002,6 @@ const fullLeaderboard = {
   {selectedHistory.leaderboard.length} athletes recorded
 </p>
 
-<div className="export-btn-container">
-  <button
-    className="export-btn"
-    onClick={exportCommunityLeaderboard}
-  >
-    Export
-  </button>
-</div>
 
     <div className="table-wrapper">
       <table className="leaderboard-table">
@@ -1002,24 +1041,76 @@ const fullLeaderboard = {
 >
 
 
-  <div ref={posterRef}>
-    <LeaderboardPoster
-  history={selectedHistory}
-  title="WEEKLY LEADERBOARD"
-  subtitle=""
-  showAthleteCount={true}
-  showFooterText={true}
-  showTagline={true}
-/>
-  </div>
+  <div ref={communityPosterRef}>
+  <LeaderboardPoster
+    history={selectedHistory}
+    title="WEEKLY LEADERBOARD"
+  />
 </div>
 
-<button
-  className="back-btn"
-  onClick={() => navigate("community")}
->
-  ← Back
-</button>
+<div ref={communityPosterRef1}>
+  <LeaderboardPoster
+    history={communityFirstHalf}
+    title="WEEKLY LEADERBOARD"
+    rankOffset={0}
+  />
+</div>
+
+<div ref={communityPosterRef2}>
+  <LeaderboardPoster
+    history={communitySecondHalf}
+    title="WEEKLY LEADERBOARD"
+    rankOffset={communitySplitIndex}
+  />
+</div>
+</div>
+
+<div className="bottom-actions">
+
+  <button
+    className="back-btn"
+    onClick={() => navigate("community")}
+  >
+    ← Back
+  </button>
+
+  <div className="export-wrapper">
+
+    <select
+      className="export-select"
+      defaultValue=""
+      onChange={(e) => {
+
+          exportCommunityLeaderboard(e.target.value);
+
+        e.target.value = "";
+
+      }}
+    >
+
+      <option value="" disabled>
+        Export
+      </option>
+
+      <option value="full">
+Full Leaderboard
+</option>
+
+<option value="first">
+Ranks 1–{communitySplitIndex}
+</option>
+
+<option value="second">
+Ranks {communitySplitIndex + 1}–
+{selectedHistory.leaderboard.length}
+</option>
+    </select>
+
+    <span className="export-arrow">▼</span>
+
+  </div>
+
+</div>
 
   </div>
 
