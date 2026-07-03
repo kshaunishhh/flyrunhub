@@ -1579,25 +1579,19 @@ cachedLeaderboards[cacheKey] = {
     generatedAt
 };
 
-    // save snapshot after 11 PM
-    if (shouldSaveChallengeSnapshot()) {
+    // Save snapshot immediately if it doesn't already exist
+if (!snapshotDoc.exists) {
 
-      await db
-        .collection("challenge_snapshots")
-        .doc(req.params.date)
-        .set({
+  await db
+    .collection("challenge_snapshots")
+    .doc(req.params.date)
+    .set({
+      leaderboard,
+      generatedAt: new Date()
+    });
 
-          leaderboard,
-          generatedAt: new Date()
-
-        });
-
-      console.log(
-        "Challenge snapshot saved:",
-        req.params.date
-      );
-
-    }
+  console.log("Challenge snapshot saved:", req.params.date);
+}
 
     res.json({
   leaderboard,
