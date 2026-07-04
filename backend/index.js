@@ -1497,6 +1497,9 @@ app.get("/challenge/:date", async (req, res) => {
 const today =
   todayIST.toISOString().slice(0,10);
 
+
+const isToday = req.params.date === today;
+
 if (req.params.date > today) {
 
   return res.status(403).json({
@@ -1512,8 +1515,7 @@ if (req.params.date > today) {
       .doc(req.params.date)
       .get();
 
-    // already frozen?
-    if (snapshotDoc.exists) {
+   if (!isToday && snapshotDoc.exists) {
 
   return res.json({
     leaderboard: snapshotDoc.data().leaderboard,
@@ -1579,8 +1581,14 @@ cachedLeaderboards[cacheKey] = {
     generatedAt
 };
 
-    // Save snapshot immediately if it doesn't already exist
-if (!snapshotDoc.exists) {
+  
+// Freeze only after 11 PM
+if (
+    !isToday &&
+    shouldSaveChallengeSnapshot() &&
+    !snapshotDoc.exists
+) {
+
 
   await db
     .collection("challenge_snapshots")
