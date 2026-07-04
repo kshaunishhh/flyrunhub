@@ -1523,7 +1523,7 @@ if (req.params.date > today) {
 }
     if (
   cachedLeaderboards[cacheKey] &&
-  now - cachedLeaderboards[cacheKey].generatedAt < 240 * 60 * 1000
+  now - cachedLeaderboards[cacheKey].generatedAt < 120 * 60 * 1000
 ) {
 
   console.log("Serving challenge leaderboard from cache");
