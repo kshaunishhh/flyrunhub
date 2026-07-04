@@ -1531,7 +1531,7 @@ if (req.params.date > today) {
   console.log("Serving challenge leaderboard from cache");
 
   // Save snapshot after 11 PM using cache
-  if (shouldSaveChallengeSnapshot() && !snapshotDoc.exists) {
+  if ( !isToday && shouldSaveChallengeSnapshot() && !snapshotDoc.exists) {
 
     await db
       .collection("challenge_snapshots")
