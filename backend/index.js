@@ -117,7 +117,7 @@ const response = await axios.get(
     },
     params: {
       after: Math.floor(challengeStart.getTime() / 1000),
-      per_page: 25
+      per_page: 50
     }
   }
 );
@@ -297,7 +297,7 @@ function shouldSaveChallengeSnapshot() {
 
   const hour = now.getHours();
 
-  return hour >= 22; // after 11 PM IST
+  return hour >= 22; // after 10 PM IST
 }
 
 
