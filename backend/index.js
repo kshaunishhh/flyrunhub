@@ -1231,7 +1231,10 @@ if (req.session?.athleteId) {
 
 res.json({
   leaderboard: ranked,
-  yourRank
+  yourRank,
+  generatedAt: new Date(
+    cachedLeaderboards["base"].generatedAt
+  ).toISOString()
 });
 
   } catch (err) {

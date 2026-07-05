@@ -29,6 +29,7 @@ function App() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [challengeData, setChallengeData] = useState([]);
   const [challengeMetric, setChallengeMetric] = useState("today");
+  const [communityUpdatedAt, setCommunityUpdatedAt] = useState(null);
   const [yourRank, setYourRank] = useState(null);
   const posterRef = useRef(null);
   const posterRef1 = useRef(null);
@@ -343,6 +344,7 @@ const fetchCommunityLeaderboard = async () => {
     const res = await axios.get(
   `/community/leaderboard/weekly?types=${selectedTypes.join(",")}`
 );
+setCommunityUpdatedAt(res.data.generatedAt);
 
     const newData = Array.isArray(res.data.leaderboard)
   ? res.data.leaderboard
@@ -817,6 +819,21 @@ const communitySecondHalf = {
         
         <div className="leaderboard">
           <h1>Community Weekly Leaderboard</h1>
+          {communityUpdatedAt && (
+  <p className="challenge-updated">
+    Last updated:{" "}
+    {new Date(communityUpdatedAt).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })}{" "}
+    IST
+  </p>
+)}
           <div className="tabs">
   <button
     className={`tab ${communityView === "current" ? "active" : ""}`}
