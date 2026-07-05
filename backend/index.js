@@ -10,6 +10,7 @@ const db = require("./firestore");
 
 app.set("trust proxy",1);
 let cachedLeaderboards = {};
+let rebuildingChallenges = {};
 
 if (process.env.NODE_ENV === "production") {
   setInterval(() => {
@@ -1489,6 +1490,8 @@ app.get("/admin/import-challenge", async (req, res) => {
 
 app.get("/challenge/:date", async (req, res) => {
 
+
+  const cacheKey = `challenge-${req.params.date}`;
   try {
 
     const todayIST = new Date(
@@ -1510,7 +1513,6 @@ if (req.params.date > today) {
   });
 
 }
-    const cacheKey = `challenge-${req.params.date}`;
     const now = Date.now();
 
     const snapshotDoc = await db
@@ -1518,7 +1520,7 @@ if (req.params.date > today) {
       .doc(req.params.date)
       .get();
 
-   if (!isToday && snapshotDoc.exists) {
+   if (snapshotDoc.exists) {
 
   return res.json({
     leaderboard: snapshotDoc.data().leaderboard,
@@ -1569,7 +1571,15 @@ if (req.session?.athleteId) {
     requestedBy = `${athlete.firstname} ${athlete.lastname}`;
   }
 }
+if (rebuildingChallenges[cacheKey]) {
 
+  return res.status(429).json({
+    message: "Challenge leaderboard is already rebuilding. Please try again in a few seconds."
+  });
+
+}
+
+rebuildingChallenges[cacheKey] = true;
 console.log(
   `[CHALLENGE REBUILD] Day: ${req.params.date} | By: ${requestedBy} | IP: ${req.ip} | ${new Date().toISOString()}`
 );
@@ -1617,7 +1627,11 @@ if (
       error: err.message
     });
 
-  }
+  }finally {
+
+    rebuildingChallenges[cacheKey] = false;
+
+}
 
 });
 
