@@ -297,7 +297,7 @@ function shouldSaveChallengeSnapshot() {
 
   const hour = now.getHours();
 
-  return hour >= 23; // after 11 PM IST
+  return hour >= 22; // after 11 PM IST
 }
 
 
