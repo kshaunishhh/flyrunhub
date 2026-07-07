@@ -41,6 +41,10 @@ function App() {
   const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
   const [exportType, setExportType] = useState("");
 
+  const [showOverall, setShowOverall] = useState(true);
+
+const [openCategory, setOpenCategory] = useState(null);
+
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
@@ -527,6 +531,111 @@ const communitySecondHalf = {
   leaderboard: selectedHistory?.leaderboard.slice(
     communitySplitIndex
   )
+};
+
+const myResult = {
+
+  name: athlete?.firstname || "Guest",
+
+  overallRank: 18,
+  overallTotal: 56,
+
+  ageCategory: "18–29",
+  ageRank: 3,
+  ageTotal: 14,
+
+  gender: "Male",
+  genderRank: 15,
+  genderTotal: 41,
+
+  totalKm: 63.42
+
+};
+
+const challengeResults = {
+
+  overall: [
+
+    {
+      rank:1,
+      name:"Rajiv Varma",
+      total:84.6
+    },
+
+    {
+      rank:2,
+      name:"Mukesh Gupta",
+      total:82.3
+    },
+
+    {
+      rank:3,
+      name:"Dr. Rohit Malhotra",
+      total:80.4
+    }
+
+  ],
+
+  categories:[
+
+    {
+
+      title:"18–29",
+
+      winners:[
+
+        {
+          rank:1,
+          name:"Rajiv Varma",
+          total:84.6
+        },
+
+        {
+          rank:2,
+          name:"Mukesh Gupta",
+          total:82.3
+        },
+
+        {
+          rank:3,
+          name:"Kshaunish Gupta",
+          total:79.8
+        }
+
+      ]
+
+    },
+
+    {
+
+      title:"30–39",
+
+      winners:[
+
+        {
+          rank:1,
+          name:"Dr. Rohit Malhotra",
+          total:80.4
+        },
+
+        {
+          rank:2,
+          name:"Balvinder Singh",
+          total:77.2
+        },
+
+        {
+          rank:3,
+          name:"Janender Chumbak",
+          total:75.8
+        }
+
+      ]
+
+    }
+
+  ]
+
 };
 
   return (
@@ -1143,6 +1252,8 @@ Ranks {communitySplitIndex + 1}–
     <p className="challenge-tagline">
       RUNFINITY 7×7 Challenge
     </p>
+
+    
     {challengeUpdatedAt && (
   <p className="challenge-updated">
     Last updated:{" "}
@@ -1355,6 +1466,222 @@ Ranks {communitySplitIndex + 1}–
 
 )}
 
+{view === "challengeResults" && (
+
+<div className="leaderboard">
+
+<h1>🏆 Challenge Results</h1>
+
+<p className="challenge-tagline">
+
+RUNFINITY 7×7 Challenge
+
+</p>
+  <div className="challenge-info-card">
+
+<h3>🏅 Your Result</h3>
+
+<p>
+👤 <strong>{myResult.name}</strong>
+</p>
+
+<p>
+🏆 Overall Rank
+<strong>
+ #{myResult.overallRank}
+</strong>
+ / {myResult.overallTotal}
+</p>
+
+<p>
+🎂 {myResult.ageCategory}
+<strong>
+ #{myResult.ageRank}
+</strong>
+ / {myResult.ageTotal}
+</p>
+
+<p>
+{myResult.gender === "Male" ? "♂️" : "♀️"}
+ {myResult.gender}
+
+<strong>
+ #{myResult.genderRank}
+</strong>
+ / {myResult.genderTotal}
+</p>
+
+<p>
+📏 Total Distance
+
+<strong>
+ {myResult.totalKm} km
+</strong>
+</p>
+
+</div>
+
+<button
+className="history-btn"
+onClick={() =>
+setShowOverall(!showOverall)
+}
+>
+
+🏆 Overall Winners
+
+{showOverall ? "▲" : "▼"}
+
+</button>
+
+{showOverall && (
+
+<div className="table-wrapper">
+
+<table className="leaderboard-table">
+
+<thead>
+
+<tr>
+
+<th>Rank</th>
+
+<th>Athlete</th>
+
+<th>Total KM</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{challengeResults.overall.map(w=>(
+<tr key={w.rank}>
+
+<td>{getMedal(w.rank)}</td>
+
+<td>{w.name}</td>
+
+<td>{w.total} km</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+)}
+
+{challengeResults.categories.map(category=>(
+
+<div key={category.title}>
+
+<button
+
+className="history-btn"
+
+onClick={()=>
+
+setOpenCategory(
+
+openCategory===category.title
+
+?
+
+null
+
+:
+
+category.title
+
+)
+
+}
+
+>
+
+🏅 {category.title}
+
+{openCategory===category.title
+
+?
+
+"▲"
+
+:
+
+"▼"}
+
+</button>
+
+{openCategory===category.title && (
+
+<div className="table-wrapper">
+
+<table className="leaderboard-table">
+
+<thead>
+
+<tr>
+
+<th>Rank</th>
+
+<th>Athlete</th>
+
+<th>Total KM</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{category.winners.map(w=>(
+
+<tr key={w.rank}>
+
+<td>{getMedal(w.rank)}</td>
+
+<td>{w.name}</td>
+
+<td>{w.total} km</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+)}
+
+
+</div>
+
+))}
+
+<div className="bottom-actions">
+
+  <button
+    className="back-btn"
+    onClick={() => navigate("sevenForSeven")}
+  >
+    ← Back
+  </button>
+
+</div>
+</div>
+
+)}
+
 {view === "sevenForSeven" && (
 
   <div className="leaderboard">
@@ -1489,6 +1816,17 @@ Ranks {communitySplitIndex + 1}–
 </button>
 
 </div>
+
+<h3 className="challenge-section-title">
+  Results
+</h3>
+
+<button
+  className="history-btn"
+  onClick={() => navigate("challengeResults")}
+>
+  🏆 Final Results
+</button>
 
 <h3 className="challenge-section-title">
   Links & Contact
