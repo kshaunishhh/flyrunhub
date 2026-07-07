@@ -558,19 +558,19 @@ const challengeResults = {
 
     {
       rank:1,
-      name:"Rajiv Varma",
+      name:"dummy data",
       total:84.6
     },
 
     {
       rank:2,
-      name:"Mukesh Gupta",
+      name:"dummy data",
       total:82.3
     },
 
     {
       rank:3,
-      name:"Dr. Rohit Malhotra",
+      name:"dummy data",
       total:80.4
     }
 
@@ -586,19 +586,19 @@ const challengeResults = {
 
         {
           rank:1,
-          name:"",
+          name:"dummy data",
           total:84.6
         },
 
         {
           rank:2,
-          name:"",
+          name:"dummy data",
           total:82.3
         },
 
         {
           rank:3,
-          name:"",
+          name:"dummy data",
           total:79.8
         }
 
@@ -614,19 +614,19 @@ const challengeResults = {
 
         {
           rank:1,
-          name:"",
+          name:"dummy data",
           total:80.4
         },
 
         {
           rank:2,
-          name:"",
+          name:"dummy data",
           total:77.2
         },
 
         {
           rank:3,
-          name:"",
+          name:"dummy data",
           total:75.8
         }
 
