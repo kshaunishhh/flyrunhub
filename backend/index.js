@@ -1517,10 +1517,8 @@ app.get("/admin/import-participant-profiles", async (req, res) => {
       const fullName =
         `${p.firstname} ${p.lastname}`;
 
-      const profile = profiles.find(x =>
-  normalizeName(
-    `${x.firstname} ${x.lastname}`
-  ) === normalizeName(fullName)
+     const profile = profiles.find(
+  x => normalizeName(x.name) === normalizeName(fullName)
 );
 
       if (!profile || !profile.dob) {
@@ -1538,13 +1536,17 @@ app.get("/admin/import-participant-profiles", async (req, res) => {
 
         athleteId: p.athleteId,
 
-        name: fullName,
+        firstname: p.firstname,
+lastname: p.lastname,
+name: fullName,
 
         dob: profile.dob,
+        age: calculateAge(profile.dob),
 
         gender: profile.gender,
 
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        createdFrom: "challenge_profiles.json"
 
       }, { merge:true });
 
@@ -1581,8 +1583,10 @@ app.get("/admin/export-challenge", async (req, res) => {
   try {
 
     const snapshot = await db
-      .collection("challenge_participants")
-      .get();
+  .collection("challenge_participants")
+  .where("challenge", "==", "7x7-2026")
+  .where("paymentDone", "==", true)
+  .get();
 
     const participants = [];
 
