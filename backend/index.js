@@ -7,6 +7,7 @@ const app = express();
 const axios = require("axios");
 
 const db = require("./firestore");
+const profiles = require("./data/challenge_profiles.json");
 
 app.set("trust proxy",1);
 let cachedLeaderboards = {};
@@ -63,6 +64,7 @@ async function refreshStravaToken(athlete) {
 //Helper functions
 
 async function getChallengeParticipants() {
+  
 
   const snapshot = await db
     .collection("challenge_participants")
@@ -77,6 +79,14 @@ async function getChallengeParticipants() {
   });
 
   return participants;
+}
+
+function normalizeName(name) {
+  return name
+    .toLowerCase()
+    .replace(/\./g, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 async function buildDayLeaderboard(dayDate) {
@@ -1486,6 +1496,111 @@ app.get("/admin/import-challenge", async (req, res) => {
 
   }
 
+});
+
+app.get("/admin/import-participant-profiles", async (req, res) => {
+
+  try {
+
+    const snapshot = await db
+      .collection("challenge_participants")
+      .get();
+
+    let created = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const doc of snapshot.docs) {
+
+      const p = doc.data();
+
+      const fullName =
+        `${p.firstname} ${p.lastname}`;
+
+      const profile = profiles.find(x =>
+  normalizeName(
+    `${x.firstname} ${x.lastname}`
+  ) === normalizeName(fullName)
+);
+
+      if (!profile || !profile.dob) {
+        skipped++;
+        continue;
+      }
+
+      const ref = db
+        .collection("participant_profiles")
+        .doc(String(p.athleteId));
+
+      const exists = await ref.get();
+
+      await ref.set({
+
+        athleteId: p.athleteId,
+
+        name: fullName,
+
+        dob: profile.dob,
+
+        gender: profile.gender,
+
+        updatedAt: new Date()
+
+      }, { merge:true });
+
+      if (exists.exists)
+        updated++;
+      else
+        created++;
+
+    }
+
+    res.json({
+
+      created,
+
+      updated,
+
+      skipped
+
+    });
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    res.status(500).send(err.message);
+
+  }
+
+});
+
+app.get("/admin/export-challenge", async (req, res) => {
+  try {
+
+    const snapshot = await db
+      .collection("challenge_participants")
+      .get();
+
+    const participants = [];
+
+    snapshot.forEach(doc => {
+      participants.push(doc.data());
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=challenge_participants.json"
+    );
+
+    res.json(participants);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
 });
 
 app.get("/challenge/:date", async (req, res) => {
