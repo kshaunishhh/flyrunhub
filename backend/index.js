@@ -1541,7 +1541,6 @@ lastname: p.lastname,
 name: fullName,
 
         dob: profile.dob,
-        age: calculateAge(profile.dob),
 
         gender: profile.gender,
 
