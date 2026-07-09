@@ -1517,7 +1517,7 @@ setShowOverall(!showOverall)
 
 <div key={category.title}>
 
-<button
+<div
 
 className="history-btn"
 
@@ -1544,6 +1544,8 @@ category.title
 <div className="category-header">
 
   <h3>{category.title}</h3>
+
+  <div className="category-actions">
 
   <div className="gender-toggle">
 
@@ -1584,8 +1586,6 @@ category.title
     </button>
 
   </div>
-
-</div>
 <span className="category-arrow">
 {openCategory===category.title
 
@@ -1597,8 +1597,9 @@ category.title
 
 "▼"}
 </span>
-
-</button>
+</div>
+</div>
+</div>
 
 {openCategory===category.title && (
 
