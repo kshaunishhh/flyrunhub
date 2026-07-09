@@ -1466,7 +1466,7 @@ setShowOverall(!showOverall)
 
 🏆 Overall Winners
 
-{showOverall ? "▲" : "▼"}
+{showOverall ? " ▲" : " ▼"}
 
 </button>
 
@@ -1586,7 +1586,7 @@ category.title
   </div>
 
 </div>
-
+<span className="category-arrow">
 {openCategory===category.title
 
 ?
@@ -1596,6 +1596,7 @@ category.title
 :
 
 "▼"}
+</span>
 
 </button>
 
