@@ -41,7 +41,7 @@ function App() {
   const [challengeUpdatedAt, setChallengeUpdatedAt] = useState(null);
   const [exportType, setExportType] = useState("");
 
-  const [showOverall, setShowOverall] = useState(true);
+  const [showOverall, setShowOverall] = useState(false);
 
 const [openCategory, setOpenCategory] = useState(null);
 
@@ -1445,7 +1445,7 @@ onClick={async () => {
     setAthleteResult(res.data);
 
     setSelectedAthlete(r);
-
+    setSearch("");
     navigate("athleteResult");
 
   } catch (err) {

@@ -915,6 +915,209 @@ search
   }
 
 });
+app.get("/challenge/results/:athleteId", async (req, res) => {
+  try {
+
+    const athleteId = Number(req.params.athleteId);
+
+    const snapshotDoc = await db
+      .collection("challenge_snapshots")
+      .doc(FINAL_CHALLENGE_DATE)
+      .get();
+
+    if (!snapshotDoc.exists) {
+      return res.status(404).json({
+        error: "Challenge results not available."
+      });
+    }
+
+    const leaderboard =
+      snapshotDoc.data().leaderboard || [];
+
+    const profilesSnap = await db
+      .collection("participant_profiles")
+      .get();
+
+    const profiles = {};
+
+    profilesSnap.forEach(doc => {
+      profiles[doc.id] = doc.data();
+    });
+
+    const merged = leaderboard.map(row => {
+
+      const profile =
+        profiles[String(row.athleteId)] || {};
+
+      const age = calculateAge(profile.dob);
+
+      return {
+
+        athleteId: row.athleteId,
+        name: row.name,
+
+        totalKm: row.total_km,
+        todayKm: row.today_km,
+        avgPace: row.avg_pace,
+        completedDays: row.completedDays,
+
+        age,
+        gender: profile.gender || "Unknown",
+        category: getAgeCategory(age)
+
+      };
+
+    });
+
+    // ---------- Overall Ranking ----------
+
+    merged.sort((a,b)=>{
+
+      if (b.completedDays !== a.completedDays)
+        return b.completedDays-a.completedDays;
+
+      return b.totalKm-a.totalKm;
+
+    });
+
+    merged.forEach((a,i)=>{
+      a.overallRank=i+1;
+    });
+
+    // ---------- Gender Ranking ----------
+
+    ["Male","Female"].forEach(g=>{
+
+      const genderAthletes =
+        merged
+          .filter(a=>a.gender===g)
+          .sort((a,b)=>{
+
+            if(b.completedDays!==a.completedDays)
+              return b.completedDays-a.completedDays;
+
+            return b.totalKm-a.totalKm;
+
+          });
+
+      genderAthletes.forEach((a,i)=>{
+        a.genderRank=i+1;
+      });
+
+    });
+
+    // ---------- Category Ranking ----------
+
+    [
+      "Under 18",
+      "19-30",
+      "31-45",
+      "46-60",
+      "Above 60"
+    ].forEach(category=>{
+
+      ["Male","Female"].forEach(g=>{
+
+        const athletes =
+          merged
+            .filter(a=>
+              a.category===category &&
+              a.gender===g
+            )
+            .sort((a,b)=>{
+
+              if(b.completedDays!==a.completedDays)
+                return b.completedDays-a.completedDays;
+
+              return b.totalKm-a.totalKm;
+
+            });
+
+        athletes.forEach((a,i)=>{
+          a.categoryRank=i+1;
+        });
+
+      });
+
+    });
+
+    // ---------- Selected Athlete ----------
+
+    const athlete =
+      merged.find(a=>a.athleteId===athleteId);
+
+    if(!athlete){
+      return res.status(404).json({
+        error:"Athlete not found"
+      });
+    }
+
+    // ---------- Daily Progress ----------
+
+    const dailySnapshot = [];
+
+    for(let day=1; day<=7; day++){
+
+      const doc = await db
+        .collection("challenge_snapshots")
+        .doc(`2026-07-0${day}`)
+        .get();
+
+      let km = 0;
+
+      if(doc.exists){
+
+        const lb =
+          doc.data().leaderboard || [];
+
+        const row =
+          lb.find(r=>r.athleteId===athleteId);
+
+        if(row){
+          km = row.today_km;
+        }
+
+      }
+
+      dailySnapshot.push({
+        day,
+        km
+      });
+
+    }
+
+    res.json({
+
+      name: athlete.name,
+
+      overallRank: athlete.overallRank,
+
+      genderRank: athlete.genderRank,
+
+      category: athlete.category,
+
+      categoryRank: athlete.categoryRank,
+
+      completedDays: athlete.completedDays,
+
+      totalKm: athlete.totalKm,
+
+      avgPace: athlete.avgPace,
+
+      days: dailySnapshot
+
+    });
+
+  } catch(err){
+
+    console.error(err);
+
+    res.status(500).json({
+      error: err.message
+    });
+
+  }
+});
 
 
 app.get("/auth/status", async (req, res) => {
