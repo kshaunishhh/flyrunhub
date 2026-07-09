@@ -26,12 +26,12 @@
   },
   {
     "name": "Sunny Shokeen",
-    "dob": "",
+    "dob": "1988-08-09",
     "gender": "Male"
   },
   {
     "name": "Shivani Adhikari",
-    "dob": "",
+    "dob": "1993-09-15",
     "gender": "Female"
   },
   {
@@ -40,12 +40,12 @@
     "gender": "Female"
   },
   {
-    "name": "Manish Munsha",
+    "name": "Manish MUSA",
     "dob": "",
     "gender": "Male"
   },
   {
-    "name": "Anish Kumar Mahanty",
+    "name": "Anish Mahanty",
     "dob": "",
     "gender": "Male"
   },
@@ -61,11 +61,11 @@
   },
   {
     "name": "Khangembam Nelson Meitei",
-    "dob": "",
+    "dob": "2001-01-17",
     "gender": "Male"
   },
   {
-    "name": "Rohit Shokeen",
+    "name": "The RoSho",
     "dob": "1987-10-06",
     "gender": "Male"
   },
@@ -90,13 +90,13 @@
     "gender": "Male"
   },
   {
-    "name": "Mukesh Kumar Gupta",
+    "name": "Mukesh Gupta",
     "dob": "",
     "gender": "Male"
   },
   {
     "name": "Nikhilesh Hari",
-    "dob": "",
+    "dob": "1986-11-04",
     "gender": "Male"
   },
   {
@@ -116,12 +116,12 @@
   },
   {
     "name": "Saurabh Ahuja",
-    "dob": "",
+    "dob": "1985-07-02",
     "gender": "Male"
   },
   {
     "name": "R. H. A. Sikander",
-    "dob": "",
+    "dob": "1990-05-07",
     "gender": "Male"
   },
   {
@@ -130,12 +130,12 @@
     "gender": "Male"
   },
   {
-    "name": "Naveen Kumar Bhagel",
-    "dob": "",
+    "name": "Naveen Kumar",
+    "dob": "1997-12-20",
     "gender": "Male"
   },
   {
-    "name": "GD GHOUSE PEER",
+    "name": "Ghouse Peer",
     "dob": "",
     "gender": "Male"
   },
@@ -241,14 +241,14 @@
   },
   {
     "name": "Jitendra Arora",
-    "dob": "",
+    "dob": "1979-08-07",
     "gender": "Male"
   },
   {
     "name": "Joginder Malik",
     "dob": "1966-11-15",
     "gender": "Male"
-  },
+    },
   {
     "name": "Daksh Dhankhar",
     "dob": "2004-03-21",
@@ -256,7 +256,7 @@
   },
   {
     "name": "Mohit Grover",
-    "dob": "",
+    "dob": "1992-08-28",
     "gender": "Male"
   },
   {
@@ -265,24 +265,24 @@
     "gender": "Male"
   },
   {
-    "name": "Srishti Nanduri",
-    "dob": "",
+    "name": "Srishti N",
+    "dob": "1999-10-03",
     "gender": "Female"
   },
   {
     "name": "Anil Panwar",
-    "dob": "",
+    "dob": "1972-11-01",
     "gender": "Male"
   },
   {
     "name": "Anmol Dogra",
-    "dob": "",
-    "gender": ""
+    "dob": "2011-03-18",
+    "gender": "Male"
   },
   {
     "name": "Smriti Chumbak",
     "dob": "1981-01-13",
-    "gender": ""
+    "gender": "Female"
   },
   {
     "name": "Rahul Singh",
