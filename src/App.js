@@ -116,6 +116,24 @@ const fetchChallengeResults = async () => {
     setLoading(false);
   }
 };
+const fetchAthleteResult = async (athleteId) => {
+  try {
+    setLoading(true);
+
+    const res = await axios.get(
+      `/challenge/results/${athleteId}`
+    );
+
+    setAthleteResult(res.data);
+
+    navigate("athleteResult");
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 const exportChallengeLeaderboard = async (type = exportType) => {
@@ -1511,7 +1529,12 @@ setShowOverall(!showOverall)
 
 <td>{getMedal(w.rank)}</td>
 
-<td>{w.name}</td>
+<td
+    className="clickable-athlete"
+    onClick={() => fetchAthleteResult(w.athleteId)}
+>
+    {w.name}
+</td>
 
 <td>{w.total} km</td>
 
@@ -1646,7 +1669,12 @@ category.title
 
 <td>{getMedal(w.rank)}</td>
 
-<td>{w.name}</td>
+<td
+    className="clickable-athlete"
+    onClick={() => fetchAthleteResult(w.athleteId)}
+>
+    {w.name}
+</td>
 
 <td>{w.total} km</td>
 
@@ -1680,9 +1708,17 @@ category.title
 </div>
 
 )}
-{view === "athleteResult" && athleteResult && (
+{view === "athleteResult" && (
+
+
 
 <div className="leaderboard">
+  {loading ? (
+  <p style={{ textAlign: "center", padding: "40px" }}>
+    Loading athlete...
+  </p>
+) : athleteResult && (
+  <>
 
 <h1>🏃 Athlete Result</h1>
 
@@ -1773,7 +1809,7 @@ Daily Progress
 
 <tbody>
 
-{athleteResult.days.map(day=>(
+{(athleteResult.days || []).map(day=>(
 
 <tr key={day.day}>
 
@@ -1811,7 +1847,9 @@ onClick={()=>navigate("challengeResults")}
 </button>
 
 </div>
+ </>
 
+)}
 </div>
 
 )}

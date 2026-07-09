@@ -1042,11 +1042,9 @@ margin-bottom:30px;
 
 .category-header{
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    margin-bottom:0;
-    gap:10px;
-    width:100%;
+    gap:12px;
+    width:auto;
 }
 
 .gender-toggle{
@@ -1115,13 +1113,12 @@ font-size:10px;
 .category-actions{
     display:flex;
     align-items:center;
-    gap:2px;
-    margin-left:auto;
+    gap:6px;
 }
 
 .category-arrow{
-    font-size:16px;
-    margin-left:2px;
+    font-size:18px;
+    margin-left:10px;
     color:white;
 }
 
@@ -1231,5 +1228,21 @@ margin-bottom:8px;
 font-size:22px;
 
 color:#ffb347;
+
+}
+
+.clickable-athlete{
+
+    cursor:pointer;
+
+    transition:.25s;
+
+}
+
+.clickable-athlete:hover{
+
+    color:#ffb347;
+
+    transform:translateX(4px);
 
 }
