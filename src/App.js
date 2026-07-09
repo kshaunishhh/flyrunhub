@@ -45,13 +45,23 @@ function App() {
 
 const [openCategory, setOpenCategory] = useState(null);
 
+const [search,setSearch]=useState("");
+
+const [challengeResults, setChallengeResults] = useState({
+  overall: [],
+  categories: [],
+});
+
+const [results,setResults]=useState([]);
+
+
+
 const getMedal = (rank) => {
   if (rank === 1) return "🥇";
   if (rank === 2) return "🥈";
   if (rank === 3) return "🥉";
   return rank;
 };
-
 
 
 
@@ -84,6 +94,26 @@ useEffect(() => {
     return () => clearTimeout(hide);
   }
 }, [showToast]);
+
+const fetchChallengeResults = async () => {
+  try {
+    setLoading(true);
+
+    const res = await axios.get("/challenge/results");
+
+    setChallengeResults({
+      overall: res.data.overall,
+      categories: res.data.categories,
+    });
+
+    setResults(res.data.search);
+
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 const exportChallengeLeaderboard = async (type = exportType) => {
@@ -533,110 +563,7 @@ const communitySecondHalf = {
   )
 };
 
-const myResult = {
 
-  name: athlete?.firstname || "Guest",
-
-  overallRank: 18,
-  overallTotal: 56,
-
-  ageCategory: "18–29",
-  ageRank: 3,
-  ageTotal: 14,
-
-  gender: "Male",
-  genderRank: 15,
-  genderTotal: 41,
-
-  totalKm: 63.42
-
-};
-
-const challengeResults = {
-
-  overall: [
-
-    {
-      rank:1,
-      name:"dummy data",
-      total:84.6
-    },
-
-    {
-      rank:2,
-      name:"dummy data",
-      total:82.3
-    },
-
-    {
-      rank:3,
-      name:"dummy data",
-      total:80.4
-    }
-
-  ],
-
-  categories:[
-
-    {
-
-      title:"18–29",
-
-      winners:[
-
-        {
-          rank:1,
-          name:"dummy data",
-          total:84.6
-        },
-
-        {
-          rank:2,
-          name:"dummy data",
-          total:82.3
-        },
-
-        {
-          rank:3,
-          name:"dummy data",
-          total:79.8
-        }
-
-      ]
-
-    },
-
-    {
-
-      title:"30–39",
-
-      winners:[
-
-        {
-          rank:1,
-          name:"dummy data",
-          total:80.4
-        },
-
-        {
-          rank:2,
-          name:"dummy data",
-          total:77.2
-        },
-
-        {
-          rank:3,
-          name:"dummy data",
-          total:75.8
-        }
-
-      ]
-
-    }
-
-  ]
-
-};
 
   return (
     <div className="App">
@@ -1477,49 +1404,58 @@ Ranks {communitySplitIndex + 1}–
 RUNFINITY 7×7 Challenge
 
 </p>
-  <div className="challenge-info-card">
 
-<h3>🏅 Your Result</h3>
+<h3 className="challenge-section-title">
+🔍 Search Athlete
+</h3>
 
-<p>
-👤 <strong>{myResult.name}</strong>
-</p>
+<input
+  className="results-search"
+  type="text"
+  placeholder="Search by athlete name..."
+  value={search}
+  onChange={(e)=>setSearch(e.target.value)}
+/>
 
-<p>
-🏆 Overall Rank
-<strong>
- #{myResult.overallRank}
-</strong>
- / {myResult.overallTotal}
-</p>
 
-<p>
-🎂 {myResult.ageCategory}
-<strong>
- #{myResult.ageRank}
-</strong>
- / {myResult.ageTotal}
-</p>
+{search.trim() !== "" && (
+<div className="search-results">
 
-<p>
-{myResult.gender === "Male" ? "♂️" : "♀️"}
- {myResult.gender}
+{results
+.filter(r=>
+r.name.toLowerCase()
+.includes(search.toLowerCase())
+)
+.slice(0,8)
+.map(r=>(
 
-<strong>
- #{myResult.genderRank}
-</strong>
- / {myResult.genderTotal}
-</p>
+<button
+key={r.athleteId}
+className="history-btn"
 
-<p>
-📏 Total Distance
+onClick={()=>{
 
-<strong>
- {myResult.totalKm} km
-</strong>
-</p>
+// open athlete page later
+
+}}
+
+>
+
+{r.name}
+
+<span>
+
+#{r.overallRank}
+
+</span>
+
+</button>
+
+))}
 
 </div>
+)}
+  
 
 <button
 className="history-btn"
@@ -1823,7 +1759,10 @@ category.title
 
 <button
   className="history-btn"
-  onClick={() => navigate("challengeResults")}
+  onClick={() => {
+  fetchChallengeResults();
+  navigate("challengeResults");
+}}
 >
   🏆 Final Results
 </button>

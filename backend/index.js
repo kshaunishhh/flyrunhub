@@ -661,6 +661,223 @@ const requireAuth = async (req, res, next) => {
   next();
 };
 
+app.get("/challenge/results", async (req, res) => {
+  try {
+
+    // Final challenge snapshot
+    const snapshotDoc = await db
+      .collection("challenge_snapshots")
+      .doc("2026-07-07")
+      .get();
+
+    if (!snapshotDoc.exists) {
+      return res.status(404).json({
+        error: "Challenge results not available yet."
+      });
+    }
+
+    let leaderboard = snapshotDoc.data().leaderboard || [];
+
+    // Load participant profiles
+    const profilesSnap = await db
+      .collection("participant_profiles")
+      .get();
+
+    const profiles = {};
+
+    profilesSnap.forEach(doc => {
+      profiles[doc.id] = doc.data();
+    });
+
+    // Merge leaderboard + profile
+    const merged = leaderboard.map(row => {
+
+      const profile =
+        profiles[String(row.athleteId)] || {};
+
+      const age = calculateAge(profile.dob);
+
+      return {
+
+        athleteId: row.athleteId,
+
+        name: row.name,
+
+        total: row.total_km,
+
+        completedDays: row.completedDays,
+
+        age,
+
+        gender: profile.gender || "Unknown",
+
+        category: getAgeCategory(age)
+
+      };
+
+    });
+
+    // Overall ranking
+    merged.sort((a,b)=>{
+
+      if (b.completedDays !== a.completedDays)
+        return b.completedDays-a.completedDays;
+
+      return b.total-a.total;
+
+    });
+
+    merged.forEach((a,i)=>{
+
+      a.overallRank=i+1;
+
+    });
+
+    // Overall winners
+    const overall =
+      merged
+      .slice(0,3)
+      .map(a=>({
+
+        rank:a.overallRank,
+
+        name:a.name,
+
+        total:a.total
+
+      }));
+
+    // Categories
+    const categoryNames = [
+
+      "Under 18",
+
+      "19-30",
+
+      "31-45",
+
+      "46-60",
+
+      "Above 60"
+
+    ];
+
+    const categories=[];
+
+    for(const category of categoryNames){
+
+      const athletes=
+        merged
+        .filter(a=>a.category===category)
+        .sort((a,b)=>{
+
+          if(b.completedDays!==a.completedDays)
+            return b.completedDays-a.completedDays;
+
+          return b.total-a.total;
+
+        });
+
+      athletes.forEach((a,i)=>{
+
+        a.categoryRank=i+1;
+
+      });
+
+      categories.push({
+
+        title:category,
+
+        winners:
+          athletes
+          .slice(0,3)
+          .map(a=>({
+
+            rank:a.categoryRank,
+
+            name:a.name,
+
+            total:a.total
+
+          }))
+
+      });
+
+    }
+
+    // Gender ranking
+    ["Male","Female"].forEach(g=>{
+
+      const genderAthletes=
+        merged
+        .filter(a=>a.gender===g)
+        .sort((a,b)=>{
+
+          if(b.completedDays!==a.completedDays)
+            return b.completedDays-a.completedDays;
+
+          return b.total-a.total;
+
+        });
+
+      genderAthletes.forEach((a,i)=>{
+
+        a.genderRank=i+1;
+
+      });
+
+    });
+
+    // Search data
+    const search =
+      merged.map(a=>({
+
+        athleteId:a.athleteId,
+
+        name:a.name,
+
+        overallRank:a.overallRank,
+
+        genderRank:a.genderRank,
+
+        ageRank:a.categoryRank,
+
+        gender:a.gender,
+
+        category:a.category,
+
+        total:a.total,
+
+        completedDays:a.completedDays
+
+      }));
+
+    res.json({
+
+      overall,
+
+      categories,
+
+      search
+
+    });
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    res.status(500).json({
+
+      error:err.message
+
+    });
+
+  }
+
+});
+
 
 app.get("/auth/status", async (req, res) => {
   console.log("SESSION", req.session);
@@ -1578,6 +1795,47 @@ name: fullName,
 
 });
 
+function calculateAge(dob) {
+
+  if (!dob) return null;
+
+  const birth = new Date(dob);
+
+  const challengeEnd = new Date("2026-07-07");
+
+  let age =
+    challengeEnd.getFullYear() -
+    birth.getFullYear();
+
+  const m =
+    challengeEnd.getMonth() -
+    birth.getMonth();
+
+  if (
+    m < 0 ||
+    (m === 0 &&
+      challengeEnd.getDate() <
+      birth.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+
+}
+
+function getAgeCategory(age) {
+
+  if (age == null) return "Unknown";
+
+  if (age < 18) return "Under 18";
+  if (age <= 30) return "19-30";
+  if (age <= 45) return "31-45";
+  if (age <= 60) return "46-60";
+
+  return "Above 60";
+}
+
 app.get("/admin/export-challenge", async (req, res) => {
   try {
 
@@ -1617,6 +1875,8 @@ app.get("/challenge/:date", async (req, res) => {
     timeZone: "Asia/Kolkata"
   })
 );
+
+
 
 const today =
   todayIST.toISOString().slice(0,10);

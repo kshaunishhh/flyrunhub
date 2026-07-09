@@ -996,3 +996,43 @@ body {
 }
 
 }
+
+.results-search{
+
+width:100%;
+
+padding:14px 18px;
+
+margin:18px 0;
+
+border-radius:16px;
+
+border:2px solid #333;
+
+background:#111;
+
+color:white;
+
+font-size:16px;
+
+outline:none;
+
+}
+
+.results-search:focus{
+
+border-color:#ff0080;
+
+}
+
+.search-results{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+margin-bottom:30px;
+
+}
