@@ -1036,3 +1036,46 @@ gap:10px;
 margin-bottom:30px;
 
 }
+
+.category-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    gap:12px;
+}
+
+.gender-toggle{
+    display:flex;
+    gap:6px;
+}
+
+.toggle-btn{
+    border:none;
+    padding:6px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.25s;
+    opacity:.6;
+}
+
+.toggle-btn.active{
+    opacity:1;
+}
+
+.toggle-btn.male{
+    background:#1E88E5;
+    color:white;
+}
+
+.toggle-btn.female{
+    background:#EC407A;
+    color:white;
+}
+
+.toggle-btn:not(.active){
+    background:#2b2b2b;
+    color:#bbb;
+}

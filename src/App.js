@@ -51,7 +51,7 @@ const [challengeResults, setChallengeResults] = useState({
   overall: [],
   categories: [],
 });
-
+const [genderFilter, setGenderFilter] = useState({});
 const [results,setResults]=useState([]);
 
 
@@ -1541,7 +1541,51 @@ category.title
 
 >
 
-🏅 {category.title}
+<div className="category-header">
+
+  <h3>{category.title}</h3>
+
+  <div className="gender-toggle">
+
+    <button
+      className={
+        (genderFilter[category.title] || "M") === "M"
+          ? "toggle-btn male active"
+          : "toggle-btn male"
+      }
+      onClick={(e) => {
+        e.stopPropagation();
+
+        setGenderFilter({
+          ...genderFilter,
+          [category.title]: "M",
+        });
+      }}
+    >
+      M
+    </button>
+
+    <button
+      className={
+        (genderFilter[category.title] || "M") === "F"
+          ? "toggle-btn female active"
+          : "toggle-btn female"
+      }
+      onClick={(e) => {
+        e.stopPropagation();
+
+        setGenderFilter({
+          ...genderFilter,
+          [category.title]: "F",
+        });
+      }}
+    >
+      F
+    </button>
+
+  </div>
+
+</div>
 
 {openCategory===category.title
 
@@ -1577,7 +1621,10 @@ category.title
 
 <tbody>
 
-{category.winners.map(w=>(
+{(
+  (genderFilter[category.title] || "M") === "M"
+    ? category.male
+    : category.female).map(w=>(
 
 <tr key={w.rank}>
 

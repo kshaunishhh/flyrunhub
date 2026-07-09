@@ -8,6 +8,7 @@ const axios = require("axios");
 
 const db = require("./firestore");
 const profiles = require("./data/challenge_profiles.json");
+const FINAL_CHALLENGE_DATE = "2026-07-07";
 
 app.set("trust proxy",1);
 let cachedLeaderboards = {};
@@ -667,7 +668,7 @@ app.get("/challenge/results", async (req, res) => {
     // Final challenge snapshot
     const snapshotDoc = await db
       .collection("challenge_snapshots")
-      .doc("2026-07-07")
+      .doc(FINAL_CHALLENGE_DATE)
       .get();
 
     if (!snapshotDoc.exists) {
@@ -699,21 +700,25 @@ app.get("/challenge/results", async (req, res) => {
 
       return {
 
-        athleteId: row.athleteId,
+    athleteId: row.athleteId,
 
-        name: row.name,
+    name: row.name,
 
-        total: row.total_km,
+    total: row.total_km,
 
-        completedDays: row.completedDays,
+    todayKm: row.today_km,
 
-        age,
+    avgPace: row.avg_pace,
 
-        gender: profile.gender || "Unknown",
+    completedDays: row.completedDays,
 
-        category: getAgeCategory(age)
+    age,
 
-      };
+    gender: profile.gender || "Unknown",
+
+    category: getAgeCategory(age)
+
+};
 
     });
 
@@ -738,6 +743,7 @@ app.get("/challenge/results", async (req, res) => {
       merged
       .slice(0,3)
       .map(a=>({
+        athleteId:a.athleteId,
 
         rank:a.overallRank,
 
@@ -784,24 +790,45 @@ app.get("/challenge/results", async (req, res) => {
 
       });
 
-      categories.push({
+      const maleAthletes = athletes.filter(
+  a => a.gender === "Male"
+);
 
-        title:category,
+maleAthletes.forEach((a, i) => {
+  a.categoryRank = i + 1;
+});
 
-        winners:
-          athletes
-          .slice(0,3)
-          .map(a=>({
+const femaleAthletes = athletes.filter(
+  a => a.gender === "Female"
+);
 
-            rank:a.categoryRank,
+femaleAthletes.forEach((a, i) => {
+  a.categoryRank = i + 1;
+});
 
-            name:a.name,
+categories.push({
 
-            total:a.total
+  title: category,
 
-          }))
+  male: maleAthletes
+    .slice(0,3)
+    .map(a=>({
+      athleteId:a.athleteId,
+      rank:a.categoryRank,
+      name:a.name,
+      total:a.total
+    })),
 
-      });
+  female: femaleAthletes
+    .slice(0,3)
+    .map(a=>({
+      athleteId:a.athleteId,
+      rank:a.categoryRank,
+      name:a.name,
+      total:a.total
+    }))
+
+});
 
     }
 
@@ -832,35 +859,46 @@ app.get("/challenge/results", async (req, res) => {
     const search =
       merged.map(a=>({
 
-        athleteId:a.athleteId,
+       athleteId:a.athleteId,
 
-        name:a.name,
+name:a.name,
 
-        overallRank:a.overallRank,
+overallRank:a.overallRank,
 
-        genderRank:a.genderRank,
+genderRank:a.genderRank,
 
-        ageRank:a.categoryRank,
+categoryRank:a.categoryRank,
 
-        gender:a.gender,
+gender:a.gender,
 
-        category:a.category,
+age:a.age,
 
-        total:a.total,
+category:a.category,
 
-        completedDays:a.completedDays
+todayKm:a.todayKm,
 
+total:a.total,
+
+completedDays:a.completedDays,
+
+avgPace:a.avgPace
       }));
 
     res.json({
 
-      overall,
+challenge:"7x7-2026",
 
-      categories,
+date:"2026-07-07",
 
-      search
+generatedAt:snapshotDoc.data().generatedAt,
 
-    });
+overall,
+
+categories,
+
+search
+
+});
 
   }
 
@@ -1363,7 +1401,7 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
     // STEP 3: CACHE BASE LEADERBOARD
     if (
       !cachedLeaderboards["base"] ||
-      now - cachedLeaderboards["base"].generatedAt > 360 * 60 * 1000 // 6 hours
+      now - cachedLeaderboards["base"].generatedAt > 90 * 60 * 1000 // 6 hours
     ) {
       let requestedBy = "Guest";
 
