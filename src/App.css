@@ -1129,3 +1129,107 @@ font-size:10px;
     margin:0;
     font-size:1.15rem;
 }
+
+.search-result-card{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:12px 16px;
+
+    margin-bottom:8px;
+
+    background:#171722;
+
+    border:1px solid rgba(255,255,255,.06);
+
+    border-radius:14px;
+
+    color:white;
+
+    font-size:15px;
+    font-weight:600;
+
+    cursor:pointer;
+
+    transition:.2s;
+}
+
+.search-result-card:hover{
+    border-color:#ff0080;
+    transform:translateY(-1px);
+}
+
+.search-result-card span{
+    color:#ffb347;
+    font-weight:700;
+}
+
+.athlete-card{
+
+background:#171722;
+
+border-radius:22px;
+
+padding:25px;
+
+margin-bottom:25px;
+
+box-shadow:0 0 18px rgba(255,0,130,.12);
+
+}
+
+.athlete-card h2{
+
+text-align:center;
+
+margin-bottom:25px;
+
+font-size:32px;
+
+color:white;
+
+}
+
+.athlete-stats{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+
+gap:18px;
+
+}
+
+.athlete-stat{
+
+background:#101018;
+
+padding:16px;
+
+border-radius:16px;
+
+text-align:center;
+
+}
+
+.athlete-stat span{
+
+display:block;
+
+font-size:14px;
+
+color:#bbbbbb;
+
+margin-bottom:8px;
+
+}
+
+.athlete-stat strong{
+
+font-size:22px;
+
+color:#ffb347;
+
+}

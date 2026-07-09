@@ -53,6 +53,8 @@ const [challengeResults, setChallengeResults] = useState({
 });
 const [genderFilter, setGenderFilter] = useState({});
 const [results,setResults]=useState([]);
+const [selectedAthlete,setSelectedAthlete]=useState(null);
+const [athleteResult,setAthleteResult]=useState(null);
 
 
 
@@ -1431,12 +1433,24 @@ r.name.toLowerCase()
 
 <button
 key={r.athleteId}
-className="history-btn"
+className="search-result-card"
 
-onClick={()=>{
+onClick={async () => {
+  try {
 
-// open athlete page later
+    const res = await axios.get(
+      `/challenge/results/${r.athleteId}`
+    );
 
+    setAthleteResult(res.data);
+
+    setSelectedAthlete(r);
+
+    navigate("athleteResult");
+
+  } catch (err) {
+    console.error(err);
+  }
 }}
 
 >
@@ -1666,6 +1680,142 @@ category.title
 </div>
 
 )}
+{view === "athleteResult" && athleteResult && (
+
+<div className="leaderboard">
+
+<h1>🏃 Athlete Result</h1>
+
+<p className="challenge-tagline">
+RUNFINITY 7×7 Challenge
+</p>
+
+<div className="athlete-card">
+
+<h2>{athleteResult.name}</h2>
+
+<div className="athlete-stats">
+
+<div className="athlete-stat">
+<span>🏆 Overall Rank</span>
+<strong>
+#{athleteResult.overallRank}
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>👤 Gender Rank</span>
+<strong>
+#{athleteResult.genderRank}
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>🎂 Age Category</span>
+<strong>
+{athleteResult.category}
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>🥇 Category Rank</span>
+<strong>
+#{athleteResult.categoryRank}
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>🔥 Completed</span>
+<strong>
+{athleteResult.completedDays}/7
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>📏 Total Distance</span>
+<strong>
+{athleteResult.totalKm} km
+</strong>
+</div>
+
+<div className="athlete-stat">
+<span>⚡ Avg Pace</span>
+<strong>
+{athleteResult.avgPace}
+</strong>
+</div>
+
+</div>
+
+</div>
+
+<h3 className="challenge-section-title">
+
+Daily Progress
+
+</h3>
+
+<div className="table-wrapper">
+
+<table className="leaderboard-table">
+
+<thead>
+
+<tr>
+
+<th>Day</th>
+
+<th>Distance</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{athleteResult.days.map(day=>(
+
+<tr key={day.day}>
+
+<td>
+
+Day {day.day}
+
+</td>
+
+<td>
+
+{day.km} km
+
+</td>
+
+</tr>
+
+))}
+
+</tbody>
+
+</table>
+
+</div>
+
+<div className="bottom-actions">
+
+<button
+className="back-btn"
+onClick={()=>navigate("challengeResults")}
+>
+
+← Back
+
+</button>
+
+</div>
+
+</div>
+
+)}
+
 
 {view === "sevenForSeven" && (
 
