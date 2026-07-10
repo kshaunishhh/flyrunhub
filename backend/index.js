@@ -2070,9 +2070,9 @@ function getAgeCategory(age) {
   if (age == null) return "Unknown";
 
   if (age < 18) return "Under 18";
-  if (age <= 30) return "19-30";
-  if (age <= 45) return "31-45";
-  if (age <= 60) return "46-60";
+  if (age < 30) return "19-29";
+  if (age < 45) return "30-44";
+  if (age < 60) return "45-59";
 
   return "Above 60";
 }
