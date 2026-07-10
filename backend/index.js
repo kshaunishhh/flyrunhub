@@ -758,11 +758,11 @@ app.get("/challenge/results", async (req, res) => {
 
       "Under 18",
 
-      "19-30",
+      "19-29",
 
-      "31-45",
+      "30-44",
 
-      "46-60",
+      "45-59",
 
       "Above 60"
 
@@ -1010,9 +1010,9 @@ app.get("/challenge/results/:athleteId", async (req, res) => {
 
     [
       "Under 18",
-      "19-30",
-      "31-45",
-      "46-60",
+      "19-29",
+      "30-44",
+      "45-59",
       "Above 60"
     ].forEach(category=>{
 
