@@ -1604,7 +1604,7 @@ app.get("/community/leaderboard/weekly", async (req, res) => {
     // STEP 3: CACHE BASE LEADERBOARD
     if (
       !cachedLeaderboards["base"] ||
-      now - cachedLeaderboards["base"].generatedAt > 90 * 60 * 1000 // 6 hours
+      now - cachedLeaderboards["base"].generatedAt > 30 * 60 * 1000 // 6 hours
     ) {
       let requestedBy = "Guest";
 
