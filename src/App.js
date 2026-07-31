@@ -25,6 +25,7 @@ function App() {
   const [showToast, setShowToast] = useState(false);
   const [prevCommunity, setPrevCommunity] = useState([]);
   const [selectedTypes, setSelectedTypes] = useState(["Run"]);
+  const [distanceView, setDistanceView] = useState("weekly");
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [challengeData, setChallengeData] = useState([]);
@@ -377,7 +378,7 @@ useEffect(() => {
     fetchHistory();
   }
 
-}, [view, communityView, selectedTypes]);
+}, [view, communityView, selectedTypes, distanceView]);
 const fetchHistory = async () => {
   try {
     setLoading(true);
@@ -396,8 +397,8 @@ const fetchCommunityLeaderboard = async () => {
   try {
     setLoading(true);
     const res = await axios.get(
-  `/community/leaderboard/weekly?types=${selectedTypes.join(",")}`
-);
+`/community/leaderboard/weekly?types=${selectedTypes.join(",")}&metric=${distanceView}`
+    );
 setCommunityUpdatedAt(res.data.generatedAt);
 
     const newData = Array.isArray(res.data.leaderboard)
@@ -922,7 +923,20 @@ const communitySecondHalf = {
               <tr>
                 <th>Rank</th>
                 <th>Athlete</th>
-                <th>Weekly KM</th>
+                <th>
+  <div className="challenge-select-wrapper">
+    <select
+      className="challenge-select"
+      value={distanceView}
+      onChange={(e) => setDistanceView(e.target.value)}
+    >
+      <option value="weekly">Weekly KM</option>
+      <option value="monthly">Monthly KM</option>
+    </select>
+
+    <span className="challenge-arrow">▼</span>
+  </div>
+</th>
                 <th>
   <div className="activity-filter">
     <div

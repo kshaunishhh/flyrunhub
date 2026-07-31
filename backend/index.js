@@ -355,44 +355,72 @@ if (
   accessToken = await refreshStravaToken(athlete);
 }
 
-      const response = await axios.get(
-        "https://www.strava.com/api/v3/athlete/activities",
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-          params: {
-            after: Math.floor(weekStart.getTime() / 1000),
-            before: Math.floor(weekEnd.getTime() / 1000),
-            per_page: 50,
-          },
-        }
-      );
+const monthStart = new Date();
+monthStart.setDate(1);
+monthStart.setHours(0, 0, 0, 0);
 
-      const weeklyTotals = {
-        Run: 0,
-        Walk: 0,
-        Ride: 0
-      };
+const response = await axios.get(
+  "https://www.strava.com/api/v3/athlete/activities",
+  {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    },
+    params: {
+      after: Math.floor(monthStart.getTime() / 1000),
+      per_page: 100
+    }
+  }
+);
 
-      const weeklyCounts = {
-        Run: 0,
-        Walk: 0,
-        Ride: 0
-      };
+const weeklyTotals = {
+  Run: 0,
+  Walk: 0,
+  Ride: 0
+};
 
-      response.data.forEach(a => {
-        const type = normalizeType(a.type);
-        if (!type) return;
+const weeklyCounts = {
+  Run: 0,
+  Walk: 0,
+  Ride: 0
+};
 
-        weeklyTotals[type] += a.distance / 1000;
-        weeklyCounts[type] += 1;
-      });
+const monthlyTotals = {
+  Run: 0,
+  Walk: 0,
+  Ride: 0
+};
 
-      leaderboard.push({
-        athleteId: athlete.athleteId,
-        name: `${athlete.firstname} ${athlete.lastname}`,
-        weeklyTotals,
-        weeklyCounts
-      });
+const monthlyCounts = {
+    Run:0,
+    Walk:0,
+    Ride:0
+};
+
+response.data.forEach(a => {
+  const type = normalizeType(a.type);
+  if (!type) return;
+
+  const date = new Date(a.start_date_local);
+
+  // Monthly
+  monthlyTotals[type] += a.distance / 1000;
+  monthlyCounts[type]++;
+
+  // Weekly
+  if (date >= weekStart && date <= weekEnd) {
+    weeklyTotals[type] += a.distance / 1000;
+    weeklyCounts[type]++;
+  }
+});
+
+leaderboard.push({
+  athleteId: athlete.athleteId,
+  name: `${athlete.firstname} ${athlete.lastname}`,
+  weeklyTotals,
+  monthlyTotals,
+  weeklyCounts,
+  monthlyCounts
+});
 
     } catch (err) {
   console.log(
@@ -1638,9 +1666,17 @@ console.log(
       let totalKm = 0;
       let totalCount = 0;
 
+    const metric = req.query.metric || "weekly";
+
+
       selectedTypes.forEach(type => {
-        totalKm += a.weeklyTotals[type] || 0;
-        totalCount += a.weeklyCounts[type] || 0;
+        if (metric === "weekly") {
+          totalKm += a.weeklyTotals[type] || 0;
+          totalCount += a.weeklyCounts[type] || 0;
+        } else if (metric === "monthly") {
+          totalKm += a.monthlyTotals[type] || 0;
+          totalCount += a.monthlyCounts[type] || 0;
+        }
       });
 
 return {
