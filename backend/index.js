@@ -355,9 +355,18 @@ if (
   accessToken = await refreshStravaToken(athlete);
 }
 
-const monthStart = new Date();
-monthStart.setDate(1);
-monthStart.setHours(0, 0, 0, 0);
+const now = new Date();
+const IST_OFFSET = 5.5 * 60 * 60 * 1000;
+
+const nowIST = new Date(now.getTime() + IST_OFFSET);
+nowIST.setUTCDate(1);
+nowIST.setUTCHours(0, 0, 0, 0);
+
+const monthStart = new Date(nowIST.getTime() - IST_OFFSET);
+
+const fetchStart = new Date(
+  Math.min(weekStart.getTime(), monthStart.getTime())
+);
 
 const response = await axios.get(
   "https://www.strava.com/api/v3/athlete/activities",
@@ -366,7 +375,7 @@ const response = await axios.get(
       Authorization: `Bearer ${accessToken}`
     },
     params: {
-      after: Math.floor(monthStart.getTime() / 1000),
+      after: Math.floor(fetchStart.getTime() / 1000),
       per_page: 100
     }
   }
@@ -400,14 +409,17 @@ response.data.forEach(a => {
   const type = normalizeType(a.type);
   if (!type) return;
 
-  const date = new Date(a.start_date_local);
+  const date = new Date(a.start_date);
 
   // Monthly
+  // Monthly: include only activities from the current IST month
+if (date >= monthStart) {
   monthlyTotals[type] += a.distance / 1000;
   monthlyCounts[type]++;
+}
 
   // Weekly
-  if (date >= weekStart && date <= weekEnd) {
+  if (date >= weekStart && date < weekEnd) {
     weeklyTotals[type] += a.distance / 1000;
     weeklyCounts[type]++;
   }
